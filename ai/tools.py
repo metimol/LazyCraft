@@ -10,7 +10,7 @@ async def search_in_kleinanzeigen(query: str, radius: int, max_price: int):
 
     Maximal item price should be integer from 0 to 500
     Radius should be integer and can be only 5, 10, 20, 30, 50, 100, 150 or 200
-    Query should be less than 30 characters
+    Query must be less than 30 characters long and must be in German only.
     """
     if max_price < 0 or max_price > 500:
         raise ValueError("Max price should be between 0 and 500")
