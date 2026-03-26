@@ -1,0 +1,16 @@
+from langchain.agents import create_agent
+from langchain.chat_models import init_chat_model
+
+from const import GOOGLE_API_KEY, phrases, THINKING_BUDGET
+from ai.tools import search_in_kleinanzeigen
+
+model = init_chat_model(
+    model="google_genai:gemini-3-flash-preview",
+    api_key=GOOGLE_API_KEY,
+    thinking_config={
+        "include_thoughts": True,
+        "thinking_budget": THINKING_BUDGET
+    }
+)
+
+agent = create_agent(model, tools=[search_in_kleinanzeigen], system_prompt=phrases.get_value("SYSTEM_PROMPT"), name=phrases.get_value("NAME"))
