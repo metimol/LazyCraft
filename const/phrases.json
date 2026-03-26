@@ -1,3 +1,7 @@
 {
-  "SYSTEM_PROMPT": ""
+  "SYSTEM_PROMPT": "",
+  "NAME": "Lazy",
+  "SEARCHING_WITH_QUERY": "⏳ Ищу <b>{query}</b> на Kleinanzeigen...",
+  "CHECKED_PAGES": "📄 Проверено страниц: {page}",
+  "ITEMS_FOUNDED": "✅ Найдено товаров: {count}"
 }

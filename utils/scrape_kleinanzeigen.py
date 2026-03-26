@@ -67,7 +67,8 @@ def parse_page(html: str) -> list:
 
 
 async def scrape_all_pages(radius: int, query: str, max_price: int,
-                           max_pages: int = 50, location_name: str = "grafenberg", location_id: str = "l11400"):
+                           max_pages: int = 50, location_name: str = "grafenberg", location_id: str = "l11400",
+                           progress_callback=None):
     all_results = []
     seen_signatures = set()
 
@@ -90,6 +91,9 @@ async def scrape_all_pages(radius: int, query: str, max_price: int,
                     seen_signatures.add(signature)
                     all_results.append(item)
                     new_items_count += 1
+
+            if progress_callback:
+                await progress_callback(page, len(all_results))
 
             if new_items_count == 0:
                 break

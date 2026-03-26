@@ -4,3 +4,4 @@ langchain[google-genai]==1.2.13
 langchain-google-genai==4.2.1
 curl-cffi==0.14.0
 beautifulsoup4==4.14.3
+contextvars==2.4

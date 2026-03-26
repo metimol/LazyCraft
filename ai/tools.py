@@ -1,5 +1,8 @@
 from langchain.tools import tool
 from utils.scrape_kleinanzeigen import scrape_all_pages
+from ai.context import current_message
+from const import phrases
+
 
 @tool
 async def search_in_kleinanzeigen(query: str, radius: int, max_price: int):
@@ -18,14 +21,38 @@ async def search_in_kleinanzeigen(query: str, radius: int, max_price: int):
     if radius not in [5, 10, 20, 30, 50, 100, 150, 200]:
         raise ValueError("Radius should be one of 5, 10, 20, 30, 50, 100, 150 or 200")
 
-    if len(query)>30:
+    if len(query) > 30:
         raise ValueError("Query should be less than 30 characters")
 
+    msg = current_message.get()
 
-    items = await scrape_all_pages(radius=radius, query=query, max_price=max_price)
+    status_msg = await msg.answer(phrases.get_value("SEARCHING_WITH_QUERY").format(query=query))
+
+    async def update_progress(page: int, found_count: int):
+        try:
+            await status_msg.edit_text(
+                f"{phrases.get_value('SEARCHING_WITH_QUERY').format(query=query)}\n\n"
+                f"{phrases.get_value('CHECKED_PAGES').format(page=page)}\n"
+                f"{phrases.get_value('ITEMS_FOUNDED').format(count=found_count)}"
+            )
+        except Exception:
+            pass
+
+    items = await scrape_all_pages(
+        radius=radius,
+        query=query,
+        max_price=max_price,
+        progress_callback=update_progress
+    )
+
+    try:
+        await status_msg.delete()
+    except Exception:
+        pass
+
     markdown_table = "| Name | Price | Distance | URL |\n| --- | --- | --- | --- |\n"
 
     for item in items:
-        markdown_table.join(f"| {item['title']} | {item['price']} | {item['distance']} | {item['link']} |\n")
+        markdown_table += f"| {item['title']} | {item['price']} | {item['distance']} | {item['link']} |\n"
 
     return markdown_table
