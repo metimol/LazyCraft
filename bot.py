@@ -8,7 +8,7 @@ from aiogram.enums import ParseMode
 from aiogram.filters import CommandStart, Command
 from aiogram.types import Message
 
-from const import BOT_TOKEN, phrases
+from const import BOT_TOKEN, phrases, ALLOWED_USERS
 from utils.processing import text_processing
 
 dp = Dispatcher()
@@ -46,7 +46,10 @@ async def text_handler(message: Message) -> None:
     This handler receives messages with text
     """
 
-    await text_processing(message)
+    if message.from_user.id in ALLOWED_USERS:
+        await text_processing(message)
+    else:
+        await message.answer(phrases.get_value("UNAUTHORIZED_USER"))
 
 
 @dp.message(~F.text)
