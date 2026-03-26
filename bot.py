@@ -59,6 +59,9 @@ async def not_supported_format(message: Message) -> None:
 
 
 async def main() -> None:
+    # Initialize Bot Phrases
+    await phrases.load_files()
+
     # Initialize Bot instance
     bot = Bot(token=BOT_TOKEN, default=DefaultBotProperties(parse_mode=ParseMode.HTML))
 
