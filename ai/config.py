@@ -2,7 +2,7 @@ from langchain.agents import create_agent
 from langchain.chat_models import init_chat_model
 
 from const import GOOGLE_API_KEY, phrases, THINKING_BUDGET
-from ai.tools import search_in_kleinanzeigen
+from ai.tools import search_in_kleinanzeigen, get_free_items
 
 model = init_chat_model(
     model="google_genai:gemini-3-flash-preview",
@@ -10,5 +10,4 @@ model = init_chat_model(
     thinking_budget=THINKING_BUDGET
 )
 
-print(phrases.get_value("SYSTEM_PROMPT"))
-agent = create_agent(model, tools=[search_in_kleinanzeigen], system_prompt=phrases.get_value("SYSTEM_PROMPT"), name=phrases.get_value("NAME"))
+agent = create_agent(model, tools=[search_in_kleinanzeigen, get_free_items], system_prompt=phrases.get_value("SYSTEM_PROMPT"), name=phrases.get_value("NAME"))
