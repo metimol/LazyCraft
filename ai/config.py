@@ -7,10 +7,8 @@ from ai.tools import search_in_kleinanzeigen
 model = init_chat_model(
     model="google_genai:gemini-3-flash-preview",
     api_key=GOOGLE_API_KEY,
-    thinking_config={
-        "include_thoughts": True,
-        "thinking_budget": THINKING_BUDGET
-    }
+    thinking_budget=THINKING_BUDGET
 )
 
+print(phrases.get_value("SYSTEM_PROMPT"))
 agent = create_agent(model, tools=[search_in_kleinanzeigen], system_prompt=phrases.get_value("SYSTEM_PROMPT"), name=phrases.get_value("NAME"))

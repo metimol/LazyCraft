@@ -5,12 +5,18 @@ from bs4 import BeautifulSoup
 
 
 def build_url(location_name: str, location_id: str, radius: int, query: str, max_price: int, page: int) -> str:
-    safe_query = query.lower().replace(" ", "-")
     safe_location = location_name.lower().replace(" ", "-")
 
+    if max_price == 0 and query=="":
+        if page == 1:
+            return f"https://www.kleinanzeigen.de/s-zu-verschenken-tauschen/{safe_location}/c272{location_id}r{radius}"
+        return f"https://www.kleinanzeigen.de/s-zu-verschenken-tauschen/{safe_location}/seite:{page}/c272{location_id}r{radius}"
+
+    query_part = f"{query.lower().replace(' ', '-')}/" if query.strip() else ""
+
     if page == 1:
-        return f"https://www.kleinanzeigen.de/s-{safe_location}/preis::{max_price}/{safe_query}/k0{location_id}r{radius}"
-    return f"https://www.kleinanzeigen.de/s-{safe_location}/preis::{max_price}/seite:{page}/{safe_query}/k0{location_id}r{radius}"
+        return f"https://www.kleinanzeigen.de/s-{safe_location}/preis::{max_price}/{query_part}k0{location_id}r{radius}"
+    return f"https://www.kleinanzeigen.de/s-{safe_location}/preis::{max_price}/seite:{page}/{query_part}k0{location_id}r{radius}"
 
 
 async def fetch_html(session: AsyncSession, url: str) -> str:
