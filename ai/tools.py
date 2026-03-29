@@ -56,3 +56,49 @@ async def search_in_kleinanzeigen(query: str, radius: int, max_price: int):
         markdown_table += f"| {item['title']} | {item['price']} | {item['distance']} | {item['link']} |\n"
 
     return markdown_table
+
+@tool
+async def get_free_items(radius: int):
+    """
+    Get free items from Kleinanzeigen.de.
+
+    This function return Markdown table with free items (item name, distance from user, url).
+
+    Radius should be integer and can be only 5, 10, 20, 30, 50, 100, 150 or 200
+    """
+
+    if radius not in [5, 10, 20, 30, 50, 100, 150, 200]:
+        raise ValueError("Radius should be one of 5, 10, 20, 30, 50, 100, 150 or 200")
+
+    msg = current_message.get()
+
+    status_msg = await msg.answer(phrases.get_value("SEARCHING_ZU_VERSHENKEN"))
+
+    async def update_progress(page: int, found_count: int):
+        try:
+            await status_msg.edit_text(
+                f"{phrases.get_value('SEARCHING_ZU_VERSHENKEN')}\n\n"
+                f"{phrases.get_value('CHECKED_PAGES').format(page=page)}\n"
+                f"{phrases.get_value('ITEMS_FOUNDED').format(count=found_count)}"
+            )
+        except Exception:
+            pass
+
+    items = await scrape_all_pages(
+        radius=radius,
+        query="",
+        max_price=0,
+        progress_callback=update_progress
+    )
+
+    try:
+        await status_msg.delete()
+    except Exception:
+        pass
+
+    markdown_table = "| Name | Distance | URL |\n| --- | --- | --- |\n"
+
+    for item in items:
+        markdown_table += f"| {item['title']} | {item['distance']} | {item['link']} |\n"
+
+    return markdown_table
