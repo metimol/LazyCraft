@@ -31,6 +31,4 @@ if BOT_TOKEN is None or GOOGLE_API_KEY is None:
 
 phrases = JsonManager("phrases.json")
 
-THINKING_BUDGET = 4096
-
 ALLOWED_USERS = [int(i.strip()) for i in os.getenv("ALLOWED_USERS", "").split(",") if i.strip().isdigit()]
