@@ -60,7 +60,7 @@ async def search_in_kleinanzeigen(query: str, radius: int, max_price: int):
 @tool
 async def get_free_items(radius: int):
     """
-    Get free items from Kleinanzeigen.de.
+    Get all free items from Kleinanzeigen.de without search query
 
     This function return Markdown table with free items (item name, distance from user, url).
 

@@ -15,8 +15,8 @@ def build_url(location_name: str, location_id: str, radius: int, query: str, max
     query_part = f"{query.lower().replace(' ', '-')}/" if query.strip() else ""
 
     if page == 1:
-        return f"https://www.kleinanzeigen.de/s-{safe_location}/preis::{max_price}/{query_part}k0{location_id}r{radius}"
-    return f"https://www.kleinanzeigen.de/s-{safe_location}/preis::{max_price}/seite:{page}/{query_part}k0{location_id}r{radius}"
+        return f"https://www.kleinanzeigen.de/s-{safe_location}/sortierung:preis/preis::{max_price}/{query_part}k0{location_id}r{radius}"
+    return f"https://www.kleinanzeigen.de/s-{safe_location}/sortierung:preis/preis::{max_price}/seite:{page}/{query_part}k0{location_id}r{radius}"
 
 
 async def fetch_html(session: AsyncSession, url: str) -> str:
