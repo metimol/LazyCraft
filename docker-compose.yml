@@ -1,0 +1,22 @@
+version: '3.8'
+
+services:
+  lazy-bot:
+    build: .
+    env_file: .env
+    environment:
+      - REDIS_HOST=lazy-redis
+    depends_on:
+      - lazy-redis
+    restart: unless-stopped
+
+  lazy-redis:
+    image: redis:alpine
+    ports:
+      - "6379:6379"
+    restart: unless-stopped
+    volumes:
+      - redis_data:/data
+
+volumes:
+  redis_data:

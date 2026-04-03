@@ -32,3 +32,4 @@ if BOT_TOKEN is None or GOOGLE_API_KEY is None:
 phrases = JsonManager("phrases.json")
 
 ALLOWED_USERS = [int(i.strip()) for i in os.getenv("ALLOWED_USERS", "").split(",") if i.strip().isdigit()]
+DEFAULT_SEARCH_PROMPT="Ищи рабочую электронику, велосипеды, инструменты. Игнорируй откровенный мусор, битые зеркала и пустые банки."
