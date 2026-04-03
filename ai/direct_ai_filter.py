@@ -21,4 +21,8 @@ async def filter_items_with_llm(items: list, user_prompt: str) -> str:
     )
 
     resp = await direct_model.ainvoke([{"role": "user", "content": sys_msg}])
-    return resp.content.strip()
+
+    ai_message = resp['messages'][-1]
+    answer_text = ai_message.content[-1]['text']
+
+    return answer_text
