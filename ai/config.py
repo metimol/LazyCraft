@@ -5,7 +5,7 @@ from const import GOOGLE_API_KEY, phrases, THINKING_BUDGET
 from ai.tools import search_in_kleinanzeigen, get_free_items
 
 model = init_chat_model(
-    model="google_genai:gemini-3-flash-preview",
+    model="google_genai:gemma-4-31b-it",
     api_key=GOOGLE_API_KEY,
     thinking_budget=THINKING_BUDGET
 )
