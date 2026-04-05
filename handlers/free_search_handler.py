@@ -32,5 +32,5 @@ async def manual_free_check(message: Message):
 
     await status_msg.delete()
 
-    for chunk in await split_message(result):
+    async for chunk in split_message(result):
         await message.answer(chunk)
