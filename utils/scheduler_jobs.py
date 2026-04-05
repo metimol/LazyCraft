@@ -2,7 +2,7 @@ from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from aiogram import Bot
 from utils.redis_database import get_user_radius, get_user_prompt
 from utils.scrape_kleinanzeigen import scrape_all_pages
-from ai.direct_ai_filter import filter_items_with_llm
+from utils.direct_ai_filter import filter_items_with_llm
 
 scheduler = AsyncIOScheduler()
 
