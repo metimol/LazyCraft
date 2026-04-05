@@ -1,7 +1,7 @@
 from aiogram.types import Message
 from ai import ask_agent
 from ai.context import current_message
-from split_message import split_message
+from utils.split_message import split_message
 
 
 async def text_processing(message: Message) -> None:
