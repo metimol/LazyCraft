@@ -11,7 +11,7 @@ async def scheduled_free_check(bot: Bot, user_id: int):
     prompt = await get_user_prompt(user_id)
 
     items = await scrape_all_pages(radius=radius, query="", max_price=0)
-    result = await filter_items_with_llm(items, prompt)
+    result = await filter_items_with_llm(items, prompt, radius)
 
     if result.lower() != "сегодня пусто":
         await bot.send_message(chat_id=user_id, text=result)
