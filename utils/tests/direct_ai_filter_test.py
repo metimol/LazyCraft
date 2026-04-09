@@ -20,7 +20,7 @@ async def test_filter_items_success(mock_get_value, mock_ask_agent):
     mock_ask_agent.return_value = "Ответ от нейросети"
     items = [
         {"title": "Вещь 1", "distance": "5 км", "link": "http://link1"},
-        {"title": "Вещь 2", "distance": "12 км", "link": "http://link2"}
+        {"title": "Вещь 2", "distance": "12 км", "link": "http://link2"},
     ]
 
     result = await filter_items_with_llm(items, "Тестовый запрос", 20)

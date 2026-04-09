@@ -8,7 +8,9 @@ from utils.processing import text_processing
 @patch("utils.processing.split_message")
 @patch("utils.processing.ask_agent", new_callable=AsyncMock)
 @patch("utils.processing.current_message")  # Мокаем сам объект, а не его метод .set
-async def test_text_processing(mock_current_message, mock_ask_agent, mock_split_message):
+async def test_text_processing(
+    mock_current_message, mock_ask_agent, mock_split_message
+):
     mock_message = AsyncMock()
     mock_message.text = "Привет, бот!"
 

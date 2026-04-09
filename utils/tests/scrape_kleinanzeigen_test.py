@@ -1,16 +1,27 @@
 import pytest
 from unittest.mock import patch, AsyncMock
-from utils.scrape_kleinanzeigen import build_url, fetch_html, parse_page, scrape_all_pages
+from utils.scrape_kleinanzeigen import (
+    build_url,
+    fetch_html,
+    parse_page,
+    scrape_all_pages,
+)
 
 
 def test_build_url_no_query_page_1():
     url = build_url("Grafenberg", "l11400", 10, "", 0, 1)
-    assert url == "https://www.kleinanzeigen.de/s-zu-verschenken-tauschen/grafenberg/c272l11400r10"
+    assert (
+        url
+        == "https://www.kleinanzeigen.de/s-zu-verschenken-tauschen/grafenberg/c272l11400r10"
+    )
 
 
 def test_build_url_with_query_page_2():
     url = build_url("Stuttgart", "l1234", 20, "laptop", 50, 2)
-    assert url == "https://www.kleinanzeigen.de/s-stuttgart/sortierung:preis/preis::50/seite:2/laptop/k0l1234r20"
+    assert (
+        url
+        == "https://www.kleinanzeigen.de/s-stuttgart/sortierung:preis/preis::50/seite:2/laptop/k0l1234r20"
+    )
 
 
 @pytest.mark.asyncio
@@ -54,7 +65,7 @@ async def test_scrape_all_pages(mock_session_cls, mock_parse, mock_fetch):
     mock_parse.side_effect = [
         [{"id": "1", "title": "A", "price": "0", "distance": "5", "link": ""}],
         [{"id": "2", "title": "B", "price": "0", "distance": "5", "link": ""}],
-        []
+        [],
     ]
 
     results = await scrape_all_pages(10, "", 0, max_pages=3)

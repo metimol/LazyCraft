@@ -6,8 +6,9 @@ from bot import (
     command_start_handler,
     command_help_handler,
     not_supported_command,
-    not_supported_format
+    not_supported_format,
 )
+
 
 @pytest.mark.asyncio
 @patch("bot.ALLOWED_USERS", [123])
@@ -24,6 +25,7 @@ async def test_auth_middleware_allowed(mock_get_value):
 
     mock_handler.assert_called_once_with(mock_event, {})
     mock_event.answer.assert_not_called()
+
 
 @pytest.mark.asyncio
 @patch("bot.ALLOWED_USERS", [123])
@@ -42,6 +44,7 @@ async def test_auth_middleware_denied(mock_get_value):
     mock_handler.assert_not_called()
     mock_event.answer.assert_called_once_with("Нет доступа")
 
+
 @pytest.mark.asyncio
 @patch("bot.phrases.get_value", return_value="Привет")
 @patch("bot.get_main_keyboard", return_value="Клавиатура")
@@ -50,12 +53,14 @@ async def test_command_start_handler(mock_keyboard, mock_get_value):
     await command_start_handler(mock_message)
     mock_message.answer.assert_called_once_with("Привет", reply_markup="Клавиатура")
 
+
 @pytest.mark.asyncio
 @patch("bot.phrases.get_value", return_value="Помощь")
 async def test_command_help_handler(mock_get_value):
     mock_message = AsyncMock()
     await command_help_handler(mock_message)
     mock_message.answer.assert_called_once_with("Помощь")
+
 
 @pytest.mark.asyncio
 @patch("bot.phrases.get_value", return_value="Команда не поддерживается")
@@ -64,6 +69,7 @@ async def test_not_supported_command(mock_get_value):
     mock_message.text = "/unknown"
     await not_supported_command(mock_message)
     mock_message.answer.assert_called_once_with("Команда не поддерживается")
+
 
 @pytest.mark.asyncio
 @patch("bot.phrases.get_value", return_value="Формат не поддерживается")

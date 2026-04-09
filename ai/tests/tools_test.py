@@ -40,10 +40,17 @@ async def test_search_in_kleinanzeigen_success(mock_scrape):
     current_message.set(mock_msg)
 
     mock_scrape.return_value = [
-        {"title": "Велосипед", "price": "50 €", "distance": "10 км", "link": "http://bike"}
+        {
+            "title": "Велосипед",
+            "price": "50 €",
+            "distance": "10 км",
+            "link": "http://bike",
+        }
     ]
 
-    result = await search_in_kleinanzeigen.ainvoke({"query": "Fahrrad", "radius": 20, "max_price": 100})
+    result = await search_in_kleinanzeigen.ainvoke(
+        {"query": "Fahrrad", "radius": 20, "max_price": 100}
+    )
 
     assert "Велосипед" in result
     assert "50 €" in result
@@ -54,10 +61,16 @@ async def test_search_in_kleinanzeigen_success(mock_scrape):
 @pytest.mark.asyncio
 async def test_search_in_kleinanzeigen_invalid_args():
     with pytest.raises(ValueError):
-        await search_in_kleinanzeigen.ainvoke({"query": "Fahrrad", "radius": 15, "max_price": 100})
+        await search_in_kleinanzeigen.ainvoke(
+            {"query": "Fahrrad", "radius": 15, "max_price": 100}
+        )
 
     with pytest.raises(ValueError):
-        await search_in_kleinanzeigen.ainvoke({"query": "Fahrrad", "radius": 10, "max_price": 600})
+        await search_in_kleinanzeigen.ainvoke(
+            {"query": "Fahrrad", "radius": 10, "max_price": 600}
+        )
 
     with pytest.raises(ValueError):
-        await search_in_kleinanzeigen.ainvoke({"query": "A" * 35, "radius": 10, "max_price": 100})
+        await search_in_kleinanzeigen.ainvoke(
+            {"query": "A" * 35, "radius": 10, "max_price": 100}
+        )

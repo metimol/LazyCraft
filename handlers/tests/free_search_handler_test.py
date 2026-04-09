@@ -9,7 +9,9 @@ from handlers.free_search_handler import manual_free_check
 @patch("handlers.free_search_handler.scrape_all_pages", new_callable=AsyncMock)
 @patch("handlers.free_search_handler.get_user_prompt", new_callable=AsyncMock)
 @patch("handlers.free_search_handler.get_user_radius", new_callable=AsyncMock)
-async def test_manual_free_check(mock_radius, mock_prompt, mock_scrape, mock_filter, mock_split):
+async def test_manual_free_check(
+    mock_radius, mock_prompt, mock_scrape, mock_filter, mock_split
+):
     mock_msg = AsyncMock()
     mock_status = AsyncMock()
     mock_msg.answer.return_value = mock_status

@@ -4,10 +4,17 @@ from curl_cffi.requests import AsyncSession
 from bs4 import BeautifulSoup
 
 
-def build_url(location_name: str, location_id: str, radius: int, query: str, max_price: int, page: int) -> str:
+def build_url(
+    location_name: str,
+    location_id: str,
+    radius: int,
+    query: str,
+    max_price: int,
+    page: int,
+) -> str:
     safe_location = location_name.lower().replace(" ", "-")
 
-    if max_price == 0 and query=="":
+    if max_price == 0 and query == "":
         if page == 1:
             return f"https://www.kleinanzeigen.de/s-zu-verschenken-tauschen/{safe_location}/c272{location_id}r{radius}"
         return f"https://www.kleinanzeigen.de/s-zu-verschenken-tauschen/{safe_location}/seite:{page}/c272{location_id}r{radius}"
@@ -28,53 +35,63 @@ async def fetch_html(session: AsyncSession, url: str) -> str:
 
 def parse_page(html: str) -> list:
     results = []
-    soup = BeautifulSoup(html, 'html.parser')
-    articles = soup.find_all('article', class_='aditem')
+    soup = BeautifulSoup(html, "html.parser")
+    articles = soup.find_all("article", class_="aditem")
 
     for article in articles:
-        ad_id = article.get('data-ad-id', '')
+        ad_id = article.get("data-ad-id", "")
 
-        title_tag = article.find('a', class_='ellipsis')
+        title_tag = article.find("a", class_="ellipsis")
         if not title_tag:
             continue
 
         title = title_tag.text.strip()
-        link = "https://www.kleinanzeigen.de" + title_tag.get('href', '')
+        link = "https://www.kleinanzeigen.de" + title_tag.get("href", "")
 
-        price_tag = article.find('p', class_='aditem-main--middle--price-shipping--price')
+        price_tag = article.find(
+            "p", class_="aditem-main--middle--price-shipping--price"
+        )
         if price_tag:
-            price_raw = price_tag.get_text(separator='\n').strip()
-            price = re.sub(r'\s+', ' ', price_raw.split('\n')[0].strip())
+            price_raw = price_tag.get_text(separator="\n").strip()
+            price = re.sub(r"\s+", " ", price_raw.split("\n")[0].strip())
         else:
             price = "N/A"
 
-        location_tag = article.find('div', class_='aditem-main--top--left')
+        location_tag = article.find("div", class_="aditem-main--top--left")
         distance = "N/A"
         if location_tag:
             location_text = location_tag.text.strip()
-            parts = location_text.split('\n')
+            parts = location_text.split("\n")
             for part in parts:
-                if 'km' in part:
-                    distance = re.sub(r'\s+', ' ', part.strip())
+                if "km" in part:
+                    distance = re.sub(r"\s+", " ", part.strip())
                     break
             if distance == "N/A" and parts:
-                distance = re.sub(r'\s+', ' ', parts[-1].strip())
+                distance = re.sub(r"\s+", " ", parts[-1].strip())
 
-        results.append({
-            "id": ad_id,
-            "title": title,
-            "price": price,
-            "distance": distance,
-            "link": link,
-            "raw_html": str(article)
-        })
+        results.append(
+            {
+                "id": ad_id,
+                "title": title,
+                "price": price,
+                "distance": distance,
+                "link": link,
+                "raw_html": str(article),
+            }
+        )
 
     return results
 
 
-async def scrape_all_pages(radius: int, query: str, max_price: int,
-                           max_pages: int = 50, location_name: str = "grafenberg", location_id: str = "l11400",
-                           progress_callback=None):
+async def scrape_all_pages(
+    radius: int,
+    query: str,
+    max_price: int,
+    max_pages: int = 50,
+    location_name: str = "grafenberg",
+    location_id: str = "l11400",
+    progress_callback=None,
+):
     all_results = []
     seen_signatures = set()
 
@@ -92,7 +109,7 @@ async def scrape_all_pages(radius: int, query: str, max_price: int,
 
             new_items_count = 0
             for item in items:
-                signature = (item['title'], item['price'], item['distance'])
+                signature = (item["title"], item["price"], item["distance"])
                 if signature not in seen_signatures:
                     seen_signatures.add(signature)
                     all_results.append(item)

@@ -26,7 +26,9 @@ async def search_in_kleinanzeigen(query: str, radius: int, max_price: int):
 
     msg = current_message.get()
 
-    status_msg = await msg.answer(phrases.get_value("SEARCHING_WITH_QUERY").format(query=query))
+    status_msg = await msg.answer(
+        phrases.get_value("SEARCHING_WITH_QUERY").format(query=query)
+    )
 
     async def update_progress(page: int, found_count: int):
         try:
@@ -42,7 +44,7 @@ async def search_in_kleinanzeigen(query: str, radius: int, max_price: int):
         radius=radius,
         query=query,
         max_price=max_price,
-        progress_callback=update_progress
+        progress_callback=update_progress,
     )
 
     try:
@@ -56,6 +58,7 @@ async def search_in_kleinanzeigen(query: str, radius: int, max_price: int):
         markdown_table += f"| {item['title']} | {item['price']} | {item['distance']} | {item['link']} |\n"
 
     return markdown_table
+
 
 @tool
 async def get_free_items(radius: int):
@@ -85,10 +88,7 @@ async def get_free_items(radius: int):
             pass
 
     items = await scrape_all_pages(
-        radius=radius,
-        query="",
-        max_price=0,
-        progress_callback=update_progress
+        radius=radius, query="", max_price=0, progress_callback=update_progress
     )
 
     try:

@@ -6,6 +6,7 @@ from utils.direct_ai_filter import filter_items_with_llm
 
 scheduler = AsyncIOScheduler()
 
+
 async def scheduled_free_check(bot: Bot, user_id: int):
     radius = await get_user_radius(user_id)
     prompt = await get_user_prompt(user_id)
@@ -16,6 +17,7 @@ async def scheduled_free_check(bot: Bot, user_id: int):
     if result.lower() != "сегодня пусто":
         await bot.send_message(chat_id=user_id, text=result)
 
+
 def update_user_job(bot: Bot, user_id: int, hours: int):
     job_id = f"free_check_{user_id}"
     if scheduler.get_job(job_id):
@@ -24,8 +26,8 @@ def update_user_job(bot: Bot, user_id: int, hours: int):
     if hours > 0:
         scheduler.add_job(
             scheduled_free_check,
-            'interval',
+            "interval",
             hours=hours,
             id=job_id,
-            kwargs={"bot": bot, "user_id": user_id}
+            kwargs={"bot": bot, "user_id": user_id},
         )

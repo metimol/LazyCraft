@@ -2,6 +2,7 @@ import os
 import json
 from pathlib import Path
 
+
 class JsonManager:
     def __init__(self, file: str):
         self.file = file
@@ -23,6 +24,7 @@ class JsonManager:
             raise ValueError(f"Cannot access to phrase variable: {key}")
         return value
 
+
 BOT_TOKEN = os.getenv("BOT_TOKEN", None)
 GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY", None)
 
@@ -31,5 +33,9 @@ if BOT_TOKEN is None or GOOGLE_API_KEY is None:
 
 phrases = JsonManager("phrases.json")
 
-ALLOWED_USERS = [int(i.strip()) for i in os.getenv("ALLOWED_USERS", "").split(",") if i.strip().isdigit()]
-DEFAULT_SEARCH_PROMPT="Ищи рабочую электронику, велосипеды, инструменты. Игнорируй откровенный мусор, битые зеркала и пустые банки."
+ALLOWED_USERS = [
+    int(i.strip())
+    for i in os.getenv("ALLOWED_USERS", "").split(",")
+    if i.strip().isdigit()
+]
+DEFAULT_SEARCH_PROMPT = "Ищи рабочую электронику, велосипеды, инструменты. Игнорируй откровенный мусор, битые зеркала и пустые банки."

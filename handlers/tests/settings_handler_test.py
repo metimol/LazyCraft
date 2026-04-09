@@ -1,8 +1,14 @@
 import pytest
 from unittest.mock import AsyncMock, patch, MagicMock
 from handlers.settings_handler import (
-    settings_cmd, process_set_prompt, save_prompt,
-    process_set_timer, save_timer, process_set_radius, save_radius, PromptState
+    settings_cmd,
+    process_set_prompt,
+    save_prompt,
+    process_set_timer,
+    save_timer,
+    process_set_radius,
+    save_radius,
+    PromptState,
 )
 
 

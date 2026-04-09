@@ -4,8 +4,9 @@ from utils.keyboards import (
     get_main_keyboard,
     get_settings_keyboard,
     get_timer_keyboard,
-    get_radius_keyboard
+    get_radius_keyboard,
 )
+
 
 def test_get_main_keyboard():
     keyboard = get_main_keyboard()
@@ -17,6 +18,7 @@ def test_get_main_keyboard():
     assert keyboard.keyboard[0][0].text == "🏴‍☠️ Чекнуть халяву"
     assert keyboard.keyboard[0][1].text == "⚙️ Настройки"
 
+
 def test_get_settings_keyboard():
     keyboard = get_settings_keyboard()
 
@@ -26,6 +28,7 @@ def test_get_settings_keyboard():
     assert keyboard.inline_keyboard[0][0].callback_data == "set_timer"
     assert keyboard.inline_keyboard[2][0].text == "📝 Задать интересы"
     assert keyboard.inline_keyboard[2][0].callback_data == "set_prompt"
+
 
 def test_get_timer_keyboard():
     keyboard = get_timer_keyboard()
@@ -38,6 +41,7 @@ def test_get_timer_keyboard():
     assert keyboard.inline_keyboard[0][0].callback_data == "timer_1"
     assert keyboard.inline_keyboard[2][1].text == "Выключить"
     assert keyboard.inline_keyboard[2][1].callback_data == "timer_0"
+
 
 def test_get_radius_keyboard():
     keyboard = get_radius_keyboard()

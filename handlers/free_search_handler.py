@@ -9,6 +9,7 @@ from const import phrases
 
 router = Router()
 
+
 @router.message(F.text == "🏴‍☠️ Чекнуть халяву")
 @router.message(Command("free"))
 async def manual_free_check(message: Message):
@@ -27,7 +28,9 @@ async def manual_free_check(message: Message):
         except Exception:
             pass
 
-    items = await scrape_all_pages(radius=radius, query="", max_price=0, progress_callback=update_progress)
+    items = await scrape_all_pages(
+        radius=radius, query="", max_price=0, progress_callback=update_progress
+    )
     result = await filter_items_with_llm(items, prompt, radius)
 
     await status_msg.delete()

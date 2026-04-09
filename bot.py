@@ -20,6 +20,7 @@ from handlers.free_search_handler import router as free_router
 dp = Dispatcher()
 bot = Bot(token=BOT_TOKEN, default=DefaultBotProperties(parse_mode=ParseMode.HTML))
 
+
 class AuthMiddleware(BaseMiddleware):
     async def __call__(self, handler, event, data):
         if event.from_user.id not in ALLOWED_USERS:
@@ -28,34 +29,44 @@ class AuthMiddleware(BaseMiddleware):
             return
         return await handler(event, data)
 
+
 dp.message.middleware(AuthMiddleware())
 dp.callback_query.middleware(AuthMiddleware())
 
 default_router = Router()
 
+
 @default_router.message(CommandStart())
 async def command_start_handler(message: Message) -> None:
-    await message.answer(phrases.get_value("welcome_message"), reply_markup=get_main_keyboard())
+    await message.answer(
+        phrases.get_value("welcome_message"), reply_markup=get_main_keyboard()
+    )
+
 
 @default_router.message(Command("help"))
 async def command_help_handler(message: Message) -> None:
     await message.answer(phrases.get_value("help_message"))
 
-@default_router.message(F.text.startswith('/'))
+
+@default_router.message(F.text.startswith("/"))
 async def not_supported_command(message: Message) -> None:
     await message.answer(phrases.get_value("not_supported_command"))
+
 
 @default_router.message(F.text)
 async def text_handler(message: Message) -> None:
     await text_processing(message)
 
+
 @default_router.message(~F.text)
 async def not_supported_format(message: Message) -> None:
     await message.answer(phrases.get_value("not_supported_format"))
 
+
 dp.include_router(settings_router)
 dp.include_router(free_router)
 dp.include_router(default_router)
+
 
 async def restore_jobs():
     for user_id in ALLOWED_USERS:
@@ -63,10 +74,12 @@ async def restore_jobs():
         if hours > 0:
             update_user_job(bot, user_id, hours)
 
+
 async def main() -> None:
     scheduler.start()
     await restore_jobs()
     await dp.start_polling(bot)
+
 
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO, stream=sys.stdout)

@@ -5,9 +5,12 @@ from const import GOOGLE_API_KEY, phrases
 from ai.tools import search_in_kleinanzeigen, get_free_items
 
 model = init_chat_model(
-    model="google_genai:gemma-4-31b-it",
-    api_key=GOOGLE_API_KEY,
-    max_tokens=8192
+    model="google_genai:gemma-4-31b-it", api_key=GOOGLE_API_KEY, max_tokens=8192
 )
 
-agent = create_agent(model, tools=[search_in_kleinanzeigen, get_free_items], system_prompt=phrases.get_value("SYSTEM_PROMPT"), name=phrases.get_value("NAME"))
+agent = create_agent(
+    model,
+    tools=[search_in_kleinanzeigen, get_free_items],
+    system_prompt=phrases.get_value("SYSTEM_PROMPT"),
+    name=phrases.get_value("NAME"),
+)

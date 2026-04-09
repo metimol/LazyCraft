@@ -2,9 +2,9 @@ async def split_message(text: str, limit: int = 4000):
     chunks = []
     current_chunk = ""
 
-    for line in text.split('\n'):
+    for line in text.split("\n"):
         if len(line) > limit:
-            words = line.split(' ')
+            words = line.split(" ")
             for word in words:
                 if len(word) > limit:
                     if current_chunk.strip():
@@ -12,7 +12,7 @@ async def split_message(text: str, limit: int = 4000):
                         current_chunk = ""
 
                     for i in range(0, len(word), limit):
-                        part = word[i:i + limit]
+                        part = word[i : i + limit]
                         if len(part) == limit:
                             chunks.append(part)
                         else:
