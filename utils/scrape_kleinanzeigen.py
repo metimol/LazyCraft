@@ -1,5 +1,7 @@
 import asyncio
+import random
 import re
+from typing import Callable, Optional, List, Dict, Any
 from curl_cffi.requests import AsyncSession
 from bs4 import BeautifulSoup
 
@@ -26,14 +28,20 @@ def build_url(
     return f"https://www.kleinanzeigen.de/s-{safe_location}/sortierung:preis/preis::{max_price}/seite:{page}/{query_part}k0{location_id}r{radius}"
 
 
-async def fetch_html(session: AsyncSession, url: str) -> str:
-    response = await session.get(url)
-    if response.status_code == 200:
-        return response.text
-    return ""
+async def fetch_html(session: AsyncSession, url: str, max_attempts: int = 10) -> str:
+    for attempt in range(max_attempts):
+        response = await session.get(url)
+        wait_time = (2**attempt) + random.uniform(0, 1)
+        if response.status_code == 200:
+            return response.text
+        await asyncio.sleep(wait_time)
+
+    raise ValueError(
+        f"Failed to fetch HTML for page {url} after {max_attempts} attempts."
+    )
 
 
-def parse_page(html: str) -> list:
+def parse_page(html: str) -> List[Dict[str, Any]]:
     results = []
     soup = BeautifulSoup(html, "html.parser")
     articles = soup.find_all("article", class_="aditem")
@@ -90,28 +98,35 @@ async def scrape_all_pages(
     max_pages: int = 50,
     location_name: str = "grafenberg",
     location_id: str = "l11400",
-    progress_callback=None,
-):
+    progress_callback: Optional[Callable[[int, int], Any]] = None,
+) -> List[Dict[str, Any]]:
     all_results = []
-    seen_signatures = set()
+    seen_keys = set()
 
     async with AsyncSession(impersonate="chrome120") as session:
         for page in range(1, max_pages + 1):
             url = build_url(location_name, location_id, radius, query, max_price, page)
-            html = await fetch_html(session, url)
+            try:
+                html = await fetch_html(session, url)
+            except Exception:
+                continue
 
             if not html:
-                break
+                continue
 
             items = parse_page(html)
             if not items:
-                break
+                continue
 
             new_items_count = 0
             for item in items:
-                signature = (item["title"], item["price"], item["distance"])
-                if signature not in seen_signatures:
-                    seen_signatures.add(signature)
+                item_key = (
+                    item["id"]
+                    if item["id"]
+                    else (item["title"], item["price"], item["distance"])
+                )
+                if item_key not in seen_keys:
+                    seen_keys.add(item_key)
                     all_results.append(item)
                     new_items_count += 1
 
@@ -120,7 +135,5 @@ async def scrape_all_pages(
 
             if new_items_count == 0:
                 break
-
-            await asyncio.sleep(1)
 
     return all_results
