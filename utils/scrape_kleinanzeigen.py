@@ -116,7 +116,7 @@ async def scrape_all_pages(
 
             items = parse_page(html)
             if not items:
-                continue
+                break
 
             new_items_count = 0
             for item in items:
@@ -135,5 +135,7 @@ async def scrape_all_pages(
 
             if new_items_count == 0:
                 break
+
+            await asyncio.sleep(random.uniform(1.5, 3.5))
 
     return all_results
