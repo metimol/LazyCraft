@@ -8,7 +8,7 @@ from aiogram.enums import ParseMode
 from aiogram.filters import CommandStart, Command
 from aiogram.types import Message
 
-from const import BOT_TOKEN, phrases, ALLOWED_USERS
+from const import BOT_TOKEN, ALLOWED_USERS, locale
 from kleinanzeigen_api import KleinanzeigenAPI
 from utils.processing import text_processing
 from utils.scheduler_jobs import scheduler, update_user_job
@@ -27,7 +27,7 @@ class AuthMiddleware(BaseMiddleware):
     async def __call__(self, handler, event, data):
         if event.from_user.id not in ALLOWED_USERS:
             if isinstance(event, Message):
-                await event.answer(phrases.get_value("UNAUTHORIZED_USER"))
+                await event.answer(locale("UNAUTHORIZED_USER"))
             return
         return await handler(event, data)
 
@@ -40,19 +40,17 @@ default_router = Router()
 
 @default_router.message(CommandStart())
 async def command_start_handler(message: Message) -> None:
-    await message.answer(
-        phrases.get_value("welcome_message"), reply_markup=get_main_keyboard()
-    )
+    await message.answer(locale("welcome_message"), reply_markup=get_main_keyboard())
 
 
 @default_router.message(Command("help"))
 async def command_help_handler(message: Message) -> None:
-    await message.answer(phrases.get_value("help_message"))
+    await message.answer(locale("help_message"))
 
 
 @default_router.message(F.text.startswith("/"))
 async def not_supported_command(message: Message) -> None:
-    await message.answer(phrases.get_value("not_supported_command"))
+    await message.answer(locale("not_supported_command"))
 
 
 @default_router.message(F.text)
@@ -62,7 +60,7 @@ async def text_handler(message: Message) -> None:
 
 @default_router.message(~F.text)
 async def not_supported_format(message: Message) -> None:
-    await message.answer(phrases.get_value("not_supported_format"))
+    await message.answer(locale("not_supported_format"))
 
 
 dp.include_router(settings_router)

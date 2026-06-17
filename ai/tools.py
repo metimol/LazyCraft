@@ -1,7 +1,7 @@
 from langchain.tools import tool
 from utils.scrape_kleinanzeigen import scrape_all_pages
 from ai.context import current_message
-from const import phrases
+from const import locale
 
 
 @tool
@@ -26,16 +26,14 @@ async def search_in_kleinanzeigen(query: str, radius: int, max_price: int):
 
     msg = current_message.get()
 
-    status_msg = await msg.answer(
-        phrases.get_value("SEARCHING_WITH_QUERY").format(query=query)
-    )
+    status_msg = await msg.answer(locale("SEARCHING_WITH_QUERY").format(query=query))
 
     async def update_progress(page: int, found_count: int):
         try:
             await status_msg.edit_text(
-                f"{phrases.get_value('SEARCHING_WITH_QUERY').format(query=query)}\n\n"
-                f"{phrases.get_value('CHECKED_PAGES').format(page=page)}\n"
-                f"{phrases.get_value('ITEMS_FOUNDED').format(count=found_count)}"
+                f"{locale('SEARCHING_WITH_QUERY').format(query=query)}\n\n"
+                f"{locale('CHECKED_PAGES').format(page=page)}\n"
+                f"{locale('ITEMS_FOUNDED').format(count=found_count)}"
             )
         except Exception:
             pass
@@ -75,14 +73,14 @@ async def get_free_items(radius: int):
 
     msg = current_message.get()
 
-    status_msg = await msg.answer(phrases.get_value("SEARCHING_ZU_VERSHENKEN"))
+    status_msg = await msg.answer(locale("SEARCHING_ZU_VERSHENKEN"))
 
     async def update_progress(page: int, found_count: int):
         try:
             await status_msg.edit_text(
-                f"{phrases.get_value('SEARCHING_ZU_VERSHENKEN')}\n\n"
-                f"{phrases.get_value('CHECKED_PAGES').format(page=page)}\n"
-                f"{phrases.get_value('ITEMS_FOUNDED').format(count=found_count)}"
+                f"{locale('SEARCHING_ZU_VERSHENKEN')}\n\n"
+                f"{locale('CHECKED_PAGES').format(page=page)}\n"
+                f"{locale('ITEMS_FOUNDED').format(count=found_count)}"
             )
         except Exception:
             pass

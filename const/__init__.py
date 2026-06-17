@@ -1,28 +1,41 @@
 import os
 import json
 from pathlib import Path
+import logging
 
 
-class JsonManager:
-    def __init__(self, file: str):
-        self.file = file
-        self.data = {}
-        self.base_dir = Path(__file__).parent
-        self.load_files()
+_locales_data = {}
 
-    def load_files(self):
-        file_path = self.base_dir / self.file
-        if file_path.exists():
-            with open(file_path, mode="r", encoding="utf-8") as f:
-                content = f.read()
-                file_data = json.loads(content)
-                self.data.update(file_data)
 
-    def get_value(self, key: str):
-        value = self.data.get(key)
+def _load_locales():
+    locales_dir = Path(__file__).parent / "locales"
+    if not locales_dir.exists():
+        return
+    for file_path in locales_dir.glob("*.json"):
+        lang = file_path.stem
+        with open(file_path, mode="r", encoding="utf-8") as f:
+            try:
+                _locales_data[lang] = json.load(f)
+            except json.JSONDecodeError:
+                logging.warning(f"Invalid JSON file: {file_path}")
+                pass  # Ignore invalid JSON files
+
+
+_load_locales()
+
+
+def locale(key: str, lang: str = "en") -> str:
+    lang_data = _locales_data.get(lang)
+    if lang_data is None:
+        lang_data = _locales_data.get("en", {})
+
+    value = lang_data.get(key)
+    if value is None:
+        if lang != "en":
+            value = _locales_data.get("en", {}).get(key)
         if value is None:
-            raise ValueError(f"Cannot access to phrase variable: {key}")
-        return value
+            raise ValueError(f"Cannot access phrase variable: {key} for lang {lang}")
+    return value
 
 
 BOT_TOKEN = os.getenv("BOT_TOKEN", None)
@@ -31,7 +44,6 @@ GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY", None)
 if BOT_TOKEN is None or GOOGLE_API_KEY is None:
     raise Exception("Necessary environment variable not set")
 
-phrases = JsonManager("phrases.json")
 
 ALLOWED_USERS = [
     int(i.strip())
