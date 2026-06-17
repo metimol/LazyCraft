@@ -3,18 +3,12 @@
 All ~159 categories are stored in data/categories.json, so lookups work without
 a network request.
 """
-# TODO: Use KleinanzeigenAPI.fetch_categories() to download an updated list on system start
 
 from __future__ import annotations
 
-import json
 from dataclasses import asdict, dataclass
-from functools import lru_cache
-from importlib.resources import files
 from typing import List, Optional
 
-# TODO: Check if it saves inta Data dir
-_DATA_FILE = "categories.json"
 _CAT_NS = "{http://www.ebayclassifiedsgroup.com/schema/category/v1}categories"
 
 
@@ -29,21 +23,27 @@ class Category:
         return asdict(self)
 
 
-@lru_cache(maxsize=1)
+_CATEGORIES_CACHE: List[Category] = []
+_BY_ID_CACHE: dict = {}
+
+
+def set_categories(categories: List[Category]) -> None:
+    global _CATEGORIES_CACHE, _BY_ID_CACHE
+    _CATEGORIES_CACHE = categories
+    _BY_ID_CACHE = {c.id: c for c in categories}
+
+
 def all_categories() -> List[Category]:
-    """Return the bundled catalog as a list of Category objects (cached)."""
-    text = (files("kleinanzeigen_api") / "data" / _DATA_FILE).read_text(
-        encoding="utf-8"
-    )
-    return [
-        Category(str(c["id"]), c["name"], c["path"], bool(c.get("real_estate")))
-        for c in json.loads(text)
-    ]
+    """Return the catalog as a list of Category objects."""
+    if not _CATEGORIES_CACHE:
+        raise RuntimeError("Categories not loaded. Call api.update_categories() first.")
+    return _CATEGORIES_CACHE
 
 
-@lru_cache(maxsize=1)
 def _by_id() -> dict:
-    return {c.id: c for c in all_categories()}
+    if not _BY_ID_CACHE:
+        raise RuntimeError("Categories not loaded. Call api.update_categories() first.")
+    return _BY_ID_CACHE
 
 
 def get_category(category_id) -> Optional[Category]:

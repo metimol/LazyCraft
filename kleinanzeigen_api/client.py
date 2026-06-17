@@ -546,6 +546,15 @@ class KleinanzeigenAPI:
         """Convert a category name or id to an id string (None means all categories)."""
         return _catalog.resolve_category(value)
 
+    async def update_categories(self) -> None:
+        """Download the live category list and update the in-memory cache."""
+        r = await self._get(f"{API_HOST}/api/categories.json")
+        data = r.json()
+        flat = _catalog.flatten_api_categories(data)
+
+        categories = [_catalog.Category(**c) for c in flat]
+        _catalog.set_categories(categories)
+
     async def fetch_categories(self) -> list:
         """Download the live category list and return it as Category objects.
 

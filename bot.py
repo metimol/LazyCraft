@@ -9,6 +9,7 @@ from aiogram.filters import CommandStart, Command
 from aiogram.types import Message
 
 from const import BOT_TOKEN, phrases, ALLOWED_USERS
+from kleinanzeigen_api import KleinanzeigenAPI
 from utils.processing import text_processing
 from utils.scheduler_jobs import scheduler, update_user_job
 from utils.redis_database import get_user_timer
@@ -77,10 +78,12 @@ async def restore_jobs():
 
 
 async def update_categories_list():
-    pass
+    async with KleinanzeigenAPI() as api:
+        await api.update_categories()
 
 
 async def main() -> None:
+    await update_categories_list()
     scheduler.start()
     await restore_jobs()
     await dp.start_polling(bot)
