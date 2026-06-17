@@ -11,16 +11,16 @@ from aiogram.types import Message
 from const import BOT_TOKEN, locale
 from kleinanzeigen_api import KleinanzeigenAPI
 from utils.processing import text_processing
-from utils.scheduler_jobs import scheduler
+from utils.scheduler_jobs import scheduler, add_parser_job
 from utils.keyboards import get_main_keyboard
+from database.parsers import get_all_users_with_parsers, get_parsers
 
 from handlers.settings_handler import router as settings_router
 from handlers.free_search_handler import router as free_router
-
+from handlers.parser_handler import router as parser_router
 
 dp = Dispatcher()
 bot = Bot(token=BOT_TOKEN, default=DefaultBotProperties(parse_mode=ParseMode.HTML))
-
 
 default_router = Router()
 
@@ -52,16 +52,18 @@ async def not_supported_format(message: Message) -> None:
 
 dp.include_router(settings_router)
 dp.include_router(free_router)
+dp.include_router(parser_router)
 dp.include_router(default_router)
 
 
 async def restore_jobs():
-    # TODO: Fetch all users from the database since ALLOWED_USERS limit was removed
-    # for user_id in all_users:
-    #     hours = await get_user_timer(user_id)
-    #     if hours > 0:
-    #         update_user_job(bot, user_id, hours)
-    pass
+    # Restore parser jobs
+    users = await get_all_users_with_parsers()
+    for user_id in users:
+        parsers = await get_parsers(user_id)
+        for name, config in parsers.items():
+            if config.get("active"):
+                add_parser_job(bot, user_id, name, config["freq"])
 
 
 async def update_categories_list():

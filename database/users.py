@@ -2,6 +2,14 @@ from typing import Optional
 from database.client import get_redis
 
 
+async def is_premium(user_id: int) -> bool:
+    """
+    Mock function to check if user is premium.
+    Currently, all users are considered premium.
+    """
+    return True
+
+
 async def get_all_users() -> list[int]:
     """
     Returns a list of all user IDs stored in the database.
