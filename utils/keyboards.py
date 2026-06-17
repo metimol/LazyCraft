@@ -6,13 +6,20 @@ from aiogram.types import (
 )
 
 
+from const import locale
+
+
 def get_main_keyboard():
     return ReplyKeyboardMarkup(
         keyboard=[
             [
-                KeyboardButton(text="🏴‍☠️ Чекнуть халяву"),
-                KeyboardButton(text="⚙️ Настройки"),
-            ]
+                KeyboardButton(text=locale("fast_search_btn")),
+                KeyboardButton(text=locale("auto_parser_btn")),
+            ],
+            [
+                KeyboardButton(text=locale("help_btn")),
+                KeyboardButton(text=locale("settings_btn")),
+            ],
         ],
         resize_keyboard=True,
     )

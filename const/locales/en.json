@@ -1,1 +1,6 @@
-{}
+{
+  "fast_search_btn": "Fast search",
+  "auto_parser_btn": "Auto-Parser",
+  "help_btn": "Help",
+  "settings_btn": "Settings"
+}

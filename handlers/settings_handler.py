@@ -19,7 +19,7 @@ class PromptState(StatesGroup):
     waiting_for_prompt = State()
 
 
-@router.message(F.text == "⚙️ Настройки")
+@router.message(F.text == locale("settings_btn"))
 @router.message(Command("settings"))
 async def settings_cmd(message: Message):
     await message.answer(locale("settings_menu"), reply_markup=get_settings_keyboard())
