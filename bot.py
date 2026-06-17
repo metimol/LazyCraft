@@ -2,17 +2,16 @@ import asyncio
 import logging
 import sys
 
-from aiogram import Dispatcher, Bot, F, BaseMiddleware, Router
+from aiogram import Dispatcher, Bot, F, Router
 from aiogram.client.default import DefaultBotProperties
 from aiogram.enums import ParseMode
 from aiogram.filters import CommandStart, Command
 from aiogram.types import Message
 
-from const import BOT_TOKEN, ALLOWED_USERS, locale
+from const import BOT_TOKEN, locale
 from kleinanzeigen_api import KleinanzeigenAPI
 from utils.processing import text_processing
-from utils.scheduler_jobs import scheduler, update_user_job
-from utils.redis_database import get_user_timer
+from utils.scheduler_jobs import scheduler
 from utils.keyboards import get_main_keyboard
 
 from handlers.settings_handler import router as settings_router
@@ -22,18 +21,6 @@ from handlers.free_search_handler import router as free_router
 dp = Dispatcher()
 bot = Bot(token=BOT_TOKEN, default=DefaultBotProperties(parse_mode=ParseMode.HTML))
 
-
-class AuthMiddleware(BaseMiddleware):
-    async def __call__(self, handler, event, data):
-        if event.from_user.id not in ALLOWED_USERS:
-            if isinstance(event, Message):
-                await event.answer(locale("UNAUTHORIZED_USER"))
-            return
-        return await handler(event, data)
-
-
-dp.message.middleware(AuthMiddleware())
-dp.callback_query.middleware(AuthMiddleware())
 
 default_router = Router()
 
@@ -69,10 +56,12 @@ dp.include_router(default_router)
 
 
 async def restore_jobs():
-    for user_id in ALLOWED_USERS:
-        hours = await get_user_timer(user_id)
-        if hours > 0:
-            update_user_job(bot, user_id, hours)
+    # TODO: Fetch all users from the database since ALLOWED_USERS limit was removed
+    # for user_id in all_users:
+    #     hours = await get_user_timer(user_id)
+    #     if hours > 0:
+    #         update_user_job(bot, user_id, hours)
+    pass
 
 
 async def update_categories_list():
