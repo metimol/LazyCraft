@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import asyncio
 import base64
 import html
 import os
@@ -9,7 +10,7 @@ import uuid
 from dataclasses import asdict, dataclass, field
 from typing import Optional
 
-from curl_cffi import requests as creq
+from curl_cffi.requests import AsyncSession
 
 from . import categories as _catalog
 
@@ -102,7 +103,7 @@ class KleinanzeigenAPI:
         max_retries: how many times to retry on temporary errors (429, 5xx, or
             network problems).
         basic_user / basic_pw: override the built-in Basic-auth login. If these
-            are not set, the KLEINANZEIGEN_BASIC_USER / KLEINANZEIGEN_BASIC_PW
+            are not set, the APP_USER / APP_PASSWORD
             environment variables are used, then the built-in defaults.
     """
 
@@ -125,7 +126,17 @@ class KleinanzeigenAPI:
         user = basic_user or DEFAULT_BASIC_USER
         pw = basic_pw or DEFAULT_BASIC_PW
         self._auth = "Basic " + base64.b64encode(f"{user}:{pw}".encode()).decode()
-        self._s = creq.Session(impersonate="chrome")
+        self._s = AsyncSession(impersonate="chrome")
+
+    async def close(self):
+        if self._s:
+            await self._s.close()
+
+    async def __aenter__(self):
+        return self
+
+    async def __aexit__(self, exc_type, exc, tb):
+        await self.close()
 
     # -- transport ---------------------------------------------------------- #
     def _headers(self) -> dict:
@@ -139,17 +150,17 @@ class KleinanzeigenAPI:
             "Authorization": self._auth,
         }
 
-    def _throttle(self):
+    async def _throttle(self):
         wait = self.rate_limit - (time.time() - self._last)
         if wait > 0:
-            time.sleep(wait + random.uniform(0, 0.4))
+            await asyncio.sleep(wait + random.uniform(0, 0.4))
 
-    def _get(self, url: str, params: Optional[dict] = None) -> creq.Response:
+    async def _get(self, url: str, params: Optional[dict] = None):
         last = None
         for attempt in range(1, self.max_retries + 1):
-            self._throttle()
+            await self._throttle()
             try:
-                r = self._s.get(
+                r = await self._s.get(
                     url, params=params, headers=self._headers(), timeout=self.timeout
                 )
                 self._last = time.time()
@@ -159,11 +170,11 @@ class KleinanzeigenAPI:
                     raise RuntimeError(
                         f"{r.status_code} from API — Basic-auth credentials likely "
                         f"rotated. Supply fresh ones via basic_user/basic_pw or the "
-                        f"KLEINANZEIGEN_BASIC_USER/KLEINANZEIGEN_BASIC_PW env vars. "
+                        f"APP_USER/APP_PASSWORD env vars. "
                         f"Body: {r.text[:160]}"
                     )
                 if r.status_code in (429, 500, 503):
-                    time.sleep(1.5 * attempt + random.uniform(0, 1.5))
+                    await asyncio.sleep(1.5 * attempt + random.uniform(0, 1.5))
                     continue
                 r.raise_for_status()
             except RuntimeError:
@@ -171,11 +182,11 @@ class KleinanzeigenAPI:
             except Exception as e:  # noqa: BLE001 - retry on any network error
                 last = e
                 self._last = time.time()
-                time.sleep(1.2 * attempt)
+                await asyncio.sleep(1.2 * attempt)
         raise RuntimeError(f"GET failed after {self.max_retries} tries: {url} ({last})")
 
     # -- location resolution ------------------------------------------------ #
-    def resolve_location(self, query: str) -> list:
+    async def resolve_location(self, query: str) -> list:
         """Look up a place name and return a list of (location_id, label) matches.
 
         Asks the app's location endpoint first. If that call fails for any reason
@@ -183,16 +194,17 @@ class KleinanzeigenAPI:
         instead, so this keeps working either way.
         """
         try:
-            cands = self._resolve_location_api(query)
+            cands = await self._resolve_location_api(query)
             if cands:
                 return cands
         except Exception:  # API down or response unreadable -> try the website
             pass
-        return self._resolve_location_web(query)
+        return await self._resolve_location_web(query)
 
-    def _resolve_location_api(self, query: str) -> list:
+    async def _resolve_location_api(self, query: str) -> list:
         """Look up a place name using the app's /api/locations.json endpoint."""
-        data = self._get(f"{API_HOST}/api/locations.json", params={"q": query}).json()
+        r = await self._get(f"{API_HOST}/api/locations.json", params={"q": query})
+        data = r.json()
         root = _val(data.get(LOCATIONS_NS, {}))
         nodes = root.get("location") if isinstance(root, dict) else None
         if isinstance(nodes, dict):  # one match comes back as a single item, not a list
@@ -217,9 +229,9 @@ class KleinanzeigenAPI:
             if kids:
                 self._flatten_locations(kids if isinstance(kids, list) else [kids], out)
 
-    def _resolve_location_web(self, query: str) -> list:
+    async def _resolve_location_web(self, query: str) -> list:
         """Look up a place name on the website (used only as a backup)."""
-        r = self._s.get(
+        r = await self._s.get(
             f"{WEB_HOST}/s-ort-empfehlungen.json",
             params={"query": query},
             headers={"X-Requested-With": "XMLHttpRequest", "Accept-Language": "de-DE"},
@@ -232,9 +244,9 @@ class KleinanzeigenAPI:
                 out.append((lid, label))
         return out
 
-    def best_location(self, query: str) -> Optional[tuple]:
+    async def best_location(self, query: str) -> Optional[tuple]:
         """Return the single best (location_id, label) guess for a place name, or None."""
-        cands = self.resolve_location(query)
+        cands = await self.resolve_location(query)
         if not cands:
             return None
         ql = query.lower()
@@ -302,7 +314,7 @@ class KleinanzeigenAPI:
         )
 
     # -- search ------------------------------------------------------------- #
-    def search_page(
+    async def search_page(
         self,
         *,
         category_id=None,
@@ -340,7 +352,8 @@ class KleinanzeigenAPI:
         ):  # PRICE_ASCENDING | PRICE_DESCENDING | DATE_DESCENDING | DISTANCE_ASCENDING
             params["sortType"] = sort_type
 
-        data = self._get(f"{API_HOST}/api/ads.json", params=params).json()
+        r = await self._get(f"{API_HOST}/api/ads.json", params=params)
+        data = r.json()
         block = data.get(ADS_NS, {}).get("value", {})
         total = int(_num(block.get("paging", {}).get("numFound")) or 0)
         raw = block.get("ad", [])
@@ -348,7 +361,7 @@ class KleinanzeigenAPI:
             raw = [raw]
         return total, [self._parse_ad(a) for a in raw]
 
-    def search(
+    async def search(
         self,
         location=None,
         *,
@@ -402,7 +415,7 @@ class KleinanzeigenAPI:
             if str(location).isdigit():
                 location_id = str(location)
             else:
-                best = self.best_location(location)
+                best = await self.best_location(location)
                 if not best:
                     raise ValueError(
                         f"Could not resolve location {location!r}. Check the spelling "
@@ -413,7 +426,7 @@ class KleinanzeigenAPI:
 
         results, seen = [], set()
         for page in range(pages):
-            total, listings = self.search_page(
+            total, listings = await self.search_page(
                 category_id=category_id,
                 location_id=location_id,
                 distance_km=distance_km,
@@ -454,7 +467,14 @@ class KleinanzeigenAPI:
                 break
         return results  # already ordered by the server (sort_type)
 
-    def search_metadata(self, category=None, *, category_id=None) -> dict:
+    async def search_rentals(self, location=None, **kwargs) -> list:
+        """Shortcut for search() limited to apartment rentals (category id 203,
+        "Mietwohnungen"). Takes the same keyword arguments as search(); pass
+        category_id yourself to use a different category.
+        """
+        return await self.search(location=location, category_id=203, **kwargs)
+
+    async def search_metadata(self, category=None, *, category_id=None) -> dict:
         """List the filters you can search a category with.
 
         Returns a dict like ``param_name -> {label, type, search_param, values}``.
@@ -472,7 +492,8 @@ class KleinanzeigenAPI:
         )
         if cat is None:
             raise ValueError("search_metadata needs a category (name or id)")
-        data = self._get(f"{API_HOST}/api/ads/search-metadata/{cat}.json").json()
+        r = await self._get(f"{API_HOST}/api/ads/search-metadata/{cat}.json")
+        data = r.json()
         opts = _val(data.get(SEARCH_META_NS, {}))
         out: dict = {}
         for name, spec in opts.items() if isinstance(opts, dict) else []:
@@ -495,9 +516,10 @@ class KleinanzeigenAPI:
             out[name] = entry
         return out
 
-    def get_ad(self, ad_id: str) -> Listing:
+    async def get_ad(self, ad_id: str) -> Listing:
         """Fetch a single ad by id."""
-        data = self._get(f"{API_HOST}/api/ads/{ad_id}.json").json()
+        r = await self._get(f"{API_HOST}/api/ads/{ad_id}.json")
+        data = r.json()
         # single-ad payload wraps under an "ad" key
         ad = data.get("{http://www.ebayclassifiedsgroup.com/schema/ad/v1}ad", data)
         ad = ad.get("value", ad) if isinstance(ad, dict) else ad
@@ -524,11 +546,12 @@ class KleinanzeigenAPI:
         """Convert a category name or id to an id string (None means all categories)."""
         return _catalog.resolve_category(value)
 
-    def fetch_categories(self) -> list:
+    async def fetch_categories(self) -> list:
         """Download the live category list and return it as Category objects.
 
         Use this to rebuild the bundled data/categories.json when the site
         changes its categories.
         """
-        data = self._get(f"{API_HOST}/api/categories.json").json()
+        r = await self._get(f"{API_HOST}/api/categories.json")
+        data = r.json()
         return [_catalog.Category(**c) for c in _catalog.flatten_api_categories(data)]

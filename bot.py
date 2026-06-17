@@ -17,6 +17,7 @@ from utils.keyboards import get_main_keyboard
 from handlers.settings_handler import router as settings_router
 from handlers.free_search_handler import router as free_router
 
+
 dp = Dispatcher()
 bot = Bot(token=BOT_TOKEN, default=DefaultBotProperties(parse_mode=ParseMode.HTML))
 
@@ -73,6 +74,10 @@ async def restore_jobs():
         hours = await get_user_timer(user_id)
         if hours > 0:
             update_user_job(bot, user_id, hours)
+
+
+async def update_categories_list():
+    pass
 
 
 async def main() -> None:
