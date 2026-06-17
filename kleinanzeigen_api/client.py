@@ -19,13 +19,15 @@ ADS_NS = "{http://www.ebayclassifiedsgroup.com/schema/ad/v1}ads"
 LOCATIONS_NS = "{http://www.ebayclassifiedsgroup.com/schema/location/v1}locations"
 SEARCH_META_NS = "{http://www.ebayclassifiedsgroup.com/schema/ad/v1}ads-search-options"
 
-# --- baked-in app-distribution values (override via env / constructor) -------
-# TODO: Change into env variables
-APP_VERSION = "2026.23.1"
-DEFAULT_BASIC_USER = "android"
-DEFAULT_BASIC_PW = "TaR60pEttY"
+# Get android app secrets from environment variables
+APP_VERSION = os.environ.get("APP_VERSION", None)
+DEFAULT_BASIC_USER = os.environ.get("APP_USER", None)
+DEFAULT_BASIC_PW = os.environ.get("APP_PASSWORD", None)
 
-CATEGORY_WOHNUNG_MIETEN = 203
+if None in [APP_VERSION, DEFAULT_BASIC_USER, DEFAULT_BASIC_PW]:
+    raise RuntimeError(
+        "Set APP_VERSION, APP_USER and APP_PASSWORD environment variables."
+    )
 
 
 # --------------------------------------------------------------------------- #
@@ -120,8 +122,8 @@ class KleinanzeigenAPI:
         self._last = 0.0
         # build one install id per client, the same way the app makes one per install
         self._xapp = f"{uuid.uuid4()}{int(time.time() * 1000)}"
-        user = basic_user or os.getenv("KLEINANZEIGEN_BASIC_USER") or DEFAULT_BASIC_USER
-        pw = basic_pw or os.getenv("KLEINANZEIGEN_BASIC_PW") or DEFAULT_BASIC_PW
+        user = basic_user or DEFAULT_BASIC_USER
+        pw = basic_pw or DEFAULT_BASIC_PW
         self._auth = "Basic " + base64.b64encode(f"{user}:{pw}".encode()).decode()
         self._s = creq.Session(impersonate="chrome")
 
@@ -451,14 +453,6 @@ class KleinanzeigenAPI:
             if (page + 1) * size >= total:
                 break
         return results  # already ordered by the server (sort_type)
-
-    def search_rentals(self, location=None, **kwargs) -> list:
-        """Shortcut for search() limited to apartment rentals (category id 203,
-        "Mietwohnungen"). Takes the same keyword arguments as search(); pass
-        category_id yourself to use a different category.
-        """
-        kwargs.setdefault("category_id", CATEGORY_WOHNUNG_MIETEN)
-        return self.search(location, **kwargs)
 
     def search_metadata(self, category=None, *, category_id=None) -> dict:
         """List the filters you can search a category with.
