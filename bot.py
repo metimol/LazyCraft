@@ -18,6 +18,7 @@ from database.parsers import get_all_users_with_parsers, get_parsers
 from handlers.settings_handler import router as settings_router
 from handlers.free_search_handler import router as free_router
 from handlers.parser_handler import router as parser_router
+from handlers.fast_search_handler import router as fast_search_router
 
 dp = Dispatcher()
 bot = Bot(token=BOT_TOKEN, default=DefaultBotProperties(parse_mode=ParseMode.HTML))
@@ -53,6 +54,7 @@ async def not_supported_format(message: Message) -> None:
 dp.include_router(settings_router)
 dp.include_router(free_router)
 dp.include_router(parser_router)
+dp.include_router(fast_search_router)
 dp.include_router(default_router)
 
 

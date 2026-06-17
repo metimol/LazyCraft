@@ -30,5 +30,13 @@
   "parser_resumed": "Parser resumed.",
   "premium_required": "Access Denied. This feature requires a Premium subscription.",
   "next_page_btn": "Next ➡️",
-  "prev_page_btn": "⬅️ Prev"
+  "prev_page_btn": "⬅️ Prev",
+  "fs_limit_reached": "You have reached your daily limit for Fast Searches. Limit resets at Midnight (Berlin time) in {time_left}.",
+  "fs_ask_category": "Do you want to search in a specific category?",
+  "fs_enter_query": "Please enter your search query:",
+  "fs_live_optimizing": "🤖 <i>AI is optimizing your search...</i>",
+  "fs_live_scraping": "🔍 <i>Scraping items from Kleinanzeigen...</i>",
+  "fs_live_filtering": "🧠 <i>AI is filtering {count} results to find the best ones...</i>",
+  "fs_results_title": "<b>Fast Search Results:</b>\n\n",
+  "fs_no_results": "No results found matching your criteria."
 }

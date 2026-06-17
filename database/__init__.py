@@ -19,6 +19,7 @@ from .parsers import (
     is_item_seen,
     mark_item_seen,
 )
+from .limits import check_fast_search_limit
 
 __all__ = [
     "get_redis",
@@ -37,4 +38,5 @@ __all__ = [
     "toggle_parser",
     "is_item_seen",
     "mark_item_seen",
+    "check_fast_search_limit",
 ]

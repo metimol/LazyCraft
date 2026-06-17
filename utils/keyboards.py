@@ -219,3 +219,12 @@ def get_parser_action_keyboard(name: str, is_active: bool):
             ],
         ]
     )
+
+
+def get_fs_category_prompt_keyboard():
+    return InlineKeyboardMarkup(
+        inline_keyboard=[
+            [InlineKeyboardButton(text=locale("yes_btn"), callback_data="fs_cat_yes")],
+            [InlineKeyboardButton(text=locale("no_btn"), callback_data="fs_cat_no")],
+        ]
+    )
