@@ -38,5 +38,7 @@
   "fs_live_scraping": "🔍 <i>Scraping items from Kleinanzeigen...</i>",
   "fs_live_filtering": "🧠 <i>AI is filtering {count} results to find the best ones...</i>",
   "fs_results_title": "<b>Fast Search Results:</b>\n\n",
-  "fs_no_results": "No results found matching your criteria."
+  "fs_no_results": "No results found matching your criteria.",
+  "help_message": "<b>Keigen: Your smart radar for Kleinanzeigen</b>\n\n<b>How to Use:</b>\n• <b>Fast Search:</b> Instant lookup for items right now.\n• <b>Parser:</b> Background tracking that notifies you automatically when new items drop.\n\n<b>Pricing & Trial:</b>\nThe first 14 days of Premium are absolutely FREE! After the trial, Premium costs [X] Telegram Stars for 28 days.\n\n<b>Referral Mention:</b>\nYou can get free Premium days by inviting friends!",
+  "referral_explanation": "Share this link with your friends to get free Premium days!\n\nYour referral link: {ref_link}"
 }
