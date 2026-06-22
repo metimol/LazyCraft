@@ -45,5 +45,6 @@
   "language_saved": "Language successfully updated!",
   "enter_zip": "Please enter a valid 5-digit German Zip Code:",
   "invalid_zip": "Invalid zip code. Please enter exactly 5 digits:",
-  "zip_saved": "Zip Code {zip_code} saved."
+  "zip_saved": "Zip Code {zip_code} saved.",
+  "missing_zip_code": "You need to set your Zip Code in the Settings before searching."
 }

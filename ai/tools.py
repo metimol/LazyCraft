@@ -1,7 +1,9 @@
 from langchain.tools import tool
-from utils.scrape_kleinanzeigen import scrape_all_pages
+from kleinanzeigen_api.client import KleinanzeigenAPI
 from ai.context import current_message
 from const import locale
+from database.users import get_user_zip
+from utils.geocoding import get_lat_lon, calculate_distance
 
 
 @tool
@@ -26,34 +28,46 @@ async def search_in_kleinanzeigen(query: str, radius: int, max_price: int):
 
     msg = current_message.get()
 
+    zip_code = await get_user_zip(msg.from_user.id)
+    if not zip_code:
+        return locale("missing_zip_code")
+
     status_msg = await msg.answer(locale("SEARCHING_WITH_QUERY").format(query=query))
 
-    async def update_progress(page: int, found_count: int):
-        try:
-            await status_msg.edit_text(
-                f"{locale('SEARCHING_WITH_QUERY').format(query=query)}\n\n"
-                f"{locale('CHECKED_PAGES').format(page=page)}\n"
-                f"{locale('ITEMS_FOUNDED').format(count=found_count)}"
+    user_coords = await get_lat_lon(zip_code)
+
+    try:
+        async with KleinanzeigenAPI() as api:
+            total, results = await api.search_page(
+                q=query,
+                location_id=zip_code,
+                max_price=max_price,
+                distance_km=radius,
+                size=20,
             )
+
+        markdown_table = (
+            "| Name | Price | Distance (km) | URL |\n| --- | --- | --- | --- |\n"
+        )
+
+        for item in results:
+            dist_str = "N/A"
+            if user_coords and item.latitude and item.longitude:
+                dist = calculate_distance(
+                    user_coords[0], user_coords[1], item.latitude, item.longitude
+                )
+                dist_str = f"{dist:.1f}"
+
+            markdown_table += f"| {item.title} | {item.price} {item.price_type} | {dist_str} | {item.url} |\n"
+
+    finally:
+        try:
+            await status_msg.delete()
         except Exception:
             pass
 
-    items = await scrape_all_pages(
-        radius=radius,
-        query=query,
-        max_price=max_price,
-        progress_callback=update_progress,
-    )
-
-    try:
-        await status_msg.delete()
-    except Exception:
-        pass
-
-    markdown_table = "| Name | Price | Distance | URL |\n| --- | --- | --- | --- |\n"
-
-    for item in items:
-        markdown_table += f"| {item['title']} | {item['price']} | {item['distance']} | {item['link']} |\n"
+    if not results:
+        return locale("fs_no_results")
 
     return markdown_table
 
@@ -73,30 +87,40 @@ async def get_free_items(radius: int):
 
     msg = current_message.get()
 
+    zip_code = await get_user_zip(msg.from_user.id)
+    if not zip_code:
+        return locale("missing_zip_code")
+
     status_msg = await msg.answer(locale("SEARCHING_ZU_VERSHENKEN"))
 
-    async def update_progress(page: int, found_count: int):
-        try:
-            await status_msg.edit_text(
-                f"{locale('SEARCHING_ZU_VERSHENKEN')}\n\n"
-                f"{locale('CHECKED_PAGES').format(page=page)}\n"
-                f"{locale('ITEMS_FOUNDED').format(count=found_count)}"
+    user_coords = await get_lat_lon(zip_code)
+
+    try:
+        async with KleinanzeigenAPI() as api:
+            # max_price=0 usually implies "Verschenken" on Kleinanzeigen if sorted/filtered properly.
+            total, results = await api.search_page(
+                q="", location_id=zip_code, max_price=0, distance_km=radius, size=20
             )
+
+        markdown_table = "| Name | Distance (km) | URL |\n| --- | --- | --- |\n"
+
+        for item in results:
+            dist_str = "N/A"
+            if user_coords and item.latitude and item.longitude:
+                dist = calculate_distance(
+                    user_coords[0], user_coords[1], item.latitude, item.longitude
+                )
+                dist_str = f"{dist:.1f}"
+
+            markdown_table += f"| {item.title} | {dist_str} | {item.url} |\n"
+
+    finally:
+        try:
+            await status_msg.delete()
         except Exception:
             pass
 
-    items = await scrape_all_pages(
-        radius=radius, query="", max_price=0, progress_callback=update_progress
-    )
-
-    try:
-        await status_msg.delete()
-    except Exception:
-        pass
-
-    markdown_table = "| Name | Distance | URL |\n| --- | --- | --- |\n"
-
-    for item in items:
-        markdown_table += f"| {item['title']} | {item['distance']} | {item['link']} |\n"
+    if not results:
+        return locale("fs_no_results")
 
     return markdown_table

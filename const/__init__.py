@@ -2,7 +2,10 @@ import os
 import json
 from pathlib import Path
 import logging
+from dotenv import load_dotenv
 from contextvars import ContextVar
+
+load_dotenv()
 
 user_lang: ContextVar[str] = ContextVar("user_lang", default="en")
 
