@@ -9,6 +9,8 @@ async def generate_optimized_queries(user_query: str) -> list[str]:
     Generates 1 to 5 highly optimized search queries for Kleinanzeigen based on user input.
     Returns a JSON list of strings.
     """
+
+    # TODO: Make better search phrases
     sys_prompt = (
         "You are an expert at searching Kleinanzeigen (a German classifieds site). "
         "Based on the user's input, generate 1 to 5 short, highly optimized search queries "
