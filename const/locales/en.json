@@ -52,5 +52,15 @@
   "SEARCHING_WITH_QUERY": "Searching for '{query}'...",
   "CHECKED_PAGES": "Checked {page} pages...",
   "ITEMS_FOUNDED": "Found {count} items...",
-  "SEARCHING_ZU_VERSHENKEN": "Looking for free items..."
+  "SEARCHING_ZU_VERSHENKEN": "Looking for free items...",
+  "welcome_message": "Welcome to Keigen! Your smart radar for Kleinanzeigen.",
+  "not_supported_command": "Sorry, I don't understand that command.",
+  "not_supported_format": "Sorry, I only understand text messages.",
+  "settings_menu": "Settings Menu. Choose an option:",
+  "choose_timer": "Select timer duration:",
+  "timer_saved": "Timer saved. Checking every {hours} hours.",
+  "enter_prompt": "Please enter your AI prompt:",
+  "prompt_saved": "AI prompt saved.",
+  "choose_radius": "Select your search radius:",
+  "radius_saved": "Search radius set to {radius} km."
 }
