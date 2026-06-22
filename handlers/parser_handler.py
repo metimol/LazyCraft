@@ -5,7 +5,6 @@ from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State, StatesGroup
 
 from const import locale
-from database.users import is_premium
 from database.parsers import get_parsers, add_parser, delete_parser, toggle_parser
 from utils.keyboards import (
     get_parser_menu_keyboard,
@@ -28,11 +27,8 @@ class ParserState(StatesGroup):
 
 
 @router.message(F.text == locale("auto_parser_btn"))
-@router.message(Command("parser"))
-async def parser_cmd(message: Message):
-    if not await is_premium(message.from_user.id):
-        await message.answer(locale("premium_required"))
-        return
+@router.message(Command("parsers"))
+async def parser_menu_cmd(message: Message):
     await message.answer(locale("parser_menu"), reply_markup=get_parser_menu_keyboard())
 
 

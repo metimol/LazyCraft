@@ -28,7 +28,6 @@
   "parser_deleted": "Parser deleted.",
   "parser_paused": "Parser paused.",
   "parser_resumed": "Parser resumed.",
-  "premium_required": "Access Denied. This feature requires a Premium subscription.",
   "next_page_btn": "Next ➡️",
   "prev_page_btn": "⬅️ Prev",
   "fs_limit_reached": "You have reached your daily limit for Fast Searches. Limit resets at Midnight (Berlin time) in {time_left}.",
@@ -39,6 +38,12 @@
   "fs_live_filtering": "🧠 <i>AI is filtering {count} results to find the best ones...</i>",
   "fs_results_title": "<b>Fast Search Results:</b>\n\n",
   "fs_no_results": "No results found matching your criteria.",
-  "help_message": "<b>Keigen: Your smart radar for Kleinanzeigen</b>\n\n<b>How to Use:</b>\n• <b>Fast Search:</b> Instant lookup for items right now.\n• <b>Parser:</b> Background tracking that notifies you automatically when new items drop.\n\n<b>Pricing & Trial:</b>\nThe first 14 days of Premium are absolutely FREE! After the trial, Premium costs [X] Telegram Stars for 28 days.\n\n<b>Referral Mention:</b>\nYou can get free Premium days by inviting friends!",
-  "referral_explanation": "Share this link with your friends to get free Premium days!\n\nYour referral link: {ref_link}"
+  "help_message": "<b>Keigen: Your smart radar for Kleinanzeigen</b>\n\n<b>How to Use:</b>\n• <b>Fast Search:</b> Instant lookup for items right now.\n• <b>Parser:</b> Background tracking that notifies you automatically when new items drop.",
+  "set_language_btn": "🌍 Language",
+  "set_location_btn": "📍 Location & Radius",
+  "choose_language": "Select your language:",
+  "language_saved": "Language successfully updated!",
+  "enter_zip": "Please enter a valid 5-digit German Zip Code:",
+  "invalid_zip": "Invalid zip code. Please enter exactly 5 digits:",
+  "zip_saved": "Zip Code {zip_code} saved."
 }

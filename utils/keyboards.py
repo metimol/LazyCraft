@@ -35,13 +35,36 @@ def get_settings_keyboard():
             ],
             [
                 InlineKeyboardButton(
-                    text="📍 Изменить радиус", callback_data="set_radius"
+                    text=locale("set_location_btn"), callback_data="set_location"
+                )
+            ],
+            [
+                InlineKeyboardButton(
+                    text=locale("set_language_btn"), callback_data="set_language"
                 )
             ],
             [
                 InlineKeyboardButton(
                     text="📝 Задать интересы", callback_data="set_prompt"
                 )
+            ],
+        ]
+    )
+
+
+def get_language_keyboard():
+    return InlineKeyboardMarkup(
+        inline_keyboard=[
+            [
+                InlineKeyboardButton(text="English", callback_data="lang_en"),
+                InlineKeyboardButton(text="Deutsch", callback_data="lang_de"),
+            ],
+            [
+                InlineKeyboardButton(text="Русский", callback_data="lang_ru"),
+                InlineKeyboardButton(text="Türkçe", callback_data="lang_tur"),
+            ],
+            [
+                InlineKeyboardButton(text="Українська", callback_data="lang_ukr"),
             ],
         ]
     )

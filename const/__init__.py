@@ -2,6 +2,9 @@ import os
 import json
 from pathlib import Path
 import logging
+from contextvars import ContextVar
+
+user_lang: ContextVar[str] = ContextVar("user_lang", default="en")
 
 
 _locales_data = {}
@@ -24,7 +27,10 @@ def _load_locales():
 _load_locales()
 
 
-def locale(key: str, lang: str = "en") -> str:
+def locale(key: str, lang: str = None) -> str:
+    if lang is None:
+        lang = user_lang.get()
+
     lang_data = _locales_data.get(lang)
     if lang_data is None:
         lang_data = _locales_data.get("en", {})

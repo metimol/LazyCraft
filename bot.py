@@ -15,6 +15,7 @@ from utils.scheduler_jobs import scheduler, add_parser_job
 from utils.keyboards import get_main_keyboard
 from database.parsers import get_all_users_with_parsers, get_parsers
 from database.client import init_redis, close_redis
+from utils.middlewares import LocaleMiddleware
 
 from aiogram import BaseMiddleware
 from aiogram.types import TelegramObject
@@ -46,6 +47,7 @@ class AdminMiddleware(BaseMiddleware):
 dp = Dispatcher()
 if ADMIN_ID:
     dp.update.outer_middleware(AdminMiddleware(admin_id=ADMIN_ID))
+dp.update.outer_middleware(LocaleMiddleware())
 
 bot = Bot(token=BOT_TOKEN, default=DefaultBotProperties(parse_mode=ParseMode.HTML))
 
