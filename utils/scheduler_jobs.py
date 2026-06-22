@@ -2,8 +2,7 @@ import random
 import asyncio
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from aiogram import Bot
-from utils.redis_database import get_user_radius, get_user_prompt
-from utils.scrape_kleinanzeigen import scrape_all_pages
+from database.users import get_user_radius, get_user_prompt, get_user_zip
 from utils.direct_ai_filter import filter_items_with_llm
 from utils.split_message import split_message
 from database.parsers import get_parsers, is_item_seen, mark_item_seen
@@ -15,8 +14,19 @@ scheduler = AsyncIOScheduler()
 async def scheduled_free_check(bot: Bot, user_id: int):
     radius = await get_user_radius(user_id)
     prompt = await get_user_prompt(user_id)
+    zip_code = await get_user_zip(user_id)
 
-    items = await scrape_all_pages(radius=radius, query="", max_price=0)
+    if not zip_code:
+        return
+
+    async with KleinanzeigenAPI() as api:
+        total, items = await api.search_page(
+            q="", location_id=zip_code, max_price=0, distance_km=radius, size=20
+        )
+
+    if not items:
+        return
+
     result = await filter_items_with_llm(items, prompt, radius)
 
     if result.lower() != "сегодня пусто":
@@ -53,9 +63,9 @@ async def scheduled_parser_check(bot: Bot, user_id: int, parser_name: str):
 
     async with KleinanzeigenAPI() as api:
         if config["type"] == "category":
-            items = await api.search(category_id=config["target"], pages=1)
+            total, items = await api.search_page(category_id=config["target"], page=0)
         else:
-            items = await api.search(q=config["target"], pages=1)
+            total, items = await api.search_page(q=config["target"], page=0)
 
     if not items:
         return
