@@ -5,11 +5,25 @@ from redis.asyncio import Redis, ConnectionPool
 REDIS_HOST = os.getenv("REDIS_HOST", "localhost")
 REDIS_PORT = int(os.getenv("REDIS_PORT", "6379"))
 
-# Create a connection pool to manage connections safely
-_pool = ConnectionPool.from_url(
-    f"redis://{REDIS_HOST}:{REDIS_PORT}/0",
-    decode_responses=True,  # Automatically decodes bytes to string
-)
+_pool: ConnectionPool | None = None
+
+
+async def init_redis():
+    global _pool
+    _pool = ConnectionPool.from_url(
+        f"redis://{REDIS_HOST}:{REDIS_PORT}/0",
+        decode_responses=True,  # Automatically decodes bytes to string
+    )
+    # Test connection on startup
+    client = Redis(connection_pool=_pool)
+    await client.ping()
+
+
+async def close_redis():
+    global _pool
+    if _pool:
+        await _pool.disconnect()
+        _pool = None
 
 
 def get_redis() -> Redis:
@@ -17,4 +31,6 @@ def get_redis() -> Redis:
     Returns an async Redis client instance.
     You can use this client to execute commands across the app.
     """
+    if _pool is None:
+        raise RuntimeError("Redis pool is not initialized")
     return Redis(connection_pool=_pool)

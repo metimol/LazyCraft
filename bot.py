@@ -8,12 +8,17 @@ from aiogram.enums import ParseMode
 from aiogram.filters import CommandStart
 from aiogram.types import Message
 
-from const import BOT_TOKEN, locale
+from const import BOT_TOKEN, locale, ADMIN_ID
 from kleinanzeigen_api import KleinanzeigenAPI
 from utils.processing import text_processing
 from utils.scheduler_jobs import scheduler, add_parser_job
 from utils.keyboards import get_main_keyboard
 from database.parsers import get_all_users_with_parsers, get_parsers
+from database.client import init_redis, close_redis
+
+from aiogram import BaseMiddleware
+from aiogram.types import TelegramObject
+from typing import Callable, Dict, Any, Awaitable
 
 from handlers.settings_handler import router as settings_router
 from handlers.free_search_handler import router as free_router
@@ -21,7 +26,27 @@ from handlers.parser_handler import router as parser_router
 from handlers.fast_search_handler import router as fast_search_router
 from handlers.help_handler import router as help_router
 
+
+class AdminMiddleware(BaseMiddleware):
+    def __init__(self, admin_id: int):
+        self.admin_id = admin_id
+
+    async def __call__(
+        self,
+        handler: Callable[[TelegramObject, Dict[str, Any]], Awaitable[Any]],
+        event: TelegramObject,
+        data: Dict[str, Any],
+    ) -> Any:
+        user = data.get("event_from_user")
+        if user and user.id != self.admin_id:
+            return
+        return await handler(event, data)
+
+
 dp = Dispatcher()
+if ADMIN_ID:
+    dp.update.outer_middleware(AdminMiddleware(admin_id=ADMIN_ID))
+
 bot = Bot(token=BOT_TOKEN, default=DefaultBotProperties(parse_mode=ParseMode.HTML))
 
 default_router = Router()
@@ -71,10 +96,14 @@ async def update_categories_list():
 
 
 async def main() -> None:
-    await update_categories_list()
-    scheduler.start()
-    await restore_jobs()
-    await dp.start_polling(bot)
+    await init_redis()
+    try:
+        await update_categories_list()
+        scheduler.start()
+        await restore_jobs()
+        await dp.start_polling(bot)
+    finally:
+        await close_redis()
 
 
 if __name__ == "__main__":

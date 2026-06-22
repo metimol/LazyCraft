@@ -41,6 +41,9 @@ def locale(key: str, lang: str = "en") -> str:
 BOT_TOKEN = os.getenv("BOT_TOKEN", None)
 GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY", None)
 
+ADMIN_ID_STR = os.getenv("ADMIN_ID", None)
+ADMIN_ID = int(ADMIN_ID_STR) if ADMIN_ID_STR else None
+
 if BOT_TOKEN is None or GOOGLE_API_KEY is None:
     raise Exception("Necessary environment variable not set")
 
