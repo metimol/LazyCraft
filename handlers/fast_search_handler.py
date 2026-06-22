@@ -10,6 +10,7 @@ from utils.keyboards import get_fs_category_prompt_keyboard, get_categories_keyb
 from utils.split_message import split_message
 from kleinanzeigen_api import KleinanzeigenAPI
 from ai.fast_search_ai import generate_optimized_queries, filter_best_items
+from database.users import get_user_zip
 
 router = Router()
 
@@ -22,6 +23,11 @@ class FSState(StatesGroup):
 
 @router.message(F.text == locale("fast_search_btn"))
 async def fast_search_entry(message: Message, state: FSMContext):
+    user_zip = await get_user_zip(message.from_user.id)
+    if not user_zip:
+        await message.answer(locale("missing_zip_code"))
+        return
+
     allowed, time_left = await check_fast_search_limit(message.from_user.id)
     if not allowed:
         await message.answer(locale("fs_limit_reached").format(time_left=time_left))
@@ -62,7 +68,7 @@ async def process_fs_cat_selection(callback: CallbackQuery, state: FSMContext):
     await state.set_state(FSState.waiting_for_query)
 
 
-@router.message(FSState.waiting_for_query)
+@router.message(FSState.waiting_for_query, ~F.text.startswith("/"))
 async def process_fs_query(message: Message, state: FSMContext):
     user_query = message.text.strip()
     data = await state.get_data()
@@ -77,19 +83,25 @@ async def process_fs_query(message: Message, state: FSMContext):
 
     await status_msg.edit_text(locale("fs_live_scraping"))
 
-    # 2. Sequential Scrape
+    # 2. Asynchronous Multithreaded Scrape
     all_items = []
     seen_ids = set()
 
+    async def fetch_query(api, q):
+        try:
+            return await api.search(q=q, category_id=category_id, pages=2)
+        except Exception:
+            return []
+
     async with KleinanzeigenAPI() as api:
-        for q in optimized_queries:
-            # We scrape max 2 pages per query to stay fast and avoid instant limits
-            items = await api.search(q=q, category_id=category_id, pages=2)
+        tasks = [fetch_query(api, q) for q in optimized_queries]
+        results = await asyncio.gather(*tasks)
+
+        for items in results:
             for item in items:
                 if item.id not in seen_ids:
                     seen_ids.add(item.id)
                     all_items.append(item)
-            await asyncio.sleep(1.5)  # Slight delay between different queries
 
     if not all_items:
         await status_msg.edit_text(locale("fs_no_results"))

@@ -6,6 +6,7 @@ from aiogram.fsm.state import State, StatesGroup
 
 from const import locale
 from database.parsers import get_parsers, add_parser, delete_parser, toggle_parser
+from database.users import get_user_zip
 from utils.keyboards import (
     get_parser_menu_keyboard,
     get_parser_type_keyboard,
@@ -29,11 +30,22 @@ class ParserState(StatesGroup):
 @router.message(F.text == locale("auto_parser_btn"))
 @router.message(Command("parsers"))
 async def parser_menu_cmd(message: Message):
+    user_zip = await get_user_zip(message.from_user.id)
+    if not user_zip:
+        await message.answer(locale("missing_zip_code"))
+        return
     await message.answer(locale("parser_menu"), reply_markup=get_parser_menu_keyboard())
 
 
 @router.callback_query(F.data == "parser_add")
 async def process_parser_add(callback: CallbackQuery, state: FSMContext):
+    user_zip = await get_user_zip(
+        callback.fromuser.id if hasattr(callback, "fromuser") else callback.from_user.id
+    )
+    if not user_zip:
+        await callback.answer(locale("missing_zip_code"), show_alert=True)
+        return
+
     parsers = await get_parsers(callback.from_user.id)
     if len(parsers) >= 5:
         await callback.message.edit_text(locale("parser_limit_reached"))
@@ -58,7 +70,7 @@ async def process_parser_name(message: Message, state: FSMContext):
     )
 
 
-@router.callback_query(F.data == "ptype_category")
+@router.callback_query(F.data == "ptype_category", ParserState.waiting_for_name)
 async def process_ptype_category(callback: CallbackQuery, state: FSMContext):
     await state.update_data(parser_type="category")
     await callback.message.edit_text(
@@ -66,13 +78,13 @@ async def process_ptype_category(callback: CallbackQuery, state: FSMContext):
     )
 
 
-@router.callback_query(F.data.startswith("catpage_"))
+@router.callback_query(F.data.startswith("catpage_"), ParserState.waiting_for_name)
 async def process_catpage(callback: CallbackQuery):
     page = int(callback.data.split("_")[1])
     await callback.message.edit_reply_markup(reply_markup=get_categories_keyboard(page))
 
 
-@router.callback_query(F.data.startswith("cat_"))
+@router.callback_query(F.data.startswith("cat_"), ParserState.waiting_for_name)
 async def process_cat_selection(callback: CallbackQuery, state: FSMContext):
     cat_id = callback.data.split("_")[1]
     await state.update_data(parser_target=cat_id)
@@ -81,7 +93,7 @@ async def process_cat_selection(callback: CallbackQuery, state: FSMContext):
     )
 
 
-@router.callback_query(F.data == "ptype_query")
+@router.callback_query(F.data == "ptype_query", ParserState.waiting_for_name)
 async def process_ptype_query(callback: CallbackQuery, state: FSMContext):
     await state.update_data(parser_type="query")
     await callback.message.edit_text(locale("enter_query"))
@@ -96,7 +108,7 @@ async def process_parser_query(message: Message, state: FSMContext):
     )
 
 
-@router.callback_query(F.data.startswith("freq_"))
+@router.callback_query(F.data.startswith("freq_"), ParserState.waiting_for_name)
 async def process_frequency(callback: CallbackQuery, state: FSMContext):
     freq = int(callback.data.split("_")[1])
     await state.update_data(parser_freq=freq)
@@ -105,7 +117,7 @@ async def process_frequency(callback: CallbackQuery, state: FSMContext):
     )
 
 
-@router.callback_query(F.data.startswith("aifilter_"))
+@router.callback_query(F.data.startswith("aifilter_"), ParserState.waiting_for_name)
 async def process_ai_filter(callback: CallbackQuery, state: FSMContext, bot: Bot):
     enable_ai = callback.data == "aifilter_yes"
     await state.update_data(parser_ai=enable_ai)
@@ -130,7 +142,13 @@ async def finish_parser_creation(
     message: Message, state: FSMContext, user_id: int, bot: Bot
 ):
     data = await state.get_data()
-    name = data["parser_name"]
+    name = data.get("parser_name")
+    if not name:
+        await message.answer(
+            "Your session expired. Please start creating the parser again."
+        )
+        await state.clear()
+        return
 
     config = {
         "type": data["parser_type"],

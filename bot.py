@@ -6,6 +6,7 @@ from aiogram import Dispatcher, Bot, F, Router
 from aiogram.client.default import DefaultBotProperties
 from aiogram.enums import ParseMode
 from aiogram.filters import CommandStart
+from aiogram.fsm.state import any_state
 from aiogram.types import Message
 
 from const import BOT_TOKEN, locale, ADMIN_ID
@@ -19,7 +20,10 @@ from utils.middlewares import LocaleMiddleware
 
 from aiogram import BaseMiddleware
 from aiogram.types import TelegramObject
+from aiogram.fsm.storage.redis import RedisStorage
 from typing import Callable, Dict, Any, Awaitable
+import os
+from aiogram.fsm.context import FSMContext
 
 from handlers.settings_handler import router as settings_router
 from handlers.parser_handler import router as parser_router
@@ -43,7 +47,8 @@ class AdminMiddleware(BaseMiddleware):
         return await handler(event, data)
 
 
-dp = Dispatcher()
+redis_url = f"redis://{os.getenv('REDIS_HOST', 'localhost')}:{os.getenv('REDIS_PORT', '6379')}/0"
+dp = Dispatcher(storage=RedisStorage.from_url(redis_url))
 if ADMIN_ID:
     dp.update.outer_middleware(AdminMiddleware(admin_id=ADMIN_ID))
 dp.update.outer_middleware(LocaleMiddleware())
@@ -53,8 +58,9 @@ bot = Bot(token=BOT_TOKEN, default=DefaultBotProperties(parse_mode=ParseMode.HTM
 default_router = Router()
 
 
-@default_router.message(CommandStart())
-async def command_start_handler(message: Message) -> None:
+@default_router.message(CommandStart(), any_state)
+async def command_start_handler(message: Message, state: FSMContext) -> None:
+    await state.clear()
     await message.answer(locale("welcome_message"), reply_markup=get_main_keyboard())
 
 

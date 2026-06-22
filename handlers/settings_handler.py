@@ -19,6 +19,7 @@ from database.users import (
     set_user_zip,
 )
 from utils.scheduler_jobs import update_user_job
+from utils.geocoding import get_lat_lon
 from const import locale, user_lang
 
 router = Router()
@@ -88,6 +89,14 @@ async def process_set_location(callback: CallbackQuery, state: FSMContext):
 async def process_zip_code(message: Message, state: FSMContext):
     zip_code = message.text.strip()
     if not re.match(r"^\d{5}$", zip_code):
+        await message.answer(locale("invalid_zip"))
+        return
+
+    status_msg = await message.answer("Validating zip code...")
+    coords = await get_lat_lon(zip_code)
+    await status_msg.delete()
+
+    if not coords:
         await message.answer(locale("invalid_zip"))
         return
 

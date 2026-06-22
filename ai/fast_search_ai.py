@@ -1,4 +1,6 @@
 import json
+import logging
+
 from ai.config import model
 
 
@@ -22,7 +24,19 @@ async def generate_optimized_queries(user_query: str) -> list[str]:
         ]
     )
 
-    content = response.content.strip()
+    content = response.content
+
+    # TODO: Remove logging after first release
+    logging.info(content)
+
+    if isinstance(content, list):
+        content = "".join(
+            [str(p.get("text", "")) for p in content if p.get("type") == "text"]
+        )
+    elif not isinstance(content, str):
+        content = str(content)
+
+    content = content.strip()
     if content.startswith("```json"):
         content = content[7:-3].strip()
     elif content.startswith("```"):
@@ -63,7 +77,15 @@ async def filter_best_items(items_list: list[dict], original_query: str) -> list
         ]
     )
 
-    content = response.content.strip()
+    content = response.content
+    if isinstance(content, list):
+        content = "".join(
+            [str(p.get("text", "")) for p in content if p.get("type") == "text"]
+        )
+    elif not isinstance(content, str):
+        content = str(content)
+
+    content = content.strip()
     if content.startswith("```json"):
         content = content[7:-3].strip()
     elif content.startswith("```"):
