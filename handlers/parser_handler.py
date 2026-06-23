@@ -57,6 +57,13 @@ async def process_parser_add(callback: CallbackQuery, state: FSMContext):
 @router.message(ParserState.waiting_for_name)
 async def process_parser_name(message: Message, state: FSMContext):
     name = message.text.strip()
+    if len(name) > 40:
+        # TODO: Transfer all phrases into json
+        await message.answer(
+            "Parser name is too long (maximum 40 characters). Please choose a shorter name:"
+        )
+        return
+
     parsers = await get_parsers(message.from_user.id)
     if name in parsers:
         await message.answer(
@@ -109,6 +116,7 @@ async def process_parser_query(message: Message, state: FSMContext):
 
 
 @router.callback_query(F.data.startswith("freq_"), ParserState.waiting_for_name)
+@router.callback_query(F.data.startswith("freq_"), ParserState.waiting_for_query)
 async def process_frequency(callback: CallbackQuery, state: FSMContext):
     freq = int(callback.data.split("_")[1])
     await state.update_data(parser_freq=freq)
@@ -118,6 +126,7 @@ async def process_frequency(callback: CallbackQuery, state: FSMContext):
 
 
 @router.callback_query(F.data.startswith("aifilter_"), ParserState.waiting_for_name)
+@router.callback_query(F.data.startswith("aifilter_"), ParserState.waiting_for_query)
 async def process_ai_filter(callback: CallbackQuery, state: FSMContext, bot: Bot):
     enable_ai = callback.data == "aifilter_yes"
     await state.update_data(parser_ai=enable_ai)
