@@ -3,6 +3,7 @@ import pytz
 from database.client import get_redis
 
 
+# TODO: Why 5?
 async def check_fast_search_limit(
     user_id: int, max_searches: int = 5
 ) -> tuple[bool, str]:

@@ -10,7 +10,7 @@ from utils.keyboards import get_fs_category_prompt_keyboard, get_categories_keyb
 from utils.split_message import split_message
 from kleinanzeigen_api import KleinanzeigenAPI
 from ai.fast_search_ai import generate_optimized_queries, filter_best_items
-from database.users import get_user_zip
+from database.users import get_user_zip, get_user_radius
 
 router = Router()
 
@@ -73,6 +73,8 @@ async def process_fs_query(message: Message, state: FSMContext):
     user_query = message.text.strip()
     data = await state.get_data()
     category_id = data.get("fs_category")
+    user_location = await get_user_zip(message.from_user.id)
+    user_distance = await get_user_radius(message.from_user.id)
 
     status_msg = await message.answer(locale("fs_live_optimizing"))
 
@@ -84,12 +86,21 @@ async def process_fs_query(message: Message, state: FSMContext):
     await status_msg.edit_text(locale("fs_live_scraping"))
 
     # 2. Asynchronous Multithreaded Scrape
+    # TODO: Only one thread with jetter
     all_items = []
     seen_ids = set()
 
+    # TODO: Why only 2 pages? All available pages. Minimum 40
     async def fetch_query(api, q):
         try:
-            return await api.search(q=q, category_id=category_id, pages=2)
+            # TODO: What happened if category is None?
+            return await api.search(
+                location=user_location,
+                distance_km=user_distance,
+                q=q,
+                category_id=category_id,
+                pages=2,
+            )
         except Exception:
             return []
 
@@ -127,8 +138,9 @@ async def process_fs_query(message: Message, state: FSMContext):
 
     best_items = [i for i in all_items if i.id in best_ids]
     if not best_items:
-        # Fallback to top 10 if AI fails
-        best_items = all_items[:10]
+        # Fallback to top 20 if AI fails
+        # TODO: Hmm... Why only 20?
+        best_items = all_items[:20]
 
     # 4. Final Output
     await status_msg.delete()

@@ -27,9 +27,9 @@ async def scheduled_free_check(bot: Bot, user_id: int):
     if not items:
         return
 
-    result = await filter_items_with_llm(items, prompt, radius)
+    result = await filter_items_with_llm(items, prompt)
 
-    if result.lower() != "сегодня пусто":
+    if result.lower() != "none":
         async for chunk in split_message(result):
             await bot.send_message(chat_id=user_id, text=chunk)
 
@@ -82,10 +82,9 @@ async def scheduled_parser_check(bot: Bot, user_id: int, parser_name: str):
     # Combine or filter
     if config["ai_filter"] and config["ai_prompt"]:
         # Only process a small batch to save tokens/time if there are many new items
-        result = await filter_items_with_llm(
-            new_items[:10], config["ai_prompt"], radius=0
-        )
-        if result and result.lower() != "сегодня пусто":
+        # TODO: But why? Better all or minimum 50-100 new items
+        result = await filter_items_with_llm(new_items[:10], config["ai_prompt"])
+        if result and result.lower() != "none":
             async for chunk in split_message(f"Parser: {parser_name}\n\n{result}"):
                 await bot.send_message(chat_id=user_id, text=chunk)
     else:
