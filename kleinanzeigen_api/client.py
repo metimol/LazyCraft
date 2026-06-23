@@ -399,6 +399,9 @@ class KleinanzeigenAPI:
             else:
                 raise ValueError("Invalid location zip code")
 
+        # TODO: Remove logging after release
+        logging.info(f"Search radius in Kleinanzeigen API: {distance_km}")
+
         results, seen = [], set()
         for page in range(pages):
             total, listings = await self.search_page(

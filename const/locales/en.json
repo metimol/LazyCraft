@@ -63,5 +63,6 @@
   "prompt_saved": "AI prompt saved.",
   "choose_radius": "Select your search radius:",
   "radius_saved": "Search radius set to {radius} km.",
-  "filter_items_with_llm": "Filter this items. User asked this search query: {prompt}\n\nSystem returned from Kleinanzeigen this items: {items}"
+  "filter_items_with_llm": "Filter this items. User asked this search query: {prompt}\n\nSystem returned from Kleinanzeigen this items: {items}",
+  "text_messages_not_supported": "Sorry, text messages are not supported. Use buttons instead."
 }
