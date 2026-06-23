@@ -20,8 +20,13 @@ async def scheduled_free_check(bot: Bot, user_id: int):
         return
 
     async with KleinanzeigenAPI() as api:
+        location_id = zip_code
+        locations = await api.resolve_location(str(zip_code))
+        if locations:
+            location_id = locations[0][0]
+
         total, items = await api.search_page(
-            q="", location_id=zip_code, max_price=0, distance_km=radius, size=20
+            q="", location_id=location_id, max_price=0, distance_km=radius, size=20
         )
 
     if not items:

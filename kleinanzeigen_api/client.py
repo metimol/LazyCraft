@@ -392,10 +392,15 @@ class KleinanzeigenAPI:
         location_id = None
         if location:
             if str(location).isdigit():
-                location_id = str(location)
-
-                # TODO: Remove logging after release
-                logging.info(f"Search location_id in Kleinanzeigen API: {location_id}")
+                locations = await self.resolve_location(str(location))
+                if locations:
+                    location_id = locations[0][0]
+                    logging.info(
+                        f"Resolved location {location} to location_id in Kleinanzeigen API: {location_id} ({locations[0][1]})"
+                    )
+                else:
+                    logging.warning(f"Could not resolve location zip code {location}")
+                    location_id = str(location)  # fallback
             else:
                 raise ValueError("Invalid location zip code")
 
