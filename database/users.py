@@ -12,14 +12,6 @@ async def get_all_users() -> list[int]:
     return [int(k.split(":")[1]) for k in keys]
 
 
-async def set_user_timer(user_id: int, hours: int) -> None:
-    """
-    Saves the user timer to Redis.
-    """
-    redis = get_redis()
-    await redis.set(f"user:{user_id}:timer", str(hours))
-
-
 async def get_user_timer(user_id: int) -> int:
     """
     Retrieves the user timer from Redis.
@@ -27,11 +19,6 @@ async def get_user_timer(user_id: int) -> int:
     redis = get_redis()
     hours = await redis.get(f"user:{user_id}:timer")
     return int(hours) if hours else 0
-
-
-async def set_user_prompt(user_id: int, prompt: str) -> None:
-    redis = get_redis()
-    await redis.set(f"user:{user_id}:prompt", prompt)
 
 
 async def get_user_prompt(user_id: int) -> Optional[str]:

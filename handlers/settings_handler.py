@@ -1,4 +1,4 @@
-from aiogram import Router, F, Bot
+from aiogram import Router, F
 from aiogram.filters import Command
 from aiogram.types import Message, CallbackQuery
 from aiogram.fsm.context import FSMContext
@@ -7,18 +7,14 @@ import re
 
 from utils.keyboards import (
     get_settings_keyboard,
-    get_timer_keyboard,
     get_radius_keyboard,
     get_language_keyboard,
 )
 from database.users import (
-    set_user_prompt,
     set_user_radius,
-    set_user_timer,
     set_user_language,
     set_user_zip,
 )
-from utils.scheduler_jobs import update_user_job
 from utils.geocoding import get_lat_lon
 from const import locale, user_lang
 
@@ -49,34 +45,6 @@ async def save_language(callback: CallbackQuery):
     await set_user_language(callback.from_user.id, lang)
     user_lang.set(lang)
     await callback.message.edit_text(locale("language_saved"))
-
-
-@router.callback_query(F.data == "set_prompt")
-async def process_set_prompt(callback: CallbackQuery, state: FSMContext):
-    await callback.message.edit_text(locale("enter_prompt"))
-    await state.set_state(SettingsState.waiting_for_prompt)
-
-
-@router.message(SettingsState.waiting_for_prompt)
-async def save_prompt(message: Message, state: FSMContext):
-    await set_user_prompt(message.from_user.id, message.text)
-    await message.answer(locale("prompt_saved"))
-    await state.clear()
-
-
-@router.callback_query(F.data == "set_timer")
-async def process_set_timer(callback: CallbackQuery):
-    await callback.message.edit_text(
-        locale("choose_timer"), reply_markup=get_timer_keyboard()
-    )
-
-
-@router.callback_query(F.data.startswith("timer_"))
-async def save_timer(callback: CallbackQuery, bot: Bot):
-    hours = int(callback.data.split("_")[1])
-    await set_user_timer(callback.from_user.id, hours)
-    update_user_job(bot, callback.from_user.id, hours)
-    await callback.message.edit_text(locale("timer_saved").format(hours=hours))
 
 
 @router.callback_query(F.data == "set_location")

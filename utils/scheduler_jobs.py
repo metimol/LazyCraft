@@ -39,21 +39,6 @@ async def scheduled_free_check(bot: Bot, user_id: int):
             await bot.send_message(chat_id=user_id, text=chunk)
 
 
-def update_user_job(bot: Bot, user_id: int, hours: int):
-    job_id = f"free_check_{user_id}"
-    if scheduler.get_job(job_id):
-        scheduler.remove_job(job_id)
-
-    if hours > 0:
-        scheduler.add_job(
-            scheduled_free_check,
-            "interval",
-            hours=hours,
-            id=job_id,
-            kwargs={"bot": bot, "user_id": user_id},
-        )
-
-
 async def scheduled_parser_check(bot: Bot, user_id: int, parser_name: str):
     # Stagger execution to avoid limits and flooding
     await asyncio.sleep(random.uniform(6, 300))

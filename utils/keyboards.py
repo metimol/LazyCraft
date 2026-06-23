@@ -30,22 +30,12 @@ def get_settings_keyboard():
         inline_keyboard=[
             [
                 InlineKeyboardButton(
-                    text="⏱ Настроить таймер", callback_data="set_timer"
-                )
-            ],
-            [
-                InlineKeyboardButton(
                     text=locale("set_location_btn"), callback_data="set_location"
                 )
             ],
             [
                 InlineKeyboardButton(
                     text=locale("set_language_btn"), callback_data="set_language"
-                )
-            ],
-            [
-                InlineKeyboardButton(
-                    text="📝 Задать интересы", callback_data="set_prompt"
                 )
             ],
         ]
@@ -65,25 +55,6 @@ def get_language_keyboard():
             ],
             [
                 InlineKeyboardButton(text="Українська", callback_data="lang_ukr"),
-            ],
-        ]
-    )
-
-
-def get_timer_keyboard():
-    return InlineKeyboardMarkup(
-        inline_keyboard=[
-            [
-                InlineKeyboardButton(text="1 час", callback_data="timer_1"),
-                InlineKeyboardButton(text="3 часа", callback_data="timer_3"),
-            ],
-            [
-                InlineKeyboardButton(text="6 часов", callback_data="timer_6"),
-                InlineKeyboardButton(text="12 часов", callback_data="timer_12"),
-            ],
-            [
-                InlineKeyboardButton(text="24 часа", callback_data="timer_24"),
-                InlineKeyboardButton(text="Выключить", callback_data="timer_0"),
             ],
         ]
     )
