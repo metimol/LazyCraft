@@ -96,9 +96,9 @@ async def process_fs_query(message: Message, state: FSMContext):
             # TODO: What happened if category is None?
             return await api.search(
                 location=user_location,
-                distance_km=user_distance,
                 q=q,
                 category_id=category_id,
+                distance_km=user_distance,
                 pages=2,
             )
         except Exception:
@@ -125,14 +125,7 @@ async def process_fs_query(message: Message, state: FSMContext):
     # Strip data down to minimal JSON to save tokens
     stripped_items = []
     for i in all_items:
-        stripped_items.append(
-            {
-                "id": i.id,
-                "title": i.title,
-                "price": i.price,
-                "distance": 0,  # Not using location yet
-            }
-        )
+        stripped_items.append({"id": i.id, "title": i.title, "price": i.price})
 
     best_ids = await filter_best_items(stripped_items, user_query)
 

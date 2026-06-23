@@ -29,7 +29,7 @@ async def generate_optimized_queries(user_query: str) -> list[str]:
     content = response.content
 
     # TODO: Remove logging after first release
-    logging.info(content)
+    logging.info(f"AI Search optimizers response: {content}")
 
     if isinstance(content, list):
         content = "".join(
@@ -80,6 +80,9 @@ async def filter_best_items(items_list: list[dict], original_query: str) -> list
     )
 
     content = response.content
+    # TODO: Remove logging after release
+    logging.info(f"AI Filter response: {content}")
+
     if isinstance(content, list):
         content = "".join(
             [str(p.get("text", "")) for p in content if p.get("type") == "text"]

@@ -3,6 +3,7 @@ from __future__ import annotations
 import asyncio
 import base64
 import html
+import logging
 import os
 import random
 import time
@@ -244,23 +245,6 @@ class KleinanzeigenAPI:
                 out.append((lid, label))
         return out
 
-    async def best_location(self, query: str) -> Optional[tuple]:
-        """Return the single best (location_id, label) guess for a place name, or None."""
-        cands = await self.resolve_location(query)
-        if not cands:
-            return None
-        ql = query.lower()
-        # Match the name exactly, ignoring the region part that may follow it,
-        # e.g. "Berlin - Berlin" (website) or "Charlottenburg (Berlin)" (app).
-        for lid, label in cands:
-            head = label.split(" - ")[0].split(" (")[0].strip().lower()
-            if head == ql:
-                return lid, label
-        for lid, label in cands:
-            if "-" not in label and label.lower().startswith(ql):
-                return lid, label
-        return cands[0]
-
     # -- parsing ------------------------------------------------------------ #
     @staticmethod
     def _parse_ad(ad: dict) -> Listing:
@@ -328,7 +312,7 @@ class KleinanzeigenAPI:
         sort_type=None,
         page=0,
         size=25,
-    ) -> tuple:
+    ):
         """Fetch one page of results. Returns (total_found, list_of_Listing)."""
         params = {"page": page, "size": size}
         if category_id:
@@ -363,25 +347,21 @@ class KleinanzeigenAPI:
 
     async def search(
         self,
-        location=None,
+        location: int = None,
         *,
-        q=None,
+        q: str = None,
         exclude=None,
-        category=None,
-        category_id=None,
-        distance_km=None,
-        min_price=None,
-        max_price=None,
-        min_rooms=None,
-        max_rooms=None,
-        min_size=None,
-        max_size=None,
-        ad_type="OFFERED",
+        category: str = None,
+        category_id: int = None,
+        distance_km: int = None,
+        min_price: int = None,
+        max_price: int = None,
+        ad_type: str = "OFFERED",
         sort_type=None,
-        pages=1,
-        size=25,
-        sort_by_price=False,
-    ) -> list:
+        pages: int = 1,
+        size: int = 25,
+        sort_by_price: bool = False,
+    ):
         """Search kleinanzeigen.de. By default this searches every category.
 
         Picking a category:
@@ -392,12 +372,11 @@ class KleinanzeigenAPI:
           - category_id is the same thing but only accepts an id. Pass either
             category or category_id, not both.
 
-        location can be a city/region name (looked up automatically) or a numeric
-        id. q is the keyword sent to the server. exclude (a string or list of
+        location should be a numeric zip code
+
+        q is the keyword sent to the server. exclude (a string or list of
         strings) removes any result whose title or description contains one of
-        the terms (case-insensitive, done on our side). min_rooms / max_rooms /
-        min_size / max_size filter real-estate ads on our side and are ignored
-        for ads that don't have those values.
+        the terms (case-insensitive, done on our side).
 
         Returns a list of Listing, in the order the server sorted them
         (sort_type).
@@ -414,15 +393,11 @@ class KleinanzeigenAPI:
         if location:
             if str(location).isdigit():
                 location_id = str(location)
+
+                # TODO: Remove logging after release
+                logging.info(f"Search location_id in Kleinanzeigen API: {location_id}")
             else:
-                best = await self.best_location(location)
-                if not best:
-                    raise ValueError(
-                        f"Could not resolve location {location!r}. Check the spelling "
-                        f"with resolve_location(), pass a numeric location id, or use "
-                        f"location=None to search all of Germany."
-                    )
-                location_id = best[0]
+                raise ValueError("Invalid location zip code")
 
         results, seen = [], set()
         for page in range(pages):
@@ -445,36 +420,20 @@ class KleinanzeigenAPI:
                     continue
                 if _excluded(listing, exclude_terms):
                     continue
-                if min_rooms is not None and (
-                    listing.rooms is None or listing.rooms < min_rooms
-                ):
-                    continue
-                if max_rooms is not None and (
-                    listing.rooms is None or listing.rooms > max_rooms
-                ):
-                    continue
-                if min_size is not None and (
-                    listing.size_m2 is None or listing.size_m2 < min_size
-                ):
-                    continue
-                if max_size is not None and (
-                    listing.size_m2 is None or listing.size_m2 > max_size
-                ):
-                    continue
                 seen.add(listing.id)
                 results.append(listing)
             if (page + 1) * size >= total:
                 break
         return results  # already ordered by the server (sort_type)
 
-    async def search_rentals(self, location=None, **kwargs) -> list:
+    async def search_rentals(self, location=None, **kwargs):
         """Shortcut for search() limited to apartment rentals (category id 203,
         "Mietwohnungen"). Takes the same keyword arguments as search(); pass
         category_id yourself to use a different category.
         """
         return await self.search(location=location, category_id=203, **kwargs)
 
-    async def search_metadata(self, category=None, *, category_id=None) -> dict:
+    async def search_metadata(self, category=None, *, category_id=None):
         """List the filters you can search a category with.
 
         Returns a dict like ``param_name -> {label, type, search_param, values}``.
