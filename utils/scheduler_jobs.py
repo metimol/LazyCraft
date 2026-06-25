@@ -1,7 +1,7 @@
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from aiogram import Bot
 from database.users import get_user_radius, get_user_prompt, get_user_zip
-from utils.direct_ai_filter import filter_items_with_llm
+from ai.fast_search_ai import filter_best_items
 from utils.split_message import split_message
 from database.parsers import get_parsers, is_item_seen, mark_item_seen
 from kleinanzeigen_api import KleinanzeigenAPI
@@ -30,11 +30,25 @@ async def scheduled_free_check(bot: Bot, user_id: int):
     if not items:
         return
 
-    result = await filter_items_with_llm(items, prompt)
+    stripped_items = []
+    for i in items:
+        stripped_items.append({"id": i.id, "title": i.title, "price": i.price})
 
-    if result.lower() != "none":
-        async for chunk in split_message(result):
-            await bot.send_message(chat_id=user_id, text=chunk)
+    best_ids = await filter_best_items(stripped_items, prompt)
+    best_items = [i for i in items if i.id in best_ids]
+
+    if not best_items:
+        return
+
+    msg = f"Free Check found {len(best_items)} items:\n\n"
+    for item in best_items:
+        price_str = f"{item.price} EUR" if item.price else item.price_type
+        msg += f"- <a href='{item.url}'>{item.title}</a> | {price_str}\n\n"
+
+    async for chunk in split_message(msg):
+        await bot.send_message(
+            chat_id=user_id, text=chunk, disable_web_page_preview=True
+        )
 
 
 async def scheduled_parser_check(bot: Bot, user_id: int, parser_name: str):
@@ -80,20 +94,28 @@ async def scheduled_parser_check(bot: Bot, user_id: int, parser_name: str):
 
     # Combine or filter
     if config["ai_filter"] and config["ai_prompt"]:
-        # Only process a batch to save tokens/time if there are many new itemsms
-        result = await filter_items_with_llm(new_items[:50], config["ai_prompt"])
-        if result and result.lower() != "none":
-            async for chunk in split_message(f"Parser: {parser_name}\n\n{result}"):
-                await bot.send_message(chat_id=user_id, text=chunk)
-    else:
-        # Without AI, just send raw messages for up to top 50 new items to prevent flooding
-        # TODO: transfer all phrases into locales file
-        msg = f"Parser: {parser_name} found {len(new_items)} new items:\n\n"
+        # Only process a batch to save tokens/time if there are many new items
+        stripped_items = []
         for i in new_items[:50]:
-            msg += f"- {i.title}\n{i.url}\n\n"
+            stripped_items.append({"id": i.id, "title": i.title, "price": i.price})
 
-        async for chunk in split_message(msg):
-            await bot.send_message(chat_id=user_id, text=chunk)
+        best_ids = await filter_best_items(stripped_items, config["ai_prompt"])
+        best_items = [i for i in new_items[:50] if i.id in best_ids]
+    else:
+        best_items = new_items[:50]
+
+    if not best_items:
+        return
+
+    msg = f"Parser: {parser_name} found {len(best_items)} new items:\n\n"
+    for item in best_items:
+        price_str = f"{item.price} EUR" if item.price else item.price_type
+        msg += f"- <a href='{item.url}'>{item.title}</a> | {price_str}\n\n"
+
+    async for chunk in split_message(msg):
+        await bot.send_message(
+            chat_id=user_id, text=chunk, disable_web_page_preview=True
+        )
 
 
 def add_parser_job(bot: Bot, user_id: int, parser_name: str, minutes: int):
