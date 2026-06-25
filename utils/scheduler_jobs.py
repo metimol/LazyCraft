@@ -1,5 +1,3 @@
-import random
-import asyncio
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from aiogram import Bot
 from database.users import get_user_radius, get_user_prompt, get_user_zip
@@ -40,9 +38,6 @@ async def scheduled_free_check(bot: Bot, user_id: int):
 
 
 async def scheduled_parser_check(bot: Bot, user_id: int, parser_name: str):
-    # Stagger execution to avoid limits and flooding
-    await asyncio.sleep(random.uniform(6, 300))
-
     parsers = await get_parsers(user_id)
     if parser_name not in parsers:
         return
@@ -51,11 +46,25 @@ async def scheduled_parser_check(bot: Bot, user_id: int, parser_name: str):
     if not config["active"]:
         return
 
+    user_location = await get_user_zip(user_id)
+    user_distance = await get_user_radius(user_id)
+
     async with KleinanzeigenAPI() as api:
+        # TODO: Why only first two pages? If user has timer every 12 or 24 hours for example... But limit fo 50 items pro message...
         if config["type"] == "category":
-            total, items = await api.search_page(category_id=config["target"], page=0)
+            total, items = await api.search(
+                category_id=config["target"],
+                pages=2,
+                distance_km=user_distance,
+                location=user_location,
+            )
         else:
-            total, items = await api.search_page(q=config["target"], page=0)
+            total, items = await api.search_page(
+                q=config["target"],
+                page=2,
+                distance_km=user_distance,
+                location=user_location,
+            )
 
     if not items:
         return
@@ -78,6 +87,7 @@ async def scheduled_parser_check(bot: Bot, user_id: int, parser_name: str):
                 await bot.send_message(chat_id=user_id, text=chunk)
     else:
         # Without AI, just send raw messages for up to top 50 new items to prevent flooding
+        # TODO: transfer all phrases into locales file
         msg = f"Parser: {parser_name} found {len(new_items)} new items:\n\n"
         for i in new_items[:50]:
             msg += f"- {i.title}\n{i.url}\n\n"
