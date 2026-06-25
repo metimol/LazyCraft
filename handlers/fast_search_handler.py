@@ -94,13 +94,12 @@ async def process_fs_query(message: Message, state: FSMContext):
         for i, q in enumerate(optimized_queries):
             try:
                 # TODO: What happened if category is None?
-                # TODO: Why only 2 pages? All available pages. Minimum 40
                 items = await api.search(
                     location=user_location,
                     q=q,
                     category_id=category_id,
                     distance_km=user_distance,
-                    pages=2,
+                    pages=40,
                 )
                 for item in items:
                     if item.id not in seen_ids:
