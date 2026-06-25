@@ -1,5 +1,3 @@
-import asyncio
-import random
 from aiogram import Router, F
 from aiogram.types import Message, CallbackQuery
 from aiogram.fsm.context import FSMContext
@@ -106,9 +104,6 @@ async def process_fs_query(message: Message, state: FSMContext):
                         all_items.append(item)
             except Exception:
                 pass
-
-            if i < len(optimized_queries) - 1:
-                await asyncio.sleep(1 + random.uniform(0.3, 0.7))
 
     if not all_items:
         await status_msg.edit_text(locale("fs_no_results"))

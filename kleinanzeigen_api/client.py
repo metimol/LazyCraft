@@ -93,6 +93,17 @@ class Listing:
         return asdict(self)
 
 
+_global_last_request = 0.0
+_global_lock = None
+
+
+def _get_api_lock():
+    global _global_lock
+    if _global_lock is None:
+        _global_lock = asyncio.Lock()
+    return _global_lock
+
+
 class KleinanzeigenAPI:
     """Client for the Kleinanzeigen mobile JSON API.
 
@@ -110,7 +121,7 @@ class KleinanzeigenAPI:
 
     def __init__(
         self,
-        rate_limit: float = 1.5,
+        rate_limit: float = 1.0,
         app_version: str = APP_VERSION,
         timeout: int = 25,
         max_retries: int = 3,
@@ -151,39 +162,44 @@ class KleinanzeigenAPI:
             "Authorization": self._auth,
         }
 
-    async def _throttle(self):
-        wait = self.rate_limit - (time.time() - self._last)
-        if wait > 0:
-            await asyncio.sleep(wait + random.uniform(0, 0.4))
-
     async def _get(self, url: str, params: Optional[dict] = None):
+        global _global_last_request
         last = None
         for attempt in range(1, self.max_retries + 1):
-            await self._throttle()
-            try:
-                r = await self._s.get(
-                    url, params=params, headers=self._headers(), timeout=self.timeout
-                )
-                self._last = time.time()
-                if r.status_code == 200:
-                    return r
-                if r.status_code in (401, 403):
-                    raise RuntimeError(
-                        f"{r.status_code} from API — Basic-auth credentials likely "
-                        f"rotated. Supply fresh ones via basic_user/basic_pw or the "
-                        f"APP_USER/APP_PASSWORD env vars. "
-                        f"Body: {r.text[:160]}"
+            async with _get_api_lock():
+                wait = self.rate_limit - (time.time() - _global_last_request)
+                if wait > 0:
+                    await asyncio.sleep(wait)
+                # Jitter
+                await asyncio.sleep(random.uniform(0.3, 0.7))
+
+                try:
+                    r = await self._s.get(
+                        url,
+                        params=params,
+                        headers=self._headers(),
+                        timeout=self.timeout,
                     )
-                if r.status_code in (429, 500, 503):
-                    await asyncio.sleep(1.5 * attempt + random.uniform(0, 1.5))
-                    continue
-                r.raise_for_status()
-            except RuntimeError:
-                raise
-            except Exception as e:  # noqa: BLE001 - retry on any network error
-                last = e
-                self._last = time.time()
-                await asyncio.sleep(1.2 * attempt)
+                    _global_last_request = time.time()
+                    if r.status_code == 200:
+                        return r
+                    if r.status_code in (401, 403):
+                        raise RuntimeError(
+                            f"{r.status_code} from API — Basic-auth credentials likely "
+                            f"rotated. Supply fresh ones via basic_user/basic_pw or the "
+                            f"APP_USER/APP_PASSWORD env vars. "
+                            f"Body: {r.text[:160]}"
+                        )
+                    if r.status_code in (429, 500, 503):
+                        await asyncio.sleep(1.5 * attempt + random.uniform(0, 1.5))
+                        continue
+                    r.raise_for_status()
+                except RuntimeError:
+                    raise
+                except Exception as e:  # noqa: BLE001 - retry on any network error
+                    last = e
+                    _global_last_request = time.time()
+                    await asyncio.sleep(1.2 * attempt)
         raise RuntimeError(f"GET failed after {self.max_retries} tries: {url} ({last})")
 
     # -- location resolution ------------------------------------------------ #
