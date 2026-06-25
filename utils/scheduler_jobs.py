@@ -71,16 +71,15 @@ async def scheduled_parser_check(bot: Bot, user_id: int, parser_name: str):
 
     # Combine or filter
     if config["ai_filter"] and config["ai_prompt"]:
-        # Only process a small batch to save tokens/time if there are many new items
-        # TODO: But why? Better all or minimum 50-100 new items
-        result = await filter_items_with_llm(new_items[:10], config["ai_prompt"])
+        # Only process a batch to save tokens/time if there are many new itemsms
+        result = await filter_items_with_llm(new_items[:50], config["ai_prompt"])
         if result and result.lower() != "none":
             async for chunk in split_message(f"Parser: {parser_name}\n\n{result}"):
                 await bot.send_message(chat_id=user_id, text=chunk)
     else:
-        # Without AI, just send raw messages for top 5 new items to prevent flooding
+        # Without AI, just send raw messages for up to top 50 new items to prevent flooding
         msg = f"Parser: {parser_name} found {len(new_items)} new items:\n\n"
-        for i in new_items[:5]:
+        for i in new_items[:50]:
             msg += f"- {i.title}\n{i.url}\n\n"
 
         async for chunk in split_message(msg):
