@@ -114,6 +114,8 @@ async def process_parser_query(message: Message, state: FSMContext):
         locale("choose_frequency"), reply_markup=get_parser_frequency_keyboard()
     )
 
+    # TODO: Add availability to choose maximum and minimum items price if user need
+
 
 @router.callback_query(F.data.startswith("freq_"), ParserState.waiting_for_name)
 @router.callback_query(F.data.startswith("freq_"), ParserState.waiting_for_query)
