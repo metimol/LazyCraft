@@ -1,4 +1,5 @@
 import asyncio
+import random
 from aiogram import Router, F
 from aiogram.types import Message, CallbackQuery
 from aiogram.fsm.context import FSMContext
@@ -85,34 +86,31 @@ async def process_fs_query(message: Message, state: FSMContext):
 
     await status_msg.edit_text(locale("fs_live_scraping"))
 
-    # 2. Asynchronous Multithreaded Scrape
-    # TODO: Only one thread with jetter
+    # 2. Sequential Scrape with Jitter
     all_items = []
     seen_ids = set()
 
-    # TODO: Why only 2 pages? All available pages. Minimum 40
-    async def fetch_query(api, q):
-        try:
-            # TODO: What happened if category is None?
-            return await api.search(
-                location=user_location,
-                q=q,
-                category_id=category_id,
-                distance_km=user_distance,
-                pages=2,
-            )
-        except Exception:
-            return []
-
     async with KleinanzeigenAPI() as api:
-        tasks = [fetch_query(api, q) for q in optimized_queries]
-        results = await asyncio.gather(*tasks)
+        for i, q in enumerate(optimized_queries):
+            try:
+                # TODO: What happened if category is None?
+                # TODO: Why only 2 pages? All available pages. Minimum 40
+                items = await api.search(
+                    location=user_location,
+                    q=q,
+                    category_id=category_id,
+                    distance_km=user_distance,
+                    pages=2,
+                )
+                for item in items:
+                    if item.id not in seen_ids:
+                        seen_ids.add(item.id)
+                        all_items.append(item)
+            except Exception:
+                pass
 
-        for items in results:
-            for item in items:
-                if item.id not in seen_ids:
-                    seen_ids.add(item.id)
-                    all_items.append(item)
+            if i < len(optimized_queries) - 1:
+                await asyncio.sleep(1 + random.uniform(0.3, 0.7))
 
     if not all_items:
         await status_msg.edit_text(locale("fs_no_results"))
