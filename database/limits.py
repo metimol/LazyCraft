@@ -3,9 +3,9 @@ import pytz
 from database.client import get_redis
 
 
-# TODO: Why 5?
+# TODO: Free users will have 3 searches per day
 async def check_fast_search_limit(
-    user_id: int, max_searches: int = 5
+    user_id: int, max_searches: int = 30
 ) -> tuple[bool, str]:
     """
     Checks if a user has exceeded their daily limit.
