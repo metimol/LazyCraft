@@ -10,13 +10,14 @@ async def generate_optimized_queries(user_query: str) -> list[str]:
     Returns a JSON list of strings.
     """
 
-    # TODO: Make better search phrases
     sys_prompt = (
         "You are an expert at searching Kleinanzeigen (a German classifieds site). "
-        "Based on the user's input, generate 1 to 5 short, highly optimized search queries "
-        "that would yield the best results on the platform. "
+        "Based on the user's input, generate 1 to 5 short, highly optimized search queries. "
+        "Kleinanzeigen's search engine is broad, so queries like 'iphone 13 pro' and 'apple iphone 13' will return mostly overlapping results. "
+        "To maximize discovery, DO NOT generate minor variations. Instead, provide completely distinct keyword combinations or synonyms "
+        "that sellers might use for the same item. Each query must be distinct enough to yield different results. "
         "Output ONLY a raw JSON array of strings. Do not use markdown code blocks or any other text. "
-        'Example: ["iphone 13 pro", "apple iphone 13", "iphone 13"]'
+        'Example for a guitar tuner: ["Stimmgerät Gitarre", "Clip-on Tuner", "Gitarrenstimmgerät", "Gitarren Tuner"]'
     )
 
     response = await model.ainvoke(
