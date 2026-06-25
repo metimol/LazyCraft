@@ -93,7 +93,6 @@ async def process_fs_query(message: Message, state: FSMContext):
     async with KleinanzeigenAPI() as api:
         for i, q in enumerate(optimized_queries):
             try:
-                # TODO: What happened if category is None?
                 items = await api.search(
                     location=user_location,
                     q=q,
