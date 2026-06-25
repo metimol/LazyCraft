@@ -114,6 +114,7 @@ async def process_parser_query(message: Message, state: FSMContext):
         locale("choose_frequency"), reply_markup=get_parser_frequency_keyboard()
     )
 
+    # TODO: Create multiple and optimized search queries with AI
     # TODO: Add availability to choose maximum and minimum items price if user need
 
 
