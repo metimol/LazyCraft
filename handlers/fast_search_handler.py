@@ -127,9 +127,8 @@ async def process_fs_query(message: Message, state: FSMContext):
 
     best_items = [i for i in all_items if i.id in best_ids]
     if not best_items:
-        # Fallback to top 20 if AI fails
-        # TODO: Hmm... Why only 20?
-        best_items = all_items[:20]
+        # Fallback up to 30 items if AI fails
+        best_items = all_items[:30]
 
     # 4. Final Output
     await status_msg.delete()
