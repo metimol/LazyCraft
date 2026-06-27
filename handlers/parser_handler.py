@@ -15,6 +15,7 @@ from utils.keyboards import (
     get_categories_keyboard,
     get_manage_parsers_keyboard,
     get_parser_action_keyboard,
+    get_price_limit_keyboard,
 )
 from utils.scheduler_jobs import add_parser_job, remove_parser_job
 
@@ -24,6 +25,9 @@ router = Router()
 class ParserState(StatesGroup):
     waiting_for_name = State()
     waiting_for_query = State()
+    waiting_for_price_limit_choice = State()
+    waiting_for_min_price = State()
+    waiting_for_max_price = State()
     waiting_for_ai_prompt = State()
 
 
@@ -96,8 +100,9 @@ async def process_cat_selection(callback: CallbackQuery, state: FSMContext):
     cat_id = callback.data.split("_")[1]
     await state.update_data(parser_target=cat_id)
     await callback.message.edit_text(
-        locale("choose_frequency"), reply_markup=get_parser_frequency_keyboard()
+        locale("ask_price_limits"), reply_markup=get_price_limit_keyboard()
     )
+    await state.set_state(ParserState.waiting_for_price_limit_choice)
 
 
 @router.callback_query(F.data == "ptype_query", ParserState.waiting_for_name)
@@ -111,15 +116,63 @@ async def process_ptype_query(callback: CallbackQuery, state: FSMContext):
 async def process_parser_query(message: Message, state: FSMContext):
     await state.update_data(parser_target=message.text.strip())
     await message.answer(
-        locale("choose_frequency"), reply_markup=get_parser_frequency_keyboard()
+        locale("ask_price_limits"), reply_markup=get_price_limit_keyboard()
     )
+    await state.set_state(ParserState.waiting_for_price_limit_choice)
 
     # TODO: Create multiple and optimized search queries with AI
     # TODO: Add availability to choose maximum and minimum items price if user need
 
 
-@router.callback_query(F.data.startswith("freq_"), ParserState.waiting_for_name)
-@router.callback_query(F.data.startswith("freq_"), ParserState.waiting_for_query)
+@router.callback_query(
+    F.data == "pricelimit_no", ParserState.waiting_for_price_limit_choice
+)
+async def skip_parser_price_limits(callback: CallbackQuery, state: FSMContext):
+    await state.update_data(parser_min_price=None, parser_max_price=None)
+    await callback.message.edit_text(
+        locale("choose_frequency"), reply_markup=get_parser_frequency_keyboard()
+    )
+    await state.set_state(
+        ParserState.waiting_for_max_price
+    )  # Setting to max price state so frequency handles it
+
+
+@router.callback_query(
+    F.data == "pricelimit_yes", ParserState.waiting_for_price_limit_choice
+)
+async def ask_parser_min_price(callback: CallbackQuery, state: FSMContext):
+    await callback.message.edit_text(locale("enter_min_price"))
+    await state.set_state(ParserState.waiting_for_min_price)
+
+
+@router.message(ParserState.waiting_for_min_price, ~F.text.startswith("/"))
+async def process_parser_min_price(message: Message, state: FSMContext):
+    try:
+        min_price = int(message.text.strip())
+        await state.update_data(parser_min_price=min_price if min_price > 0 else None)
+    except ValueError:
+        await message.answer(locale("invalid_price"))
+        return
+
+    await message.answer(locale("enter_max_price"))
+    await state.set_state(ParserState.waiting_for_max_price)
+
+
+@router.message(ParserState.waiting_for_max_price, ~F.text.startswith("/"))
+async def process_parser_max_price(message: Message, state: FSMContext):
+    try:
+        max_price = int(message.text.strip())
+        await state.update_data(parser_max_price=max_price if max_price > 0 else None)
+    except ValueError:
+        await message.answer(locale("invalid_price"))
+        return
+
+    await message.answer(
+        locale("choose_frequency"), reply_markup=get_parser_frequency_keyboard()
+    )
+
+
+@router.callback_query(F.data.startswith("freq_"), ParserState.waiting_for_max_price)
 async def process_frequency(callback: CallbackQuery, state: FSMContext):
     freq = int(callback.data.split("_")[1])
     await state.update_data(parser_freq=freq)
@@ -128,8 +181,9 @@ async def process_frequency(callback: CallbackQuery, state: FSMContext):
     )
 
 
-@router.callback_query(F.data.startswith("aifilter_"), ParserState.waiting_for_name)
-@router.callback_query(F.data.startswith("aifilter_"), ParserState.waiting_for_query)
+@router.callback_query(
+    F.data.startswith("aifilter_"), ParserState.waiting_for_max_price
+)
 async def process_ai_filter(callback: CallbackQuery, state: FSMContext, bot: Bot):
     enable_ai = callback.data == "aifilter_yes"
     await state.update_data(parser_ai=enable_ai)
@@ -168,6 +222,8 @@ async def finish_parser_creation(
         "freq": data["parser_freq"],
         "ai_filter": data["parser_ai"],
         "ai_prompt": data["parser_ai_prompt"],
+        "min_price": data.get("parser_min_price"),
+        "max_price": data.get("parser_max_price"),
         "active": True,
     }
 

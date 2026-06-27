@@ -63,6 +63,9 @@
   "prompt_saved": "AI prompt saved.",
   "choose_radius": "Select your search radius:",
   "radius_saved": "Search radius set to {radius} km.",
-  "filter_items_with_llm": "Filter this items. User asked this search query: {prompt}\n\nSystem returned from Kleinanzeigen this items: {items}",
-  "text_messages_not_supported": "Sorry, text messages are not supported. Use buttons instead."
+  "text_messages_not_supported": "Sorry, text messages are not supported. Use buttons instead.",
+  "ask_price_limits": "Do you want to set price limits for your search?",
+  "enter_min_price": "Enter minimum price in EUR (or 0 for no minimum):",
+  "enter_max_price": "Enter maximum price in EUR (or 0 for no maximum):",
+  "invalid_price": "Invalid price. Please enter a valid number."
 }

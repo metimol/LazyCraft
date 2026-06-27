@@ -223,3 +223,20 @@ def get_fs_category_prompt_keyboard():
             [InlineKeyboardButton(text=locale("no_btn"), callback_data="fs_cat_no")],
         ]
     )
+
+
+def get_price_limit_keyboard():
+    return InlineKeyboardMarkup(
+        inline_keyboard=[
+            [
+                InlineKeyboardButton(
+                    text=locale("yes_btn"), callback_data="pricelimit_yes"
+                )
+            ],
+            [
+                InlineKeyboardButton(
+                    text=locale("no_btn"), callback_data="pricelimit_no"
+                )
+            ],
+        ]
+    )

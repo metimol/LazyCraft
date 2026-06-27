@@ -1,54 +1,12 @@
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from aiogram import Bot
-from database.users import get_user_radius, get_user_prompt, get_user_zip
+from database.users import get_user_radius, get_user_zip
 from ai.fast_search_ai import filter_best_items
 from utils.split_message import split_message
 from database.parsers import get_parsers, is_item_seen, mark_item_seen
 from kleinanzeigen_api import KleinanzeigenAPI
 
 scheduler = AsyncIOScheduler()
-
-
-async def scheduled_free_check(bot: Bot, user_id: int):
-    radius = await get_user_radius(user_id)
-    prompt = await get_user_prompt(user_id)
-    zip_code = await get_user_zip(user_id)
-
-    if not zip_code:
-        return
-
-    async with KleinanzeigenAPI() as api:
-        location_id = zip_code
-        locations = await api.resolve_location(str(zip_code))
-        if locations:
-            location_id = locations[0][0]
-
-        total, items = await api.search_page(
-            q="", location_id=location_id, max_price=0, distance_km=radius, size=20
-        )
-
-    if not items:
-        return
-
-    stripped_items = []
-    for i in items:
-        stripped_items.append({"id": i.id, "title": i.title, "price": i.price})
-
-    best_ids = await filter_best_items(stripped_items, prompt)
-    best_items = [i for i in items if i.id in best_ids]
-
-    if not best_items:
-        return
-
-    msg = f"Free Check found {len(best_items)} items:\n\n"
-    for item in best_items:
-        price_str = f"{item.price} EUR" if item.price else item.price_type
-        msg += f"- <a href='{item.url}'>{item.title}</a> | {price_str}\n\n"
-
-    async for chunk in split_message(msg):
-        await bot.send_message(
-            chat_id=user_id, text=chunk, disable_web_page_preview=True
-        )
 
 
 async def scheduled_parser_check(bot: Bot, user_id: int, parser_name: str):
@@ -66,18 +24,22 @@ async def scheduled_parser_check(bot: Bot, user_id: int, parser_name: str):
     async with KleinanzeigenAPI() as api:
         # TODO: Why only first two pages? If user has timer every 12 or 24 hours for example... But limit fo 50 items pro message...
         if config["type"] == "category":
-            total, items = await api.search(
+            items = await api.search(
                 category_id=config["target"],
                 pages=2,
                 distance_km=user_distance,
                 location=user_location,
+                min_price=config.get("min_price"),
+                max_price=config.get("max_price"),
             )
         else:
-            total, items = await api.search_page(
+            items = await api.search(
                 q=config["target"],
-                page=2,
+                pages=2,
                 distance_km=user_distance,
                 location=user_location,
+                min_price=config.get("min_price"),
+                max_price=config.get("max_price"),
             )
 
     if not items:

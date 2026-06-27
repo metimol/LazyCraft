@@ -2,8 +2,6 @@
 from .client import get_redis
 from .users import (
     get_all_users,
-    get_user_timer,
-    get_user_prompt,
     set_user_radius,
     get_user_radius,
 )
@@ -21,8 +19,6 @@ from .limits import check_fast_search_limit
 __all__ = [
     "get_redis",
     "get_all_users",
-    "get_user_timer",
-    "get_user_prompt",
     "set_user_radius",
     "get_user_radius",
     "add_parser",

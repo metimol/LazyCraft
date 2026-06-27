@@ -5,7 +5,11 @@ from aiogram.fsm.state import State, StatesGroup
 
 from const import locale
 from database.limits import check_fast_search_limit
-from utils.keyboards import get_fs_category_prompt_keyboard, get_categories_keyboard
+from utils.keyboards import (
+    get_fs_category_prompt_keyboard,
+    get_categories_keyboard,
+    get_price_limit_keyboard,
+)
 from utils.split_message import split_message
 from kleinanzeigen_api import KleinanzeigenAPI
 from ai.fast_search_ai import generate_optimized_queries, filter_best_items
@@ -18,6 +22,9 @@ class FSState(StatesGroup):
     waiting_for_category_choice = State()
     waiting_for_category = State()
     waiting_for_query = State()
+    waiting_for_price_limit_choice = State()
+    waiting_for_min_price = State()
+    waiting_for_max_price = State()
 
 
 @router.message(F.text == locale("fast_search_btn"))
@@ -70,12 +77,70 @@ async def process_fs_cat_selection(callback: CallbackQuery, state: FSMContext):
 @router.message(FSState.waiting_for_query, ~F.text.startswith("/"))
 async def process_fs_query(message: Message, state: FSMContext):
     user_query = message.text.strip()
-    data = await state.get_data()
-    category_id = data.get("fs_category")
-    user_location = await get_user_zip(message.from_user.id)
-    user_distance = await get_user_radius(message.from_user.id)
+    await state.update_data(fs_query=user_query)
 
-    status_msg = await message.answer(locale("fs_live_optimizing"))
+    await message.answer(
+        locale("ask_price_limits"), reply_markup=get_price_limit_keyboard()
+    )
+    await state.set_state(FSState.waiting_for_price_limit_choice)
+
+
+@router.callback_query(
+    F.data == "pricelimit_no", FSState.waiting_for_price_limit_choice
+)
+async def skip_fs_price_limits(callback: CallbackQuery, state: FSMContext):
+    await state.update_data(fs_min_price=None, fs_max_price=None)
+    await callback.message.delete()
+    await execute_fast_search(callback.message, state, callback.from_user.id)
+
+
+@router.callback_query(
+    F.data == "pricelimit_yes", FSState.waiting_for_price_limit_choice
+)
+async def ask_fs_min_price(callback: CallbackQuery, state: FSMContext):
+    await callback.message.edit_text(locale("enter_min_price"))
+    await state.set_state(FSState.waiting_for_min_price)
+
+
+@router.message(FSState.waiting_for_min_price, ~F.text.startswith("/"))
+async def process_fs_min_price(message: Message, state: FSMContext):
+    try:
+        min_price = int(message.text.strip())
+        await state.update_data(fs_min_price=min_price if min_price > 0 else None)
+    except ValueError:
+        await message.answer(locale("invalid_price"))
+        return
+
+    await message.answer(locale("enter_max_price"))
+    await state.set_state(FSState.waiting_for_max_price)
+
+
+@router.message(FSState.waiting_for_max_price, ~F.text.startswith("/"))
+async def process_fs_max_price(message: Message, state: FSMContext):
+    try:
+        max_price = int(message.text.strip())
+        await state.update_data(fs_max_price=max_price if max_price > 0 else None)
+    except ValueError:
+        await message.answer(locale("invalid_price"))
+        return
+
+    await execute_fast_search(message, state, message.from_user.id)
+
+
+async def execute_fast_search(message, state: FSMContext, user_id: int):
+    data = await state.get_data()
+    user_query = data.get("fs_query")
+    category_id = data.get("fs_category")
+    min_price = data.get("fs_min_price")
+    max_price = data.get("fs_max_price")
+
+    user_location = await get_user_zip(user_id)
+    user_distance = await get_user_radius(user_id)
+
+    if isinstance(message, CallbackQuery):
+        status_msg = await message.message.answer(locale("fs_live_optimizing"))
+    else:
+        status_msg = await message.answer(locale("fs_live_optimizing"))
 
     # 1. AI Optimization
     optimized_queries = await generate_optimized_queries(user_query)
@@ -96,6 +161,8 @@ async def process_fs_query(message: Message, state: FSMContext):
                     q=q,
                     category_id=category_id,
                     distance_km=user_distance,
+                    min_price=min_price,
+                    max_price=max_price,
                     pages=40,
                 )
                 for item in items:

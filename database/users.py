@@ -12,20 +12,6 @@ async def get_all_users() -> list[int]:
     return [int(k.split(":")[1]) for k in keys]
 
 
-async def get_user_timer(user_id: int) -> int:
-    """
-    Retrieves the user timer from Redis.
-    """
-    redis = get_redis()
-    hours = await redis.get(f"user:{user_id}:timer")
-    return int(hours) if hours else 0
-
-
-async def get_user_prompt(user_id: int) -> Optional[str]:
-    redis = get_redis()
-    return await redis.get(f"user:{user_id}:prompt")
-
-
 async def set_user_radius(user_id: int, radius: int) -> None:
     redis = get_redis()
     await redis.set(f"user:{user_id}:radius", str(radius))
