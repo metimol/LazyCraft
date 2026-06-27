@@ -44,3 +44,8 @@ async def mark_item_seen(user_id: int, parser_name: str, item_id: str) -> None:
     await redis.sadd(key, item_id)
     # Set a 30 day TTL so it doesn't grow forever
     await redis.expire(key, 60 * 60 * 24 * 30)
+
+
+async def has_seen_items(user_id: int, parser_name: str) -> bool:
+    redis = get_redis()
+    return await redis.scard(f"user:{user_id}:parser:{parser_name}:seen") > 0

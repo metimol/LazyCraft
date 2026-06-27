@@ -17,7 +17,9 @@ from utils.keyboards import (
     get_parser_action_keyboard,
     get_price_limit_keyboard,
 )
+
 from utils.scheduler_jobs import add_parser_job, remove_parser_job
+from ai.fast_search_ai import generate_optimized_queries
 
 router = Router()
 
@@ -114,14 +116,18 @@ async def process_ptype_query(callback: CallbackQuery, state: FSMContext):
 
 @router.message(ParserState.waiting_for_query)
 async def process_parser_query(message: Message, state: FSMContext):
-    await state.update_data(parser_target=message.text.strip())
+    user_query = message.text.strip()
+    await state.update_data(parser_target=user_query)
+
+    status_msg = await message.answer(locale("fs_live_optimizing"))
+    optimized_queries = await generate_optimized_queries(user_query, max_queries=3)
+    await state.update_data(parser_optimized_queries=optimized_queries)
+    await status_msg.delete()
+
     await message.answer(
         locale("ask_price_limits"), reply_markup=get_price_limit_keyboard()
     )
     await state.set_state(ParserState.waiting_for_price_limit_choice)
-
-    # TODO: Create multiple and optimized search queries with AI
-    # TODO: Add availability to choose maximum and minimum items price if user need
 
 
 @router.callback_query(
@@ -219,6 +225,9 @@ async def finish_parser_creation(
     config = {
         "type": data["parser_type"],
         "target": data["parser_target"],
+        "optimized_queries": data.get(
+            "parser_optimized_queries", [data["parser_target"]]
+        ),
         "freq": data["parser_freq"],
         "ai_filter": data["parser_ai"],
         "ai_prompt": data["parser_ai_prompt"],

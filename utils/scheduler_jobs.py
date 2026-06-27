@@ -3,7 +3,7 @@ from aiogram import Bot
 from database.users import get_user_radius, get_user_zip
 from ai.fast_search_ai import filter_best_items
 from utils.split_message import split_message
-from database.parsers import get_parsers, is_item_seen, mark_item_seen
+from database.parsers import get_parsers, is_item_seen, mark_item_seen, has_seen_items
 from kleinanzeigen_api import KleinanzeigenAPI
 
 scheduler = AsyncIOScheduler()
@@ -22,34 +22,77 @@ async def scheduled_parser_check(bot: Bot, user_id: int, parser_name: str):
     user_distance = await get_user_radius(user_id)
 
     async with KleinanzeigenAPI() as api:
-        # TODO: Why only first two pages? If user has timer every 12 or 24 hours for example... But limit fo 50 items pro message...
+        location_id = None
+        if user_location:
+            locations = await api.resolve_location(str(user_location))
+            if locations:
+                location_id = locations[0][0]
+            else:
+                location_id = str(user_location)
+
+        new_items = []
+        seen_old_items_count = 0
+
+        is_first_run = not await has_seen_items(user_id, parser_name)
+
         if config["type"] == "category":
-            items = await api.search(
-                category_id=config["target"],
-                pages=2,
-                distance_km=user_distance,
-                location=user_location,
-                min_price=config.get("min_price"),
-                max_price=config.get("max_price"),
-            )
+            for page in range(40):  # hard limit to 40 pages to prevent infinite loops
+                if is_first_run and page >= 3:
+                    break
+
+                total, page_items = await api.search_page(
+                    category_id=config["target"],
+                    page=page,
+                    size=40,
+                    distance_km=user_distance,
+                    location_id=location_id,
+                    min_price=config.get("min_price"),
+                    max_price=config.get("max_price"),
+                )
+
+                if not page_items:
+                    break
+
+                for item in page_items:
+                    if not await is_item_seen(user_id, parser_name, item.id):
+                        await mark_item_seen(user_id, parser_name, item.id)
+                        new_items.append(item)
+                    else:
+                        seen_old_items_count += 1
+
+                # If we've seen multiple old items on this page, assume we've caught up with previously seen ads
+                if seen_old_items_count >= 10:
+                    break
         else:
-            items = await api.search(
-                q=config["target"],
-                pages=2,
-                distance_km=user_distance,
-                location=user_location,
-                min_price=config.get("min_price"),
-                max_price=config.get("max_price"),
-            )
+            optimized_queries = config.get("optimized_queries", [config["target"]])
+            for q in optimized_queries:
+                seen_old_items_count = 0
+                for page in range(40):
+                    if is_first_run and page >= 5:
+                        break
 
-    if not items:
-        return
+                    total, page_items = await api.search_page(
+                        q=q,
+                        page=page,
+                        size=40,
+                        distance_km=user_distance,
+                        location_id=location_id,
+                        min_price=config.get("min_price"),
+                        max_price=config.get("max_price"),
+                    )
 
-    new_items = []
-    for item in items:
-        if not await is_item_seen(user_id, parser_name, item.id):
-            await mark_item_seen(user_id, parser_name, item.id)
-            new_items.append(item)
+                    if not page_items:
+                        break
+
+                    for item in page_items:
+                        if not await is_item_seen(user_id, parser_name, item.id):
+                            await mark_item_seen(user_id, parser_name, item.id)
+                            new_items.append(item)
+                        else:
+                            seen_old_items_count += 1
+
+                    if seen_old_items_count >= 10:
+                        break
 
     if not new_items:
         return
@@ -58,13 +101,13 @@ async def scheduled_parser_check(bot: Bot, user_id: int, parser_name: str):
     if config["ai_filter"] and config["ai_prompt"]:
         # Only process a batch to save tokens/time if there are many new items
         stripped_items = []
-        for i in new_items[:50]:
+        for i in new_items:
             stripped_items.append({"id": i.id, "title": i.title, "price": i.price})
 
         best_ids = await filter_best_items(stripped_items, config["ai_prompt"])
-        best_items = [i for i in new_items[:50] if i.id in best_ids]
+        best_items = [i for i in new_items if i.id in best_ids]
     else:
-        best_items = new_items[:50]
+        best_items = new_items
 
     if not best_items:
         return

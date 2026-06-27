@@ -4,15 +4,17 @@ import logging
 from ai.config import model
 
 
-async def generate_optimized_queries(user_query: str) -> list[str]:
+async def generate_optimized_queries(
+    user_query: str, max_queries: int = 5
+) -> list[str]:
     """
-    Generates 1 to 5 highly optimized search queries for Kleinanzeigen based on user input.
+    Generates 1 to max_queries highly optimized search queries for Kleinanzeigen based on user input.
     Returns a JSON list of strings.
     """
 
     sys_prompt = (
         "You are an expert at searching Kleinanzeigen (a German classifieds site). "
-        "Based on the user's input, generate 1 to 5 short, highly optimized search queries. "
+        f"Based on the user's input, generate 1 to {max_queries} short, highly optimized search queries. "
         "Kleinanzeigen's search engine is broad, so queries like 'iphone 13 pro' and 'apple iphone 13' will return mostly overlapping results. "
         "To maximize discovery, DO NOT generate minor variations. Instead, provide completely distinct keyword combinations or synonyms "
         "that sellers might use for the same item. Each query must be distinct enough to yield different results. "
@@ -48,7 +50,7 @@ async def generate_optimized_queries(user_query: str) -> list[str]:
     try:
         queries = json.loads(content)
         if isinstance(queries, list):
-            return queries[:5]
+            return queries[:max_queries]
     except Exception:
         pass
 
