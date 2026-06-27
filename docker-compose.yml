@@ -1,7 +1,7 @@
 version: '3.8'
 
 services:
-  lazy-bot:
+  keigen-bot:
     build: .
     env_file: .env
     environment:
@@ -10,7 +10,7 @@ services:
       - lazy-redis
     restart: unless-stopped
 
-  lazy-redis:
+  keigen-redis:
     image: redis:alpine
     command: redis-server --appendonly yes
     ports:
