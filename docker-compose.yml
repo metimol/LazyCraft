@@ -5,9 +5,9 @@ services:
     build: .
     env_file: .env
     environment:
-      - REDIS_HOST=lazy-redis
+      - REDIS_HOST=keigen-redis
     depends_on:
-      - lazy-redis
+      - keigen-redis
     restart: unless-stopped
 
   keigen-redis:
