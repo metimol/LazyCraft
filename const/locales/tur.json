@@ -1,1 +1,77 @@
-{}
+{
+  "fast_search_btn": "⚡ Hızlı Arama",
+  "auto_parser_btn": "📡 Oto-Tarayıcı",
+  "help_btn": "❓ Yardım",
+  "settings_btn": "⚙️ Ayarlar",
+
+  "parser_menu": "📡 <b>Oto-Tarayıcı Menüsü</b>\n\nNe yapmak istersiniz?",
+  "add_new_btn": "➕ Yeni Ekle",
+  "manage_existing_btn": "📋 Mevcut Olanları Yönet",
+  "parser_limit_reached": "⚠️ <b>Sınıra Ulaşıldı</b>\nMaksimum 5 aktif tarayıcı sınırına ulaştınız.",
+
+  "enter_parser_name": "🏷️ <b>Tarayıcınızı adlandırın:</b>\n<i>Kısa ve tanınabilir olmasını sağlayın (örn. 'Klasik Bisikletler', 'ThinkPad').</i>",
+  "choose_search_type": "🎯 <b>Arama Türü:</b>\nTüm bir Kategoriyi mi yoksa Belirli Bir Sorguyu mu takip etmek istiyorsunuz?",
+  "search_by_category_btn": "📂 Kategori",
+  "search_by_query_btn": "🔍 Belirli Sorgu",
+  "enter_query": "⌨️ <b>Arama sorgunuzu girin:</b>",
+  "choose_category": "📂 <b>Bir kategori seçin:</b>",
+  "choose_frequency": "⏱ <b>Kontrol Sıklığı:</b>\nRadar yeni ilanları ne sıklıkla tarasın?",
+
+  "enable_ai_filter": "🧠 <b>Yapay Zeka (AI) Filtresi Etkinleştirilsin mi?</b>\nYapay zeka açıklamaları analiz edebilir ve gereksiz ilanları sizin için ayıklayabilir.",
+  "yes_btn": "✅ Evet",
+  "no_btn": "❌ Hayır",
+  "enter_ai_prompt": "📝 <b>Yapay Zeka (AI) Talimatları:</b>\n<i>Tam olarak ne istediğinizi veya neleri hariç tutmak istediğinizi açıklayın (örn. 'Sadece iyi durumda mavi bisikletler, kırık kadrolar kesinlikle hariç').</i>",
+  "parser_created": "✅ <b>Başarılı!</b>\n<b>{name}</b> adlı tarayıcınız etkinleştirildi ve şu anda takip yapıyor.",
+
+  "no_parsers_found": "📭 Henüz aktif bir tarayıcınız yok.",
+  "manage_parsers_menu": "📋 <b>Aktif Tarayıcılarınız:</b>\nAyarlarını yönetmek için birini seçin:",
+  "parser_info": "📡 <b>Tarayıcı:</b> {name}\n━━━━━━━━━━━━━━\n<b>Durum:</b> {status}\n<b>Tür:</b> {type}\n<b>Sıklık:</b> Her {freq} dakikada bir",
+  "pause_btn": "⏸ Duraklat",
+  "resume_btn": "▶️ Devam Et",
+  "delete_btn": "🗑 Sil",
+  "parser_deleted": "🗑 <b>{name}</b> adlı tarayıcı silindi.",
+  "parser_paused": "⏸ <b>{name}</b> adlı tarayıcı duraklatıldı.",
+  "parser_resumed": "▶️ <b>{name}</b> adlı tarayıcı devam ettirildi.",
+
+  "next_page_btn": "Sonraki ➡️",
+  "prev_page_btn": "⬅️ Önceki",
+
+  "fs_limit_reached": "⏳ <b>Günlük Sınıra Ulaşıldı</b>\nHızlı Arama hakkınız tükendi. Sınır, gece yarısı (Berlin saatiyle) <b>{time_left}</b> içinde sıfırlanacak.",
+  "fs_ask_category": "📂 <b>Kategori Filtresi:</b>\nBu aramayı belirli bir kategoriyle daraltmak ister misiniz?",
+  "fs_enter_query": "⚡ <b>Hızlı Arama</b>\nBugün ne arıyoruz?",
+  "fs_live_optimizing": "🤖 <i>Yapay zeka arama sorgunuzu optimize ediyor...</i>",
+  "fs_live_scraping": "🔍 <i>Kleinanzeigen'den en yeni ilanlar çekiliyor...</i>",
+  "fs_live_filtering": "🧠 <i>Yapay zeka en iyi eşleşmeleri bulmak için {count} sonucu filtreleniyor...</i>",
+  "fs_results_title": "🎯 <b>Arama Sonuçları:</b>\n\n",
+  "fs_no_results": "📭 Tam kriterlerinizle eşleşen sonuç bulunamadı.",
+
+  "help_message": "<b>Keigen — Kişisel Radarınız</b>\n\n<b>Nasıl çalışır:</b>\n⚡ <b>Hızlı Arama:</b> Şu anki ilanlar için anlık, tek seferlik arama.\n📡 <b>Oto-Tarayıcı:</b> Yeni bir ilan düştüğü anda sizi otomatik olarak uyaran arka plan takibi.\n\n<i>Verimlilik için tasarlandı. Dijital gürültü yok.</i>",
+
+  "settings_menu": "⚙️ <b>Ayarlar Yapılandırması</b>\n\nAyarlamak için bir parametre seçin:",
+  "set_language_btn": "🌍 Dil",
+  "set_location_btn": "📍 Konum ve Yarıçap",
+  "choose_language": "🌍 <b>Arayüz dilinizi seçin:</b>",
+  "language_saved": "✅ Dil başarıyla güncellendi!",
+
+  "enter_zip": "📍 <b>Konum Ayarı:</b>\nLütfen 5 haneli Almanya Posta Kodunuzu girin (örn. 72636):",
+  "invalid_zip": "⚠️ <b>Geçersiz format.</b>\nLütfen Posta Kodu için tam 5 hane girin:",
+  "zip_saved": "✅ Posta Kodu <b>{zip_code}</b> kaydedildi.",
+  "missing_zip_code": "⚠️ <b>Konum Gerekli:</b>\nBir arama başlatmadan önce lütfen Ayarlar bölümünden Posta Kodunuzu belirleyin.",
+
+  "welcome_message": "👋 <b>Keigen'e Hoş Geldiniz</b>\nEn iyi fırsatları yakalamak için akıllı radarınız.",
+  "not_supported_command": "⚠️ Bilinmeyen komut. Lütfen menü butonlarını kullanın.",
+  "not_supported_format": "⚠️ Sadece metin mesajlarını işleyebilirim. Lütfen girişinizi yazın veya menüyü kullanın.",
+  "text_messages_not_supported": "⚠️ Lütfen seçim yapmak için sağlanan butonları kullanın.",
+
+  "choose_radius": "🎯 <b>Arama Yarıçapı:</b>\nNe kadar uzağa gitmeye hazırsınız?",
+  "radius_saved": "✅ Arama yarıçapı <b>{radius} km</b> olarak ayarlandı.",
+
+  "ask_price_limits": "💶 <b>Fiyat Sınırları:</b>\nBu arama için belirli bir bütçe ayarlamak ister misiniz?",
+  "enter_min_price": "📉 <b>Minimum Fiyat:</b>\nTutarı EUR cinsinden girin (veya minimum yoksa '0' gönderin):",
+  "enter_max_price": "📈 <b>Maksimum Fiyat:</b>\nTutarı EUR cinsinden girin (veya maksimum yoksa '0' gönderin):",
+  "invalid_price": "⚠️ <b>Geçersiz tutar.</b>\nLütfen geçerli bir sayı girin.",
+
+  "parser_name_too_long": "⚠️ <b>İsim çok uzun.</b>\nLütfen {max_length} karakterin altında tutun. Tekrar deneyin:",
+  "parser_already_exists": "⚠️ <b>İsim kullanımda.</b>\nBu isimde bir tarayıcınız zaten var. Farklı bir tane seçin:",
+  "session_expired": "⏱ <b>Oturum Süresi Doldu.</b>\nKurulum işleminiz zaman aşımına uğradı. Lütfen tarayıcı oluşturma sürecini baştan başlatın."
+}

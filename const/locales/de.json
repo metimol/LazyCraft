@@ -1,1 +1,77 @@
-{}
+{
+  "fast_search_btn": "⚡ Schnellsuche",
+  "auto_parser_btn": "📡 Auto-Parser",
+  "help_btn": "❓ Hilfe",
+  "settings_btn": "⚙️ Einstellungen",
+
+  "parser_menu": "📡 <b>Auto-Parser Menü</b>\n\nWas möchtest du tun?",
+  "add_new_btn": "➕ Neu hinzufügen",
+  "manage_existing_btn": "📋 Vorhandene verwalten",
+  "parser_limit_reached": "⚠️ <b>Limit erreicht</b>\nDu hast das Maximum von 5 aktiven Parsern erreicht.",
+
+  "enter_parser_name": "🏷️ <b>Benenne deinen Parser:</b>\n<i>Halte es kurz und prägnant (z. B. 'Vintage Bikes', 'ThinkPad').</i>",
+  "choose_search_type": "🎯 <b>Suchtyp:</b>\nMöchtest du eine ganze Kategorie oder eine spezifische Suchanfrage verfolgen?",
+  "search_by_category_btn": "📂 Kategorie",
+  "search_by_query_btn": "🔍 Spezifische Suche",
+  "enter_query": "⌨️ <b>Gib deinen Suchbegriff ein:</b>",
+  "choose_category": "📂 <b>Wähle eine Kategorie:</b>",
+  "choose_frequency": "⏱ <b>Prüfintervall:</b>\nWie oft soll das Radar nach neuen Artikeln suchen?",
+
+  "enable_ai_filter": "🧠 <b>KI-Filter aktivieren?</b>\nDie KI kann Beschreibungen analysieren und Schrott für dich aussortieren.",
+  "yes_btn": "✅ Ja",
+  "no_btn": "❌ Nein",
+  "enter_ai_prompt": "📝 <b>KI-Anweisungen:</b>\n<i>Beschreibe genau, was du suchst oder ausschließen möchtest (z. B. 'Nur blaue Fahrräder in gutem Zustand, absolut keine gebrochenen Rahmen').</i>",
+  "parser_created": "✅ <b>Erfolg!</b>\nDein Parser <b>{name}</b> wurde aktiviert und sucht jetzt.",
+
+  "no_parsers_found": "📭 Du hast noch keine aktiven Parser.",
+  "manage_parsers_menu": "📋 <b>Deine aktiven Parser:</b>\nWähle einen aus, um seine Einstellungen zu verwalten:",
+  "parser_info": "📡 <b>Parser:</b> {name}\n━━━━━━━━━━━━━━\n<b>Status:</b> {status}\n<b>Typ:</b> {type}\n<b>Intervall:</b> Alle {freq} Min",
+  "pause_btn": "⏸ Pausieren",
+  "resume_btn": "▶️ Fortsetzen",
+  "delete_btn": "🗑 Löschen",
+  "parser_deleted": "🗑 Parser <b>{name}</b> wurde gelöscht.",
+  "parser_paused": "⏸ Parser <b>{name}</b> pausiert.",
+  "parser_resumed": "▶️ Parser <b>{name}</b> fortgesetzt.",
+
+  "next_page_btn": "Weiter ➡️",
+  "prev_page_btn": "⬅️ Zurück",
+
+  "fs_limit_reached": "⏳ <b>Tägliches Limit erreicht</b>\nDu hast keine Schnellsuchen mehr übrig. Das Limit wird um Mitternacht (Berliner Zeit) in <b>{time_left}</b> zurückgesetzt.",
+  "fs_ask_category": "📂 <b>Kategoriefilter:</b>\nMöchtest du diese Suche auf eine bestimmte Kategorie eingrenzen?",
+  "fs_enter_query": "⚡ <b>Schnellsuche</b>\nWonach suchen wir heute?",
+  "fs_live_optimizing": "🤖 <i>KI optimiert deine Suchanfrage...</i>",
+  "fs_live_scraping": "🔍 <i>Die neuesten Artikel von Kleinanzeigen werden abgerufen...</i>",
+  "fs_live_filtering": "🧠 <i>KI filtert {count} Ergebnisse, um die besten Treffer zu finden...</i>",
+  "fs_results_title": "🎯 <b>Suchergebnisse:</b>\n\n",
+  "fs_no_results": "📭 Keine Ergebnisse gefunden, die genau deinen Kriterien entsprechen.",
+
+  "help_message": "<b>Keigen — Dein persönliches Radar</b>\n\n<b>Wie es funktioniert:</b>\n⚡ <b>Schnellsuche:</b> Sofortige, einmalige Suche nach Artikeln im Moment.\n📡 <b>Auto-Parser:</b> Hintergrund-Tracking, das dich automatisch benachrichtigt, sobald ein neuer Artikel online geht.\n\n<i>Gebaut für Effizienz. Kein digitaler Lärm.</i>",
+
+  "settings_menu": "⚙️ <b>Einstellungen</b>\n\nWähle einen Parameter zum Anpassen:",
+  "set_language_btn": "🌍 Sprache",
+  "set_location_btn": "📍 Ort & Radius",
+  "choose_language": "🌍 <b>Wähle die Sprache der Benutzeroberfläche:</b>",
+  "language_saved": "✅ Sprache erfolgreich aktualisiert!",
+
+  "enter_zip": "📍 <b>Ort einrichten:</b>\nBitte gib deine 5-stellige deutsche Postleitzahl ein (z. B. 72636):",
+  "invalid_zip": "⚠️ <b>Ungültiges Format.</b>\nBitte gib genau 5 Ziffern für die Postleitzahl ein:",
+  "zip_saved": "✅ Postleitzahl <b>{zip_code}</b> gespeichert.",
+  "missing_zip_code": "⚠️ <b>Ort erforderlich:</b>\nBitte lege deine Postleitzahl in den Einstellungen fest, bevor du eine Suche startest.",
+
+  "welcome_message": "👋 <b>Willkommen bei Keigen</b>\nDein smartes Radar für die besten Deals.",
+  "not_supported_command": "⚠️ Unbekannter Befehl. Bitte benutze die Menü-Buttons.",
+  "not_supported_format": "⚠️ Ich verarbeite nur Textnachrichten. Bitte tippe deine Eingabe oder nutze das Menü.",
+  "text_messages_not_supported": "⚠️ Bitte nutze die bereitgestellten Buttons, um eine Auswahl zu treffen.",
+
+  "choose_radius": "🎯 <b>Suchradius:</b>\nWie weit bist du bereit zu fahren?",
+  "radius_saved": "✅ Suchradius auf <b>{radius} km</b> festgelegt.",
+
+  "ask_price_limits": "💶 <b>Preisgrenzen:</b>\nMöchtest du ein bestimmtes Budget für diese Suche festlegen?",
+  "enter_min_price": "📉 <b>Mindestpreis:</b>\nGib den Betrag in EUR ein (oder sende '0' für keinen Mindestpreis):",
+  "enter_max_price": "📈 <b>Höchstpreis:</b>\nGib den Betrag in EUR ein (oder sende '0' für keinen Höchstpreis):",
+  "invalid_price": "⚠️ <b>Ungültiger Betrag.</b>\nBitte gib eine gültige Zahl ein.",
+
+  "parser_name_too_long": "⚠️ <b>Name zu lang.</b>\nBitte halte ihn unter {max_length} Zeichen. Versuch es nochmal:",
+  "parser_already_exists": "⚠️ <b>Name vergeben.</b>\nDu hast bereits einen Parser mit diesem Namen. Wähle einen anderen:",
+  "session_expired": "⏱ <b>Sitzung abgelaufen.</b>\nDeine Einrichtung ist abgelaufen. Bitte starte die Parser-Erstellung erneut."
+}
