@@ -300,4 +300,4 @@ async def process_parser_delete(callback: CallbackQuery):
     await delete_parser(callback.from_user.id, name)
     remove_parser_job(callback.from_user.id, name)
 
-    await callback.message.edit_text(locale("parser_deleted"))
+    await callback.message.edit_text(locale("parser_deleted").format(name=name))
