@@ -11,6 +11,7 @@ from utils.keyboards import (
     get_price_limit_keyboard,
 )
 from utils.split_message import split_message
+from utils.filters import TextLoc
 from kleinanzeigen_api import KleinanzeigenAPI
 from ai.fast_search_ai import generate_optimized_queries, filter_best_items
 from database.users import get_user_zip, get_user_radius
@@ -27,7 +28,7 @@ class FSState(StatesGroup):
     waiting_for_max_price = State()
 
 
-@router.message(F.text == locale("fast_search_btn"))
+@router.message(TextLoc("fast_search_btn"))
 async def fast_search_entry(message: Message, state: FSMContext):
     user_zip = await get_user_zip(message.from_user.id)
     if not user_zip:

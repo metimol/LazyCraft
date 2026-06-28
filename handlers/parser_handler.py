@@ -3,6 +3,7 @@ from aiogram.filters import Command
 from aiogram.types import Message, CallbackQuery
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State, StatesGroup
+from utils.filters import TextLoc
 
 from const import locale
 from database.parsers import get_parsers, add_parser, delete_parser, toggle_parser
@@ -33,7 +34,7 @@ class ParserState(StatesGroup):
     waiting_for_ai_prompt = State()
 
 
-@router.message(F.text == locale("auto_parser_btn"))
+@router.message(TextLoc("auto_parser_btn"))
 @router.message(Command("parsers"))
 async def parser_menu_cmd(message: Message):
     user_zip = await get_user_zip(message.from_user.id)
