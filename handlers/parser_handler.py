@@ -64,17 +64,12 @@ async def process_parser_add(callback: CallbackQuery, state: FSMContext):
 async def process_parser_name(message: Message, state: FSMContext):
     name = message.text.strip()
     if len(name) > 40:
-        # TODO: Transfer all phrases into json
-        await message.answer(
-            "Parser name is too long (maximum 40 characters). Please choose a shorter name:"
-        )
+        await message.answer(locale("parser_name_too_long").format(max_length=40))
         return
 
     parsers = await get_parsers(message.from_user.id)
     if name in parsers:
-        await message.answer(
-            "Parser with this name already exists. Please choose another:"
-        )
+        await message.answer(locale("parser_already_exists"))
         return
 
     await state.update_data(parser_name=name)
@@ -216,9 +211,7 @@ async def finish_parser_creation(
     data = await state.get_data()
     name = data.get("parser_name")
     if not name:
-        await message.answer(
-            "Your session expired. Please start creating the parser again."
-        )
+        await message.answer(locale("session_expired"))
         await state.clear()
         return
 

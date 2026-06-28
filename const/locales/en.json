@@ -59,5 +59,8 @@
   "ask_price_limits": "Do you want to set price limits for your search?",
   "enter_min_price": "Enter minimum price in EUR (or 0 for no minimum):",
   "enter_max_price": "Enter maximum price in EUR (or 0 for no maximum):",
-  "invalid_price": "Invalid price. Please enter a valid number."
+  "invalid_price": "Invalid price. Please enter a valid number.",
+  "parser_name_too_long": "Parser name is too long (maximum {max_length} characters). Please choose a shorter name:",
+  "parser_already_exists": "Parser with this name already exists. Please choose another:",
+  "session_expired": "Your session expired. Please start creating the parser again."
 }
