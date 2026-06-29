@@ -36,7 +36,8 @@ if None in [APP_VERSION, DEFAULT_BASIC_USER, DEFAULT_BASIC_PW]:
 # capi (eBay-Classifieds) JSON helpers — values are wrapped in {"value": ...}
 # --------------------------------------------------------------------------- #
 def _val(node):
-    """Pull the scalar value out of a capi node. Handles nesting like {'value': {'value': x}}."""
+    """Pull the scalar value out of a capi node. Handles nesting like
+    {'value': {'value': x}}."""
     if isinstance(node, dict):
         if "value" in node:
             return _val(node["value"])
@@ -172,7 +173,7 @@ class KleinanzeigenAPI:
                 if wait > 0:
                     await asyncio.sleep(wait)
                 # Jitter
-                await asyncio.sleep(random.uniform(0.3, 0.7))
+                await asyncio.sleep(random.uniform(0.3, 0.7))  # noqa: S311
 
                 try:
                     r = await self._s.get(
@@ -186,16 +187,16 @@ class KleinanzeigenAPI:
                         return r
                     if r.status_code in (401, 403):
                         msg = (
-                            f"{r.status_code} from API — Basic-auth credentials likely "
-                            f"rotated. Supply fresh ones via basic_user/basic_pw or the "
-                            f"APP_USER/APP_PASSWORD env vars. "
-                            f"Body: {r.text[:160]}"
+                            f"{r.status_code} from API — Basic-auth "
+                            f"credentials likely rotated. Supply fresh ones via "
+                            f"basic_user/basic_pw or the APP_USER/APP_PASSWORD "
+                            f"env vars. Body: {r.text[:160]}"
                         )
                         raise RuntimeError(
                             msg,
                         )
                     if r.status_code in (429, 500, 503):
-                        await asyncio.sleep(1.5 * attempt + random.uniform(0, 1.5))
+                        await asyncio.sleep(1.5 * attempt + random.uniform(0, 1.5))  # noqa: S311
                         continue
                     r.raise_for_status()
                 except RuntimeError:
@@ -219,8 +220,8 @@ class KleinanzeigenAPI:
             cands = await self._resolve_location_api(query)
             if cands:
                 return cands
-        except Exception:  # API down or response unreadable -> try the website
-            pass
+        except Exception as e:  # API down or response unreadable -> try the website
+            logging.debug(f"API failed, falling back to web: {e}")
         return await self._resolve_location_web(query)
 
     async def _resolve_location_api(self, query: str) -> list:
@@ -418,7 +419,8 @@ class KleinanzeigenAPI:
                 if locations:
                     location_id = locations[0][0]
                     logging.info(
-                        f"Resolved location {location} to location_id in Kleinanzeigen API: {location_id} ({locations[0][1]})",
+                        f"Resolved location {location} to location_id in "
+                        f"Kleinanzeigen API: {location_id} ({locations[0][1]})",
                     )
                 else:
                     logging.warning(f"Could not resolve location zip code {location}")

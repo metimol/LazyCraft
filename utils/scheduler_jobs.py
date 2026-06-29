@@ -58,7 +58,8 @@ async def scheduled_parser_check(bot: Bot, user_id: int, parser_name: str) -> No
                     else:
                         seen_old_items_count += 1
 
-                # If we've seen multiple old items on this page, assume we've caught up with previously seen ads
+                # If we've seen multiple old items on this page, assume we've caught up
+                # with previously seen ads
                 if seen_old_items_count >= 10:
                     break
         else:

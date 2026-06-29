@@ -106,7 +106,10 @@ def resolve_category(value) -> str | None:
         return exact[0].id
     if len(exact) > 1:
         opts = ", ".join(f"{c.id} ({c.path})" for c in exact)
-        msg = f"Category name {value!r} is ambiguous: {opts}. Pass the numeric id instead."
+        msg = (
+            f"Category name {value!r} is ambiguous: {opts}. "
+            "Pass the numeric id instead."
+        )
         raise ValueError(
             msg,
         )

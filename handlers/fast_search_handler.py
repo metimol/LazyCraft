@@ -1,3 +1,5 @@
+import logging
+
 from aiogram import F, Router
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State, StatesGroup
@@ -160,7 +162,7 @@ async def execute_fast_search(message, state: FSMContext, user_id: int) -> None:
     seen_ids = set()
 
     async with KleinanzeigenAPI() as api:
-        for i, q in enumerate(optimized_queries):
+        for _i, q in enumerate(optimized_queries):
             try:
                 items = await api.search(
                     location=user_location,
@@ -175,8 +177,8 @@ async def execute_fast_search(message, state: FSMContext, user_id: int) -> None:
                     if item.id not in seen_ids:
                         seen_ids.add(item.id)
                         all_items.append(item)
-            except Exception:
-                pass
+            except Exception as e:
+                logging.warning(f"Error searching for {q}: {e}")
 
     if not all_items:
         await status_msg.edit_text(locale("fs_no_results"))

@@ -20,7 +20,7 @@ def _load_locales() -> None:
         return
     for file_path in locales_dir.glob("*.json"):
         lang = file_path.stem
-        with open(file_path, encoding="utf-8") as f:
+        with file_path.open(encoding="utf-8") as f:
             try:
                 _locales_data[lang] = json.load(f)
             except json.JSONDecodeError:

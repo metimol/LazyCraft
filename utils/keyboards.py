@@ -164,12 +164,12 @@ def get_categories_keyboard(page: int = 0):
 
     cats = all_categories()
 
-    ITEMS_PER_PAGE = 10
-    total_pages = (len(cats) + ITEMS_PER_PAGE - 1) // ITEMS_PER_PAGE
+    items_per_page = 10
+    total_pages = (len(cats) + items_per_page - 1) // items_per_page
     page = max(0, min(page, total_pages - 1))
 
-    start = page * ITEMS_PER_PAGE
-    end = start + ITEMS_PER_PAGE
+    start = page * items_per_page
+    end = start + items_per_page
     page_cats = cats[start:end]
 
     kb = []

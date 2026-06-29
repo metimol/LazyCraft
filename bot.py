@@ -44,7 +44,9 @@ class AdminMiddleware(BaseMiddleware):
         return await handler(event, data)
 
 
-redis_url = f"redis://{os.getenv('REDIS_HOST', 'localhost')}:{os.getenv('REDIS_PORT', '6379')}/0"
+redis_host = os.getenv("REDIS_HOST", "localhost")
+redis_port = os.getenv("REDIS_PORT", "6379")
+redis_url = f"redis://{redis_host}:{redis_port}/0"
 dp = Dispatcher(storage=RedisStorage.from_url(redis_url))
 if ADMIN_ID:
     dp.update.outer_middleware(AdminMiddleware(admin_id=ADMIN_ID))
