@@ -29,7 +29,7 @@ class FSState(StatesGroup):
 
 
 @router.message(TextLoc("fast_search_btn"))
-async def fast_search_entry(message: Message, state: FSMContext):
+async def fast_search_entry(message: Message, state: FSMContext) -> None:
     user_zip = await get_user_zip(message.from_user.id)
     if not user_zip:
         await message.answer(locale("missing_zip_code"))
@@ -48,7 +48,7 @@ async def fast_search_entry(message: Message, state: FSMContext):
 
 
 @router.callback_query(F.data == "fs_cat_yes", FSState.waiting_for_category_choice)
-async def process_fs_cat_yes(callback: CallbackQuery, state: FSMContext):
+async def process_fs_cat_yes(callback: CallbackQuery, state: FSMContext) -> None:
     await callback.message.edit_text(
         locale("choose_category"),
         reply_markup=get_categories_keyboard(0),
@@ -57,20 +57,20 @@ async def process_fs_cat_yes(callback: CallbackQuery, state: FSMContext):
 
 
 @router.callback_query(F.data == "fs_cat_no", FSState.waiting_for_category_choice)
-async def process_fs_cat_no(callback: CallbackQuery, state: FSMContext):
+async def process_fs_cat_no(callback: CallbackQuery, state: FSMContext) -> None:
     await state.update_data(fs_category=None)
     await callback.message.edit_text(locale("fs_enter_query"))
     await state.set_state(FSState.waiting_for_query)
 
 
 @router.callback_query(F.data.startswith("catpage_"), FSState.waiting_for_category)
-async def process_fs_catpage(callback: CallbackQuery):
+async def process_fs_catpage(callback: CallbackQuery) -> None:
     page = int(callback.data.split("_")[1])
     await callback.message.edit_reply_markup(reply_markup=get_categories_keyboard(page))
 
 
 @router.callback_query(F.data.startswith("cat_"), FSState.waiting_for_category)
-async def process_fs_cat_selection(callback: CallbackQuery, state: FSMContext):
+async def process_fs_cat_selection(callback: CallbackQuery, state: FSMContext) -> None:
     cat_id = callback.data.split("_")[1]
     await state.update_data(fs_category=cat_id)
     await callback.message.edit_text(locale("fs_enter_query"))
@@ -78,7 +78,7 @@ async def process_fs_cat_selection(callback: CallbackQuery, state: FSMContext):
 
 
 @router.message(FSState.waiting_for_query, ~F.text.startswith("/"))
-async def process_fs_query(message: Message, state: FSMContext):
+async def process_fs_query(message: Message, state: FSMContext) -> None:
     user_query = message.text.strip()
     await state.update_data(fs_query=user_query)
 
@@ -93,7 +93,7 @@ async def process_fs_query(message: Message, state: FSMContext):
     F.data == "pricelimit_no",
     FSState.waiting_for_price_limit_choice,
 )
-async def skip_fs_price_limits(callback: CallbackQuery, state: FSMContext):
+async def skip_fs_price_limits(callback: CallbackQuery, state: FSMContext) -> None:
     await state.update_data(fs_min_price=None, fs_max_price=None)
     await callback.message.delete()
     await execute_fast_search(callback.message, state, callback.from_user.id)
@@ -103,13 +103,13 @@ async def skip_fs_price_limits(callback: CallbackQuery, state: FSMContext):
     F.data == "pricelimit_yes",
     FSState.waiting_for_price_limit_choice,
 )
-async def ask_fs_min_price(callback: CallbackQuery, state: FSMContext):
+async def ask_fs_min_price(callback: CallbackQuery, state: FSMContext) -> None:
     await callback.message.edit_text(locale("enter_min_price"))
     await state.set_state(FSState.waiting_for_min_price)
 
 
 @router.message(FSState.waiting_for_min_price, ~F.text.startswith("/"))
-async def process_fs_min_price(message: Message, state: FSMContext):
+async def process_fs_min_price(message: Message, state: FSMContext) -> None:
     try:
         min_price = int(message.text.strip())
         await state.update_data(fs_min_price=min_price if min_price > 0 else None)
@@ -122,7 +122,7 @@ async def process_fs_min_price(message: Message, state: FSMContext):
 
 
 @router.message(FSState.waiting_for_max_price, ~F.text.startswith("/"))
-async def process_fs_max_price(message: Message, state: FSMContext):
+async def process_fs_max_price(message: Message, state: FSMContext) -> None:
     try:
         max_price = int(message.text.strip())
         await state.update_data(fs_max_price=max_price if max_price > 0 else None)
@@ -133,7 +133,7 @@ async def process_fs_max_price(message: Message, state: FSMContext):
     await execute_fast_search(message, state, message.from_user.id)
 
 
-async def execute_fast_search(message, state: FSMContext, user_id: int):
+async def execute_fast_search(message, state: FSMContext, user_id: int) -> None:
     data = await state.get_data()
     user_query = data.get("fs_query")
     category_id = data.get("fs_category")

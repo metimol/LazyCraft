@@ -24,6 +24,4 @@ async def filter_items_with_llm(items: list, user_prompt: str) -> str:
         prompt=user_prompt,
         items=items_text,
     )
-    resp = await ask_agent(sys_msg)
-
-    return resp
+    return await ask_agent(sys_msg)

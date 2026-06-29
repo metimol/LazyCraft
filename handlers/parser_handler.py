@@ -35,7 +35,7 @@ class ParserState(StatesGroup):
 
 @router.message(TextLoc("auto_parser_btn"))
 @router.message(Command("parsers"))
-async def parser_menu_cmd(message: Message):
+async def parser_menu_cmd(message: Message) -> None:
     user_zip = await get_user_zip(message.from_user.id)
     if not user_zip:
         await message.answer(locale("missing_zip_code"))
@@ -44,7 +44,7 @@ async def parser_menu_cmd(message: Message):
 
 
 @router.callback_query(F.data == "parser_add")
-async def process_parser_add(callback: CallbackQuery, state: FSMContext):
+async def process_parser_add(callback: CallbackQuery, state: FSMContext) -> None:
     user_zip = await get_user_zip(
         callback.fromuser.id
         if hasattr(callback, "fromuser")
@@ -63,7 +63,7 @@ async def process_parser_add(callback: CallbackQuery, state: FSMContext):
 
 
 @router.message(ParserState.waiting_for_name)
-async def process_parser_name(message: Message, state: FSMContext):
+async def process_parser_name(message: Message, state: FSMContext) -> None:
     name = message.text.strip()
     if len(name) > 40:
         await message.answer(locale("parser_name_too_long").format(max_length=40))
@@ -82,7 +82,7 @@ async def process_parser_name(message: Message, state: FSMContext):
 
 
 @router.callback_query(F.data == "ptype_category", ParserState.waiting_for_name)
-async def process_ptype_category(callback: CallbackQuery, state: FSMContext):
+async def process_ptype_category(callback: CallbackQuery, state: FSMContext) -> None:
     await state.update_data(parser_type="category")
     await callback.message.edit_text(
         locale("choose_category"),
@@ -91,13 +91,13 @@ async def process_ptype_category(callback: CallbackQuery, state: FSMContext):
 
 
 @router.callback_query(F.data.startswith("catpage_"), ParserState.waiting_for_name)
-async def process_catpage(callback: CallbackQuery):
+async def process_catpage(callback: CallbackQuery) -> None:
     page = int(callback.data.split("_")[1])
     await callback.message.edit_reply_markup(reply_markup=get_categories_keyboard(page))
 
 
 @router.callback_query(F.data.startswith("cat_"), ParserState.waiting_for_name)
-async def process_cat_selection(callback: CallbackQuery, state: FSMContext):
+async def process_cat_selection(callback: CallbackQuery, state: FSMContext) -> None:
     cat_id = callback.data.split("_")[1]
     await state.update_data(parser_target=cat_id)
     await callback.message.edit_text(
@@ -108,14 +108,14 @@ async def process_cat_selection(callback: CallbackQuery, state: FSMContext):
 
 
 @router.callback_query(F.data == "ptype_query", ParserState.waiting_for_name)
-async def process_ptype_query(callback: CallbackQuery, state: FSMContext):
+async def process_ptype_query(callback: CallbackQuery, state: FSMContext) -> None:
     await state.update_data(parser_type="query")
     await callback.message.edit_text(locale("enter_query"))
     await state.set_state(ParserState.waiting_for_query)
 
 
 @router.message(ParserState.waiting_for_query)
-async def process_parser_query(message: Message, state: FSMContext):
+async def process_parser_query(message: Message, state: FSMContext) -> None:
     user_query = message.text.strip()
     await state.update_data(parser_target=user_query)
 
@@ -135,7 +135,7 @@ async def process_parser_query(message: Message, state: FSMContext):
     F.data == "pricelimit_no",
     ParserState.waiting_for_price_limit_choice,
 )
-async def skip_parser_price_limits(callback: CallbackQuery, state: FSMContext):
+async def skip_parser_price_limits(callback: CallbackQuery, state: FSMContext) -> None:
     await state.update_data(parser_min_price=None, parser_max_price=None)
     await callback.message.edit_text(
         locale("choose_frequency"),
@@ -150,13 +150,13 @@ async def skip_parser_price_limits(callback: CallbackQuery, state: FSMContext):
     F.data == "pricelimit_yes",
     ParserState.waiting_for_price_limit_choice,
 )
-async def ask_parser_min_price(callback: CallbackQuery, state: FSMContext):
+async def ask_parser_min_price(callback: CallbackQuery, state: FSMContext) -> None:
     await callback.message.edit_text(locale("enter_min_price"))
     await state.set_state(ParserState.waiting_for_min_price)
 
 
 @router.message(ParserState.waiting_for_min_price, ~F.text.startswith("/"))
-async def process_parser_min_price(message: Message, state: FSMContext):
+async def process_parser_min_price(message: Message, state: FSMContext) -> None:
     try:
         min_price = int(message.text.strip())
         await state.update_data(parser_min_price=min_price if min_price > 0 else None)
@@ -169,7 +169,7 @@ async def process_parser_min_price(message: Message, state: FSMContext):
 
 
 @router.message(ParserState.waiting_for_max_price, ~F.text.startswith("/"))
-async def process_parser_max_price(message: Message, state: FSMContext):
+async def process_parser_max_price(message: Message, state: FSMContext) -> None:
     try:
         max_price = int(message.text.strip())
         await state.update_data(parser_max_price=max_price if max_price > 0 else None)
@@ -184,7 +184,7 @@ async def process_parser_max_price(message: Message, state: FSMContext):
 
 
 @router.callback_query(F.data.startswith("freq_"), ParserState.waiting_for_max_price)
-async def process_frequency(callback: CallbackQuery, state: FSMContext):
+async def process_frequency(callback: CallbackQuery, state: FSMContext) -> None:
     freq = int(callback.data.split("_")[1])
     await state.update_data(parser_freq=freq)
     await callback.message.edit_text(
@@ -197,7 +197,9 @@ async def process_frequency(callback: CallbackQuery, state: FSMContext):
     F.data.startswith("aifilter_"),
     ParserState.waiting_for_max_price,
 )
-async def process_ai_filter(callback: CallbackQuery, state: FSMContext, bot: Bot):
+async def process_ai_filter(
+    callback: CallbackQuery, state: FSMContext, bot: Bot
+) -> None:
     enable_ai = callback.data == "aifilter_yes"
     await state.update_data(parser_ai=enable_ai)
 
@@ -215,7 +217,7 @@ async def process_ai_filter(callback: CallbackQuery, state: FSMContext, bot: Bot
 
 
 @router.message(ParserState.waiting_for_ai_prompt)
-async def process_ai_prompt(message: Message, state: FSMContext, bot: Bot):
+async def process_ai_prompt(message: Message, state: FSMContext, bot: Bot) -> None:
     await state.update_data(parser_ai_prompt=message.text.strip())
     await finish_parser_creation(message, state, message.from_user.id, bot)
 
@@ -225,7 +227,7 @@ async def finish_parser_creation(
     state: FSMContext,
     user_id: int,
     bot: Bot,
-):
+) -> None:
     data = await state.get_data()
     name = data.get("parser_name")
     if not name:
@@ -257,7 +259,7 @@ async def finish_parser_creation(
 
 # Manage Existing
 @router.callback_query(F.data == "parser_manage")
-async def process_parser_manage(callback: CallbackQuery):
+async def process_parser_manage(callback: CallbackQuery) -> None:
     parsers = await get_parsers(callback.from_user.id)
     if not parsers:
         await callback.message.edit_text(locale("no_parsers_found"))
@@ -269,7 +271,7 @@ async def process_parser_manage(callback: CallbackQuery):
 
 
 @router.callback_query(F.data.startswith("managep_"))
-async def process_manage_specific_parser(callback: CallbackQuery):
+async def process_manage_specific_parser(callback: CallbackQuery) -> None:
     name = callback.data.split("_", 1)[1]
     parsers = await get_parsers(callback.from_user.id)
     if name not in parsers:
@@ -291,7 +293,7 @@ async def process_manage_specific_parser(callback: CallbackQuery):
 
 
 @router.callback_query(F.data.startswith("pact_toggle_"))
-async def process_parser_toggle(callback: CallbackQuery, bot: Bot):
+async def process_parser_toggle(callback: CallbackQuery, bot: Bot) -> None:
     name = callback.data.split("_", 2)[2]
     parsers = await get_parsers(callback.from_user.id)
     if name not in parsers:
@@ -323,7 +325,7 @@ async def process_parser_toggle(callback: CallbackQuery, bot: Bot):
 
 
 @router.callback_query(F.data.startswith("pact_delete_"))
-async def process_parser_delete(callback: CallbackQuery):
+async def process_parser_delete(callback: CallbackQuery) -> None:
     name = callback.data.split("_", 2)[2]
     await delete_parser(callback.from_user.id, name)
     remove_parser_job(callback.from_user.id, name)

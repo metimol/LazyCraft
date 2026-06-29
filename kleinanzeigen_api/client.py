@@ -26,8 +26,9 @@ DEFAULT_BASIC_USER = os.environ.get("APP_USER", None)
 DEFAULT_BASIC_PW = os.environ.get("APP_PASSWORD", None)
 
 if None in [APP_VERSION, DEFAULT_BASIC_USER, DEFAULT_BASIC_PW]:
+    msg = "Set APP_VERSION, APP_USER and APP_PASSWORD environment variables."
     raise RuntimeError(
-        "Set APP_VERSION, APP_USER and APP_PASSWORD environment variables.",
+        msg,
     )
 
 
@@ -127,7 +128,7 @@ class KleinanzeigenAPI:
         max_retries: int = 3,
         basic_user: str | None = None,
         basic_pw: str | None = None,
-    ):
+    ) -> None:
         self.rate_limit = rate_limit
         self.app_version = app_version
         self.timeout = timeout
@@ -140,7 +141,7 @@ class KleinanzeigenAPI:
         self._auth = "Basic " + base64.b64encode(f"{user}:{pw}".encode()).decode()
         self._s = AsyncSession(impersonate="chrome")
 
-    async def close(self):
+    async def close(self) -> None:
         if self._s:
             await self._s.close()
 
@@ -184,11 +185,14 @@ class KleinanzeigenAPI:
                     if r.status_code == 200:
                         return r
                     if r.status_code in (401, 403):
-                        raise RuntimeError(
+                        msg = (
                             f"{r.status_code} from API — Basic-auth credentials likely "
                             f"rotated. Supply fresh ones via basic_user/basic_pw or the "
                             f"APP_USER/APP_PASSWORD env vars. "
-                            f"Body: {r.text[:160]}",
+                            f"Body: {r.text[:160]}"
+                        )
+                        raise RuntimeError(
+                            msg,
                         )
                     if r.status_code in (429, 500, 503):
                         await asyncio.sleep(1.5 * attempt + random.uniform(0, 1.5))
@@ -200,7 +204,8 @@ class KleinanzeigenAPI:
                     last = e
                     _global_last_request = time.time()
                     await asyncio.sleep(1.2 * attempt)
-        raise RuntimeError(f"GET failed after {self.max_retries} tries: {url} ({last})")
+        msg = f"GET failed after {self.max_retries} tries: {url} ({last})"
+        raise RuntimeError(msg)
 
     # -- location resolution ------------------------------------------------ #
     async def resolve_location(self, query: str) -> list:
@@ -363,15 +368,15 @@ class KleinanzeigenAPI:
 
     async def search(
         self,
-        location: int = None,
+        location: int | None = None,
         *,
-        q: str = None,
+        q: str | None = None,
         exclude=None,
-        category: str = None,
-        category_id: int = None,
-        distance_km: int = None,
-        min_price: int = None,
-        max_price: int = None,
+        category: str | None = None,
+        category_id: int | None = None,
+        distance_km: int | None = None,
+        min_price: int | None = None,
+        max_price: int | None = None,
         ad_type: str = "OFFERED",
         sort_type=None,
         pages: int = 1,
@@ -398,7 +403,8 @@ class KleinanzeigenAPI:
         (sort_type).
         """
         if category is not None and category_id is not None:
-            raise ValueError("pass either `category` or `category_id`, not both")
+            msg = "pass either `category` or `category_id`, not both"
+            raise ValueError(msg)
         category_id = _catalog.resolve_category(
             category if category is not None else category_id,
         )
@@ -418,7 +424,8 @@ class KleinanzeigenAPI:
                     logging.warning(f"Could not resolve location zip code {location}")
                     location_id = str(location)  # fallback
             else:
-                raise ValueError("Invalid location zip code")
+                msg = "Invalid location zip code"
+                raise ValueError(msg)
 
         # TODO: Remove logging after release
         logging.info(f"Search radius in Kleinanzeigen API: {distance_km}")
@@ -469,12 +476,14 @@ class KleinanzeigenAPI:
         ``category_id``; one of them is required.
         """
         if category is not None and category_id is not None:
-            raise ValueError("pass either `category` or `category_id`, not both")
+            msg = "pass either `category` or `category_id`, not both"
+            raise ValueError(msg)
         cat = _catalog.resolve_category(
             category if category is not None else category_id,
         )
         if cat is None:
-            raise ValueError("search_metadata needs a category (name or id)")
+            msg = "search_metadata needs a category (name or id)"
+            raise ValueError(msg)
         r = await self._get(f"{API_HOST}/api/ads/search-metadata/{cat}.json")
         data = r.json()
         opts = _val(data.get(SEARCH_META_NS, {}))

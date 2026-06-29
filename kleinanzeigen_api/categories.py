@@ -35,13 +35,15 @@ def set_categories(categories: list[Category]) -> None:
 def all_categories() -> list[Category]:
     """Return the catalog as a list of Category objects."""
     if not _CATEGORIES_CACHE:
-        raise RuntimeError("Categories not loaded. Call api.update_categories() first.")
+        msg = "Categories not loaded. Call api.update_categories() first."
+        raise RuntimeError(msg)
     return _CATEGORIES_CACHE
 
 
 def _by_id() -> dict:
     if not _BY_ID_CACHE:
-        raise RuntimeError("Categories not loaded. Call api.update_categories() first.")
+        msg = "Categories not loaded. Call api.update_categories() first."
+        raise RuntimeError(msg)
     return _BY_ID_CACHE
 
 
@@ -104,22 +106,29 @@ def resolve_category(value) -> str | None:
         return exact[0].id
     if len(exact) > 1:
         opts = ", ".join(f"{c.id} ({c.path})" for c in exact)
+        msg = f"Category name {value!r} is ambiguous: {opts}. Pass the numeric id instead."
         raise ValueError(
-            f"Category name {value!r} is ambiguous: {opts}. Pass the numeric id instead.",
+            msg,
         )
 
     cands = find_categories(s, limit=6)
     if len(cands) == 1:
         return cands[0].id
     if not cands:
-        raise ValueError(
+        msg = (
             f"Unknown category {value!r}. Browse with find_categories({value!r}) "
-            f"or KleinanzeigenAPI().find_categories({value!r}).",
+            f"or KleinanzeigenAPI().find_categories({value!r})."
+        )
+        raise ValueError(
+            msg,
         )
     opts = "; ".join(f"{c.name} (id {c.id})" for c in cands)
-    raise ValueError(
+    msg = (
         f"Ambiguous category {value!r}. Did you mean: {opts}? "
-        f"Pass an exact name or the numeric id.",
+        f"Pass an exact name or the numeric id."
+    )
+    raise ValueError(
+        msg,
     )
 
 
@@ -144,7 +153,7 @@ def flatten_api_categories(payload: dict) -> list[dict]:
 
     def walk(cat: dict, parts: list, real_estate: bool) -> None:
         nm = name_of(cat)
-        path_parts = parts + [nm] if nm else parts
+        path_parts = [*parts, nm] if nm else parts
         cid = cat.get("id")
         if cid:  # skip the synthetic "Alle Kategorien" root (no id)
             out.append(

@@ -9,7 +9,7 @@ REDIS_PORT = int(os.getenv("REDIS_PORT", "6379"))
 _pool: ConnectionPool | None = None
 
 
-async def init_redis():
+async def init_redis() -> None:
     global _pool
     _pool = ConnectionPool.from_url(
         f"redis://{REDIS_HOST}:{REDIS_PORT}/0",
@@ -20,7 +20,7 @@ async def init_redis():
     await client.ping()
 
 
-async def close_redis():
+async def close_redis() -> None:
     global _pool
     if _pool:
         await _pool.disconnect()
@@ -32,5 +32,6 @@ def get_redis() -> Redis:
     You can use this client to execute commands across the app.
     """
     if _pool is None:
-        raise RuntimeError("Redis pool is not initialized")
+        msg = "Redis pool is not initialized"
+        raise RuntimeError(msg)
     return Redis(connection_pool=_pool)

@@ -10,7 +10,7 @@ from utils.split_message import split_message
 scheduler = AsyncIOScheduler()
 
 
-async def scheduled_parser_check(bot: Bot, user_id: int, parser_name: str):
+async def scheduled_parser_check(bot: Bot, user_id: int, parser_name: str) -> None:
     parsers = await get_parsers(user_id)
     if parser_name not in parsers:
         return
@@ -26,10 +26,7 @@ async def scheduled_parser_check(bot: Bot, user_id: int, parser_name: str):
         location_id = None
         if user_location:
             locations = await api.resolve_location(str(user_location))
-            if locations:
-                location_id = locations[0][0]
-            else:
-                location_id = str(user_location)
+            location_id = locations[0][0] if locations else str(user_location)
 
         new_items = []
         seen_old_items_count = 0
@@ -72,7 +69,7 @@ async def scheduled_parser_check(bot: Bot, user_id: int, parser_name: str):
                     if is_first_run and page >= 5:
                         break
 
-                    total, page_items = await api.search_page(
+                    _total, page_items = await api.search_page(
                         q=q,
                         page=page,
                         size=40,
@@ -126,7 +123,7 @@ async def scheduled_parser_check(bot: Bot, user_id: int, parser_name: str):
         )
 
 
-def add_parser_job(bot: Bot, user_id: int, parser_name: str, minutes: int):
+def add_parser_job(bot: Bot, user_id: int, parser_name: str, minutes: int) -> None:
     job_id = f"parser_{user_id}_{parser_name}"
     if scheduler.get_job(job_id):
         scheduler.remove_job(job_id)
@@ -141,7 +138,7 @@ def add_parser_job(bot: Bot, user_id: int, parser_name: str, minutes: int):
         )
 
 
-def remove_parser_job(user_id: int, parser_name: str):
+def remove_parser_job(user_id: int, parser_name: str) -> None:
     job_id = f"parser_{user_id}_{parser_name}"
     if scheduler.get_job(job_id):
         scheduler.remove_job(job_id)

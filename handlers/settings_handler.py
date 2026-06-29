@@ -31,12 +31,12 @@ class SettingsState(StatesGroup):
 
 @router.message(TextLoc("settings_btn"))
 @router.message(Command("settings"))
-async def settings_cmd(message: Message):
+async def settings_cmd(message: Message) -> None:
     await message.answer(locale("settings_menu"), reply_markup=get_settings_keyboard())
 
 
 @router.callback_query(F.data == "set_language")
-async def process_set_language(callback: CallbackQuery):
+async def process_set_language(callback: CallbackQuery) -> None:
     await callback.message.edit_text(
         locale("choose_language"),
         reply_markup=get_language_keyboard(),
@@ -44,7 +44,7 @@ async def process_set_language(callback: CallbackQuery):
 
 
 @router.callback_query(F.data.startswith("lang_"))
-async def save_language(callback: CallbackQuery):
+async def save_language(callback: CallbackQuery) -> None:
     lang = callback.data.split("_")[1]
     await set_user_language(callback.from_user.id, lang)
     user_lang.set(lang)
@@ -57,13 +57,13 @@ async def save_language(callback: CallbackQuery):
 
 # TODO: Add availability to cancel zip code setting
 @router.callback_query(F.data == "set_location")
-async def process_set_location(callback: CallbackQuery, state: FSMContext):
+async def process_set_location(callback: CallbackQuery, state: FSMContext) -> None:
     await callback.message.edit_text(locale("enter_zip"))
     await state.set_state(SettingsState.waiting_for_zip)
 
 
 @router.message(SettingsState.waiting_for_zip)
-async def process_zip_code(message: Message, state: FSMContext):
+async def process_zip_code(message: Message, state: FSMContext) -> None:
     zip_code = message.text.strip()
     if not re.match(r"^\d{5}$", zip_code):
         await message.answer(locale("invalid_zip"))
@@ -89,7 +89,7 @@ async def process_zip_code(message: Message, state: FSMContext):
 
 
 @router.callback_query(F.data.startswith("radius_"))
-async def save_radius(callback: CallbackQuery):
+async def save_radius(callback: CallbackQuery) -> None:
     radius = int(callback.data.split("_")[1])
     await set_user_radius(callback.from_user.id, radius)
     await callback.message.edit_text(locale("radius_saved").format(radius=radius))

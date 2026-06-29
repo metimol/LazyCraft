@@ -14,7 +14,7 @@ user_lang: ContextVar[str] = ContextVar("user_lang", default="en")
 _locales_data = {}
 
 
-def _load_locales():
+def _load_locales() -> None:
     locales_dir = Path(__file__).parent / "locales"
     if not locales_dir.exists():
         return
@@ -31,7 +31,7 @@ def _load_locales():
 _load_locales()
 
 
-def locale(key: str, lang: str = None) -> str:
+def locale(key: str, lang: str | None = None) -> str:
     if lang is None:
         lang = user_lang.get()
 
@@ -44,7 +44,8 @@ def locale(key: str, lang: str = None) -> str:
         if lang != "en":
             value = _locales_data.get("en", {}).get(key)
         if value is None:
-            raise ValueError(f"Cannot access phrase variable: {key} for lang {lang}")
+            msg = f"Cannot access phrase variable: {key} for lang {lang}"
+            raise ValueError(msg)
     return value
 
 
@@ -55,7 +56,5 @@ ADMIN_ID_STR = os.getenv("ADMIN_ID", None)
 ADMIN_ID = int(ADMIN_ID_STR) if ADMIN_ID_STR else None
 
 if BOT_TOKEN is None or GOOGLE_API_KEY is None:
-    raise Exception("Necessary environment variable not set")
-
-
-DEFAULT_SEARCH_PROMPT = "Ищи рабочую электронику, велосипеды, инструменты. Игнорируй откровенный мусор, битые зеркала и пустые банки."
+    msg = "Necessary environment variable not set"
+    raise Exception(msg)

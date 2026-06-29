@@ -12,5 +12,5 @@ router = Router()
 
 @router.message(TextLoc("help_btn"))
 @router.message(Command("help"))
-async def help_cmd(message: Message):
+async def help_cmd(message: Message) -> None:
     await message.answer(locale("help_message"))

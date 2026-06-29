@@ -29,7 +29,7 @@ from utils.scheduler_jobs import add_parser_job, scheduler
 
 
 class AdminMiddleware(BaseMiddleware):
-    def __init__(self, admin_id: int):
+    def __init__(self, admin_id: int) -> None:
         self.admin_id = admin_id
 
     async def __call__(
@@ -83,7 +83,7 @@ dp.include_router(help_router)
 dp.include_router(default_router)
 
 
-async def restore_jobs():
+async def restore_jobs() -> None:
     # Restore parser jobs
     users = await get_all_users_with_parsers()
     for user_id in users:
@@ -93,7 +93,7 @@ async def restore_jobs():
                 add_parser_job(bot, user_id, name, config["freq"])
 
 
-async def update_categories_list():
+async def update_categories_list() -> None:
     async with KleinanzeigenAPI() as api:
         await api.update_categories()
 

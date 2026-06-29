@@ -1,5 +1,5 @@
 """Unofficial API for Kleinanzeigen via Mobile API
-Got this idea from https://github.com/monkrel/kleinanzeigen-api
+Got this idea from https://github.com/monkrel/kleinanzeigen-api.
 """
 
 from __future__ import annotations

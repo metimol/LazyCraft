@@ -5,7 +5,7 @@ from const import locale
 
 
 class TextLoc(BaseFilter):
-    def __init__(self, key: str):
+    def __init__(self, key: str) -> None:
         self.key = key
 
     async def __call__(self, message: Message) -> bool:
