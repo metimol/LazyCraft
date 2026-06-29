@@ -9,7 +9,6 @@ import random
 import time
 import uuid
 from dataclasses import asdict, dataclass, field
-from typing import Optional
 
 from curl_cffi.requests import AsyncSession
 
@@ -28,7 +27,7 @@ DEFAULT_BASIC_PW = os.environ.get("APP_PASSWORD", None)
 
 if None in [APP_VERSION, DEFAULT_BASIC_USER, DEFAULT_BASIC_PW]:
     raise RuntimeError(
-        "Set APP_VERSION, APP_USER and APP_PASSWORD environment variables."
+        "Set APP_VERSION, APP_USER and APP_PASSWORD environment variables.",
     )
 
 
@@ -44,7 +43,7 @@ def _val(node):
     return node
 
 
-def _num(x) -> Optional[float]:
+def _num(x) -> float | None:
     try:
         return float(x)
     except (TypeError, ValueError):
@@ -75,15 +74,15 @@ class Listing:
     id: str
     title: str
     description: str
-    price: Optional[float]
+    price: float | None
     price_type: str
     url: str
     city: str
     zip_code: str
-    latitude: Optional[float]
-    longitude: Optional[float]
-    size_m2: Optional[float]
-    rooms: Optional[float]
+    latitude: float | None
+    longitude: float | None
+    size_m2: float | None
+    rooms: float | None
     posted: str
     poster_type: str
     images: list = field(default_factory=list)
@@ -117,6 +116,7 @@ class KleinanzeigenAPI:
         basic_user / basic_pw: override the built-in Basic-auth login. If these
             are not set, the APP_USER / APP_PASSWORD
             environment variables are used, then the built-in defaults.
+
     """
 
     def __init__(
@@ -125,8 +125,8 @@ class KleinanzeigenAPI:
         app_version: str = APP_VERSION,
         timeout: int = 25,
         max_retries: int = 3,
-        basic_user: Optional[str] = None,
-        basic_pw: Optional[str] = None,
+        basic_user: str | None = None,
+        basic_pw: str | None = None,
     ):
         self.rate_limit = rate_limit
         self.app_version = app_version
@@ -162,7 +162,7 @@ class KleinanzeigenAPI:
             "Authorization": self._auth,
         }
 
-    async def _get(self, url: str, params: Optional[dict] = None):
+    async def _get(self, url: str, params: dict | None = None):
         global _global_last_request
         last = None
         for attempt in range(1, self.max_retries + 1):
@@ -188,7 +188,7 @@ class KleinanzeigenAPI:
                             f"{r.status_code} from API — Basic-auth credentials likely "
                             f"rotated. Supply fresh ones via basic_user/basic_pw or the "
                             f"APP_USER/APP_PASSWORD env vars. "
-                            f"Body: {r.text[:160]}"
+                            f"Body: {r.text[:160]}",
                         )
                     if r.status_code in (429, 500, 503):
                         await asyncio.sleep(1.5 * attempt + random.uniform(0, 1.5))
@@ -400,7 +400,7 @@ class KleinanzeigenAPI:
         if category is not None and category_id is not None:
             raise ValueError("pass either `category` or `category_id`, not both")
         category_id = _catalog.resolve_category(
-            category if category is not None else category_id
+            category if category is not None else category_id,
         )
         if sort_by_price and not sort_type:  # default to cheapest-first
             sort_type = "PRICE_ASCENDING"
@@ -412,7 +412,7 @@ class KleinanzeigenAPI:
                 if locations:
                     location_id = locations[0][0]
                     logging.info(
-                        f"Resolved location {location} to location_id in Kleinanzeigen API: {location_id} ({locations[0][1]})"
+                        f"Resolved location {location} to location_id in Kleinanzeigen API: {location_id} ({locations[0][1]})",
                     )
                 else:
                     logging.warning(f"Could not resolve location zip code {location}")
@@ -471,7 +471,7 @@ class KleinanzeigenAPI:
         if category is not None and category_id is not None:
             raise ValueError("pass either `category` or `category_id`, not both")
         cat = _catalog.resolve_category(
-            category if category is not None else category_id
+            category if category is not None else category_id,
         )
         if cat is None:
             raise ValueError("search_metadata needs a category (name or id)")

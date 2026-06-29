@@ -7,7 +7,6 @@ a network request.
 from __future__ import annotations
 
 from dataclasses import asdict, dataclass
-from typing import List, Optional
 
 _CAT_NS = "{http://www.ebayclassifiedsgroup.com/schema/category/v1}categories"
 
@@ -23,17 +22,17 @@ class Category:
         return asdict(self)
 
 
-_CATEGORIES_CACHE: List[Category] = []
+_CATEGORIES_CACHE: list[Category] = []
 _BY_ID_CACHE: dict = {}
 
 
-def set_categories(categories: List[Category]) -> None:
+def set_categories(categories: list[Category]) -> None:
     global _CATEGORIES_CACHE, _BY_ID_CACHE
     _CATEGORIES_CACHE = categories
     _BY_ID_CACHE = {c.id: c for c in categories}
 
 
-def all_categories() -> List[Category]:
+def all_categories() -> list[Category]:
     """Return the catalog as a list of Category objects."""
     if not _CATEGORIES_CACHE:
         raise RuntimeError("Categories not loaded. Call api.update_categories() first.")
@@ -46,14 +45,14 @@ def _by_id() -> dict:
     return _BY_ID_CACHE
 
 
-def get_category(category_id) -> Optional[Category]:
+def get_category(category_id) -> Category | None:
     """Return the Category with this id, or None if the id is not found."""
     if category_id is None:
         return None
     return _by_id().get(str(category_id))
 
 
-def find_categories(query: str, limit: int = 8) -> List[Category]:
+def find_categories(query: str, limit: int = 8) -> list[Category]:
     """Return up to `limit` categories that match `query`, best matches first.
 
     Matches are ranked in this order: exact name, name starts with the query,
@@ -80,7 +79,7 @@ def find_categories(query: str, limit: int = 8) -> List[Category]:
     return [c for _, _, c in scored[:limit]]
 
 
-def resolve_category(value) -> Optional[str]:
+def resolve_category(value) -> str | None:
     """Convert a category name or id into an id string.
 
     Rules:
@@ -106,7 +105,7 @@ def resolve_category(value) -> Optional[str]:
     if len(exact) > 1:
         opts = ", ".join(f"{c.id} ({c.path})" for c in exact)
         raise ValueError(
-            f"Category name {value!r} is ambiguous: {opts}. Pass the numeric id instead."
+            f"Category name {value!r} is ambiguous: {opts}. Pass the numeric id instead.",
         )
 
     cands = find_categories(s, limit=6)
@@ -115,16 +114,16 @@ def resolve_category(value) -> Optional[str]:
     if not cands:
         raise ValueError(
             f"Unknown category {value!r}. Browse with find_categories({value!r}) "
-            f"or KleinanzeigenAPI().find_categories({value!r})."
+            f"or KleinanzeigenAPI().find_categories({value!r}).",
         )
     opts = "; ".join(f"{c.name} (id {c.id})" for c in cands)
     raise ValueError(
         f"Ambiguous category {value!r}. Did you mean: {opts}? "
-        f"Pass an exact name or the numeric id."
+        f"Pass an exact name or the numeric id.",
     )
 
 
-def flatten_api_categories(payload: dict) -> List[dict]:
+def flatten_api_categories(payload: dict) -> list[dict]:
     """Convert a raw /api/categories.json response into the flat format used by
     data/categories.json: [{"id", "name", "path", "real_estate"}, ...].
 
@@ -141,7 +140,7 @@ def flatten_api_categories(payload: dict) -> List[dict]:
             or ""
         )
 
-    out: List[dict] = []
+    out: list[dict] = []
 
     def walk(cat: dict, parts: list, real_estate: bool) -> None:
         nm = name_of(cat)
@@ -154,7 +153,7 @@ def flatten_api_categories(payload: dict) -> List[dict]:
                     "name": nm,
                     "path": " > ".join(path_parts),
                     "real_estate": real_estate,
-                }
+                },
             )
         for child in cat.get("category", []) or []:
             walk(child, path_parts, real_estate)

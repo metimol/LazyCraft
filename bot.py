@@ -1,34 +1,31 @@
 import asyncio
 import logging
+import os
 import sys
+from collections.abc import Awaitable, Callable
+from typing import Any
 
-from aiogram import Dispatcher, Bot, F, Router
+from aiogram import BaseMiddleware, Bot, Dispatcher, F, Router
 from aiogram.client.default import DefaultBotProperties
 from aiogram.enums import ParseMode
 from aiogram.filters import CommandStart
-from aiogram.fsm.state import any_state
-from aiogram.types import Message
-
-from const import BOT_TOKEN, locale, ADMIN_ID
-from kleinanzeigen_api import KleinanzeigenAPI
-from utils.processing import text_processing
-from utils.scheduler_jobs import scheduler, add_parser_job
-from utils.keyboards import get_main_keyboard
-from database.parsers import get_all_users_with_parsers, get_parsers
-from database.client import init_redis, close_redis
-from utils.middlewares import LocaleMiddleware
-
-from aiogram import BaseMiddleware
-from aiogram.types import TelegramObject
-from aiogram.fsm.storage.redis import RedisStorage
-from typing import Callable, Dict, Any, Awaitable
-import os
 from aiogram.fsm.context import FSMContext
+from aiogram.fsm.state import any_state
+from aiogram.fsm.storage.redis import RedisStorage
+from aiogram.types import Message, TelegramObject
 
-from handlers.settings_handler import router as settings_router
-from handlers.parser_handler import router as parser_router
+from const import ADMIN_ID, BOT_TOKEN, locale
+from database.client import close_redis, init_redis
+from database.parsers import get_all_users_with_parsers, get_parsers
 from handlers.fast_search_handler import router as fast_search_router
 from handlers.help_handler import router as help_router
+from handlers.parser_handler import router as parser_router
+from handlers.settings_handler import router as settings_router
+from kleinanzeigen_api import KleinanzeigenAPI
+from utils.keyboards import get_main_keyboard
+from utils.middlewares import LocaleMiddleware
+from utils.processing import text_processing
+from utils.scheduler_jobs import add_parser_job, scheduler
 
 
 class AdminMiddleware(BaseMiddleware):
@@ -37,13 +34,13 @@ class AdminMiddleware(BaseMiddleware):
 
     async def __call__(
         self,
-        handler: Callable[[TelegramObject, Dict[str, Any]], Awaitable[Any]],
+        handler: Callable[[TelegramObject, dict[str, Any]], Awaitable[Any]],
         event: TelegramObject,
-        data: Dict[str, Any],
+        data: dict[str, Any],
     ) -> Any:
         user = data.get("event_from_user")
         if user and user.id != self.admin_id:
-            return
+            return None
         return await handler(event, data)
 
 

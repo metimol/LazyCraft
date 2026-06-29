@@ -1,10 +1,9 @@
 from aiogram.types import (
-    ReplyKeyboardMarkup,
-    KeyboardButton,
-    InlineKeyboardMarkup,
     InlineKeyboardButton,
+    InlineKeyboardMarkup,
+    KeyboardButton,
+    ReplyKeyboardMarkup,
 )
-
 
 from const import locale
 
@@ -30,15 +29,17 @@ def get_settings_keyboard():
         inline_keyboard=[
             [
                 InlineKeyboardButton(
-                    text=locale("set_location_btn"), callback_data="set_location"
-                )
+                    text=locale("set_location_btn"),
+                    callback_data="set_location",
+                ),
             ],
             [
                 InlineKeyboardButton(
-                    text=locale("set_language_btn"), callback_data="set_language"
-                )
+                    text=locale("set_language_btn"),
+                    callback_data="set_language",
+                ),
             ],
-        ]
+        ],
     )
 
 
@@ -56,7 +57,7 @@ def get_language_keyboard():
             [
                 InlineKeyboardButton(text="Українська", callback_data="lang_ukr"),
             ],
-        ]
+        ],
     )
 
 
@@ -75,7 +76,7 @@ def get_radius_keyboard():
                 InlineKeyboardButton(text="50 км", callback_data="radius_50"),
                 InlineKeyboardButton(text="100 км", callback_data="radius_100"),
             ],
-        ]
+        ],
     )
 
 
@@ -84,15 +85,17 @@ def get_parser_menu_keyboard():
         inline_keyboard=[
             [
                 InlineKeyboardButton(
-                    text=locale("add_new_btn"), callback_data="parser_add"
-                )
+                    text=locale("add_new_btn"),
+                    callback_data="parser_add",
+                ),
             ],
             [
                 InlineKeyboardButton(
-                    text=locale("manage_existing_btn"), callback_data="parser_manage"
-                )
+                    text=locale("manage_existing_btn"),
+                    callback_data="parser_manage",
+                ),
             ],
-        ]
+        ],
     )
 
 
@@ -103,14 +106,15 @@ def get_parser_type_keyboard():
                 InlineKeyboardButton(
                     text=locale("search_by_category_btn"),
                     callback_data="ptype_category",
-                )
+                ),
             ],
             [
                 InlineKeyboardButton(
-                    text=locale("search_by_query_btn"), callback_data="ptype_query"
-                )
+                    text=locale("search_by_query_btn"),
+                    callback_data="ptype_query",
+                ),
             ],
-        ]
+        ],
     )
 
 
@@ -137,7 +141,7 @@ def get_parser_frequency_keyboard():
                 InlineKeyboardButton(text="12h", callback_data="freq_720"),
                 InlineKeyboardButton(text="24h", callback_data="freq_1440"),
             ],
-        ]
+        ],
     )
 
 
@@ -146,11 +150,12 @@ def get_ai_filter_keyboard():
         inline_keyboard=[
             [
                 InlineKeyboardButton(
-                    text=locale("yes_btn"), callback_data="aifilter_yes"
-                )
+                    text=locale("yes_btn"),
+                    callback_data="aifilter_yes",
+                ),
             ],
             [InlineKeyboardButton(text=locale("no_btn"), callback_data="aifilter_no")],
-        ]
+        ],
     )
 
 
@@ -175,14 +180,16 @@ def get_categories_keyboard(page: int = 0):
     if page > 0:
         nav_buttons.append(
             InlineKeyboardButton(
-                text=locale("prev_page_btn"), callback_data=f"catpage_{page - 1}"
-            )
+                text=locale("prev_page_btn"),
+                callback_data=f"catpage_{page - 1}",
+            ),
         )
     if page < total_pages - 1:
         nav_buttons.append(
             InlineKeyboardButton(
-                text=locale("next_page_btn"), callback_data=f"catpage_{page + 1}"
-            )
+                text=locale("next_page_btn"),
+                callback_data=f"catpage_{page + 1}",
+            ),
         )
 
     if nav_buttons:
@@ -193,7 +200,7 @@ def get_categories_keyboard(page: int = 0):
 
 def get_manage_parsers_keyboard(parsers: dict):
     kb = []
-    for name in parsers.keys():
+    for name in parsers:
         kb.append([InlineKeyboardButton(text=name, callback_data=f"managep_{name}")])
     return InlineKeyboardMarkup(inline_keyboard=kb)
 
@@ -204,15 +211,17 @@ def get_parser_action_keyboard(name: str, is_active: bool):
         inline_keyboard=[
             [
                 InlineKeyboardButton(
-                    text=toggle_text, callback_data=f"pact_toggle_{name}"
-                )
+                    text=toggle_text,
+                    callback_data=f"pact_toggle_{name}",
+                ),
             ],
             [
                 InlineKeyboardButton(
-                    text=locale("delete_btn"), callback_data=f"pact_delete_{name}"
-                )
+                    text=locale("delete_btn"),
+                    callback_data=f"pact_delete_{name}",
+                ),
             ],
-        ]
+        ],
     )
 
 
@@ -221,7 +230,7 @@ def get_fs_category_prompt_keyboard():
         inline_keyboard=[
             [InlineKeyboardButton(text=locale("yes_btn"), callback_data="fs_cat_yes")],
             [InlineKeyboardButton(text=locale("no_btn"), callback_data="fs_cat_no")],
-        ]
+        ],
     )
 
 
@@ -230,13 +239,15 @@ def get_price_limit_keyboard():
         inline_keyboard=[
             [
                 InlineKeyboardButton(
-                    text=locale("yes_btn"), callback_data="pricelimit_yes"
-                )
+                    text=locale("yes_btn"),
+                    callback_data="pricelimit_yes",
+                ),
             ],
             [
                 InlineKeyboardButton(
-                    text=locale("no_btn"), callback_data="pricelimit_no"
-                )
+                    text=locale("no_btn"),
+                    callback_data="pricelimit_no",
+                ),
             ],
-        ]
+        ],
     )

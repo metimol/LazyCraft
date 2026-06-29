@@ -1,6 +1,7 @@
 from aiogram.types import Message
-from utils.split_message import split_message
+
 from const import locale
+from utils.split_message import split_message
 
 
 async def text_processing(message: Message) -> None:

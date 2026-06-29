@@ -4,7 +4,9 @@ from langchain.chat_models import init_chat_model
 from const import GOOGLE_API_KEY
 
 model = init_chat_model(
-    model="google_genai:gemma-4-31b-it", api_key=GOOGLE_API_KEY, max_tokens=8192
+    model="google_genai:gemma-4-31b-it",
+    api_key=GOOGLE_API_KEY,
+    max_tokens=8192,
 )
 
 agent = create_agent(

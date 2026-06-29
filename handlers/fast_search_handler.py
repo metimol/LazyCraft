@@ -1,20 +1,20 @@
-from aiogram import Router, F
-from aiogram.types import Message, CallbackQuery
+from aiogram import F, Router
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State, StatesGroup
+from aiogram.types import CallbackQuery, Message
 
+from ai.fast_search_ai import filter_best_items, generate_optimized_queries
 from const import locale
 from database.limits import check_fast_search_limit
+from database.users import get_user_radius, get_user_zip
+from kleinanzeigen_api import KleinanzeigenAPI
+from utils.filters import TextLoc
 from utils.keyboards import (
-    get_fs_category_prompt_keyboard,
     get_categories_keyboard,
+    get_fs_category_prompt_keyboard,
     get_price_limit_keyboard,
 )
 from utils.split_message import split_message
-from utils.filters import TextLoc
-from kleinanzeigen_api import KleinanzeigenAPI
-from ai.fast_search_ai import generate_optimized_queries, filter_best_items
-from database.users import get_user_zip, get_user_radius
 
 router = Router()
 
@@ -41,7 +41,8 @@ async def fast_search_entry(message: Message, state: FSMContext):
         return
 
     await message.answer(
-        locale("fs_ask_category"), reply_markup=get_fs_category_prompt_keyboard()
+        locale("fs_ask_category"),
+        reply_markup=get_fs_category_prompt_keyboard(),
     )
     await state.set_state(FSState.waiting_for_category_choice)
 
@@ -49,7 +50,8 @@ async def fast_search_entry(message: Message, state: FSMContext):
 @router.callback_query(F.data == "fs_cat_yes", FSState.waiting_for_category_choice)
 async def process_fs_cat_yes(callback: CallbackQuery, state: FSMContext):
     await callback.message.edit_text(
-        locale("choose_category"), reply_markup=get_categories_keyboard(0)
+        locale("choose_category"),
+        reply_markup=get_categories_keyboard(0),
     )
     await state.set_state(FSState.waiting_for_category)
 
@@ -81,13 +83,15 @@ async def process_fs_query(message: Message, state: FSMContext):
     await state.update_data(fs_query=user_query)
 
     await message.answer(
-        locale("ask_price_limits"), reply_markup=get_price_limit_keyboard()
+        locale("ask_price_limits"),
+        reply_markup=get_price_limit_keyboard(),
     )
     await state.set_state(FSState.waiting_for_price_limit_choice)
 
 
 @router.callback_query(
-    F.data == "pricelimit_no", FSState.waiting_for_price_limit_choice
+    F.data == "pricelimit_no",
+    FSState.waiting_for_price_limit_choice,
 )
 async def skip_fs_price_limits(callback: CallbackQuery, state: FSMContext):
     await state.update_data(fs_min_price=None, fs_max_price=None)
@@ -96,7 +100,8 @@ async def skip_fs_price_limits(callback: CallbackQuery, state: FSMContext):
 
 
 @router.callback_query(
-    F.data == "pricelimit_yes", FSState.waiting_for_price_limit_choice
+    F.data == "pricelimit_yes",
+    FSState.waiting_for_price_limit_choice,
 )
 async def ask_fs_min_price(callback: CallbackQuery, state: FSMContext):
     await callback.message.edit_text(locale("enter_min_price"))

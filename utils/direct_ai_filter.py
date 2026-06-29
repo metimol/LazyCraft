@@ -21,7 +21,8 @@ async def filter_items_with_llm(items: list, user_prompt: str) -> str:
         items_text += line
 
     sys_msg = locale("filter_items_with_llm").format(
-        prompt=user_prompt, items=items_text
+        prompt=user_prompt,
+        items=items_text,
     )
     resp = await ask_agent(sys_msg)
 

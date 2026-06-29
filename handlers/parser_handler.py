@@ -1,26 +1,25 @@
-from aiogram import Router, F, Bot
+from aiogram import Bot, F, Router
 from aiogram.filters import Command
-from aiogram.types import Message, CallbackQuery
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State, StatesGroup
-from utils.filters import TextLoc
+from aiogram.types import CallbackQuery, Message
 
+from ai.fast_search_ai import generate_optimized_queries
 from const import locale
-from database.parsers import get_parsers, add_parser, delete_parser, toggle_parser
+from database.parsers import add_parser, delete_parser, get_parsers, toggle_parser
 from database.users import get_user_zip
+from utils.filters import TextLoc
 from utils.keyboards import (
-    get_parser_menu_keyboard,
-    get_parser_type_keyboard,
-    get_parser_frequency_keyboard,
     get_ai_filter_keyboard,
     get_categories_keyboard,
     get_manage_parsers_keyboard,
     get_parser_action_keyboard,
+    get_parser_frequency_keyboard,
+    get_parser_menu_keyboard,
+    get_parser_type_keyboard,
     get_price_limit_keyboard,
 )
-
 from utils.scheduler_jobs import add_parser_job, remove_parser_job
-from ai.fast_search_ai import generate_optimized_queries
 
 router = Router()
 
@@ -47,7 +46,9 @@ async def parser_menu_cmd(message: Message):
 @router.callback_query(F.data == "parser_add")
 async def process_parser_add(callback: CallbackQuery, state: FSMContext):
     user_zip = await get_user_zip(
-        callback.fromuser.id if hasattr(callback, "fromuser") else callback.from_user.id
+        callback.fromuser.id
+        if hasattr(callback, "fromuser")
+        else callback.from_user.id,
     )
     if not user_zip:
         await callback.answer(locale("missing_zip_code"), show_alert=True)
@@ -75,7 +76,8 @@ async def process_parser_name(message: Message, state: FSMContext):
 
     await state.update_data(parser_name=name)
     await message.answer(
-        locale("choose_search_type"), reply_markup=get_parser_type_keyboard()
+        locale("choose_search_type"),
+        reply_markup=get_parser_type_keyboard(),
     )
 
 
@@ -83,7 +85,8 @@ async def process_parser_name(message: Message, state: FSMContext):
 async def process_ptype_category(callback: CallbackQuery, state: FSMContext):
     await state.update_data(parser_type="category")
     await callback.message.edit_text(
-        locale("choose_category"), reply_markup=get_categories_keyboard(0)
+        locale("choose_category"),
+        reply_markup=get_categories_keyboard(0),
     )
 
 
@@ -98,7 +101,8 @@ async def process_cat_selection(callback: CallbackQuery, state: FSMContext):
     cat_id = callback.data.split("_")[1]
     await state.update_data(parser_target=cat_id)
     await callback.message.edit_text(
-        locale("ask_price_limits"), reply_markup=get_price_limit_keyboard()
+        locale("ask_price_limits"),
+        reply_markup=get_price_limit_keyboard(),
     )
     await state.set_state(ParserState.waiting_for_price_limit_choice)
 
@@ -121,26 +125,30 @@ async def process_parser_query(message: Message, state: FSMContext):
     await status_msg.delete()
 
     await message.answer(
-        locale("ask_price_limits"), reply_markup=get_price_limit_keyboard()
+        locale("ask_price_limits"),
+        reply_markup=get_price_limit_keyboard(),
     )
     await state.set_state(ParserState.waiting_for_price_limit_choice)
 
 
 @router.callback_query(
-    F.data == "pricelimit_no", ParserState.waiting_for_price_limit_choice
+    F.data == "pricelimit_no",
+    ParserState.waiting_for_price_limit_choice,
 )
 async def skip_parser_price_limits(callback: CallbackQuery, state: FSMContext):
     await state.update_data(parser_min_price=None, parser_max_price=None)
     await callback.message.edit_text(
-        locale("choose_frequency"), reply_markup=get_parser_frequency_keyboard()
+        locale("choose_frequency"),
+        reply_markup=get_parser_frequency_keyboard(),
     )
     await state.set_state(
-        ParserState.waiting_for_max_price
+        ParserState.waiting_for_max_price,
     )  # Setting to max price state so frequency handles it
 
 
 @router.callback_query(
-    F.data == "pricelimit_yes", ParserState.waiting_for_price_limit_choice
+    F.data == "pricelimit_yes",
+    ParserState.waiting_for_price_limit_choice,
 )
 async def ask_parser_min_price(callback: CallbackQuery, state: FSMContext):
     await callback.message.edit_text(locale("enter_min_price"))
@@ -170,7 +178,8 @@ async def process_parser_max_price(message: Message, state: FSMContext):
         return
 
     await message.answer(
-        locale("choose_frequency"), reply_markup=get_parser_frequency_keyboard()
+        locale("choose_frequency"),
+        reply_markup=get_parser_frequency_keyboard(),
     )
 
 
@@ -179,12 +188,14 @@ async def process_frequency(callback: CallbackQuery, state: FSMContext):
     freq = int(callback.data.split("_")[1])
     await state.update_data(parser_freq=freq)
     await callback.message.edit_text(
-        locale("enable_ai_filter"), reply_markup=get_ai_filter_keyboard()
+        locale("enable_ai_filter"),
+        reply_markup=get_ai_filter_keyboard(),
     )
 
 
 @router.callback_query(
-    F.data.startswith("aifilter_"), ParserState.waiting_for_max_price
+    F.data.startswith("aifilter_"),
+    ParserState.waiting_for_max_price,
 )
 async def process_ai_filter(callback: CallbackQuery, state: FSMContext, bot: Bot):
     enable_ai = callback.data == "aifilter_yes"
@@ -196,7 +207,10 @@ async def process_ai_filter(callback: CallbackQuery, state: FSMContext, bot: Bot
     else:
         await state.update_data(parser_ai_prompt="")
         await finish_parser_creation(
-            callback.message, state, callback.from_user.id, bot
+            callback.message,
+            state,
+            callback.from_user.id,
+            bot,
         )
 
 
@@ -207,7 +221,10 @@ async def process_ai_prompt(message: Message, state: FSMContext, bot: Bot):
 
 
 async def finish_parser_creation(
-    message: Message, state: FSMContext, user_id: int, bot: Bot
+    message: Message,
+    state: FSMContext,
+    user_id: int,
+    bot: Bot,
 ):
     data = await state.get_data()
     name = data.get("parser_name")
@@ -220,7 +237,8 @@ async def finish_parser_creation(
         "type": data["parser_type"],
         "target": data["parser_target"],
         "optimized_queries": data.get(
-            "parser_optimized_queries", [data["parser_target"]]
+            "parser_optimized_queries",
+            [data["parser_target"]],
         ),
         "freq": data["parser_freq"],
         "ai_filter": data["parser_ai"],
@@ -245,7 +263,8 @@ async def process_parser_manage(callback: CallbackQuery):
         await callback.message.edit_text(locale("no_parsers_found"))
         return
     await callback.message.edit_text(
-        locale("manage_parsers_menu"), reply_markup=get_manage_parsers_keyboard(parsers)
+        locale("manage_parsers_menu"),
+        reply_markup=get_manage_parsers_keyboard(parsers),
     )
 
 
@@ -260,10 +279,14 @@ async def process_manage_specific_parser(callback: CallbackQuery):
     config = parsers[name]
     status = "Active" if config["active"] else "Paused"
     text = locale("parser_info").format(
-        name=name, status=status, type=config["type"], freq=config["freq"]
+        name=name,
+        status=status,
+        type=config["type"],
+        freq=config["freq"],
     )
     await callback.message.edit_text(
-        text, reply_markup=get_parser_action_keyboard(name, config["active"])
+        text,
+        reply_markup=get_parser_action_keyboard(name, config["active"]),
     )
 
 
@@ -288,10 +311,14 @@ async def process_parser_toggle(callback: CallbackQuery, bot: Bot):
     config["active"] = is_active
     status = "Active" if is_active else "Paused"
     text = locale("parser_info").format(
-        name=name, status=status, type=config["type"], freq=config["freq"]
+        name=name,
+        status=status,
+        type=config["type"],
+        freq=config["freq"],
     )
     await callback.message.edit_text(
-        text, reply_markup=get_parser_action_keyboard(name, is_active)
+        text,
+        reply_markup=get_parser_action_keyboard(name, is_active),
     )
 
 

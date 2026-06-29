@@ -3,9 +3,9 @@ from aiogram.filters import Command
 from aiogram.types import (
     Message,
 )
-from utils.filters import TextLoc
 
 from const import locale
+from utils.filters import TextLoc
 
 router = Router()
 

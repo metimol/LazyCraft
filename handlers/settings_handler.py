@@ -1,24 +1,25 @@
-from aiogram import Router, F
-from aiogram.filters import Command
-from aiogram.types import Message, CallbackQuery
-from aiogram.fsm.context import FSMContext
-from aiogram.fsm.state import State, StatesGroup
-from utils.filters import TextLoc
 import re
 
-from utils.keyboards import (
-    get_settings_keyboard,
-    get_radius_keyboard,
-    get_language_keyboard,
-    get_main_keyboard,
-)
+from aiogram import F, Router
+from aiogram.filters import Command
+from aiogram.fsm.context import FSMContext
+from aiogram.fsm.state import State, StatesGroup
+from aiogram.types import CallbackQuery, Message
+
+from const import locale, user_lang
 from database.users import (
-    set_user_radius,
     set_user_language,
+    set_user_radius,
     set_user_zip,
 )
+from utils.filters import TextLoc
 from utils.geocoding import get_lat_lon
-from const import locale, user_lang
+from utils.keyboards import (
+    get_language_keyboard,
+    get_main_keyboard,
+    get_radius_keyboard,
+    get_settings_keyboard,
+)
 
 router = Router()
 
@@ -37,7 +38,8 @@ async def settings_cmd(message: Message):
 @router.callback_query(F.data == "set_language")
 async def process_set_language(callback: CallbackQuery):
     await callback.message.edit_text(
-        locale("choose_language"), reply_markup=get_language_keyboard()
+        locale("choose_language"),
+        reply_markup=get_language_keyboard(),
     )
 
 
@@ -48,7 +50,8 @@ async def save_language(callback: CallbackQuery):
     user_lang.set(lang)
     await callback.message.delete()
     await callback.message.answer(
-        locale("language_saved"), reply_markup=get_main_keyboard()
+        locale("language_saved"),
+        reply_markup=get_main_keyboard(),
     )
 
 

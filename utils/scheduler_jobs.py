@@ -1,10 +1,11 @@
-from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from aiogram import Bot
-from database.users import get_user_radius, get_user_zip
+from apscheduler.schedulers.asyncio import AsyncIOScheduler
+
 from ai.fast_search_ai import filter_best_items
-from utils.split_message import split_message
-from database.parsers import get_parsers, is_item_seen, mark_item_seen, has_seen_items
+from database.parsers import get_parsers, has_seen_items, is_item_seen, mark_item_seen
+from database.users import get_user_radius, get_user_zip
 from kleinanzeigen_api import KleinanzeigenAPI
+from utils.split_message import split_message
 
 scheduler = AsyncIOScheduler()
 
@@ -119,7 +120,9 @@ async def scheduled_parser_check(bot: Bot, user_id: int, parser_name: str):
 
     async for chunk in split_message(msg):
         await bot.send_message(
-            chat_id=user_id, text=chunk, disable_web_page_preview=True
+            chat_id=user_id,
+            text=chunk,
+            disable_web_page_preview=True,
         )
 
 

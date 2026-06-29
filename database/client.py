@@ -1,5 +1,6 @@
 import os
-from redis.asyncio import Redis, ConnectionPool
+
+from redis.asyncio import ConnectionPool, Redis
 
 # Get Redis host from environment (set by docker-compose)
 REDIS_HOST = os.getenv("REDIS_HOST", "localhost")
@@ -27,8 +28,7 @@ async def close_redis():
 
 
 def get_redis() -> Redis:
-    """
-    Returns an async Redis client instance.
+    """Returns an async Redis client instance.
     You can use this client to execute commands across the app.
     """
     if _pool is None:

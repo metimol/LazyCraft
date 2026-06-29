@@ -1,11 +1,8 @@
-from typing import Optional
 from database.client import get_redis
 
 
 async def get_all_users() -> list[int]:
-    """
-    Returns a list of all user IDs stored in the database.
-    """
+    """Returns a list of all user IDs stored in the database."""
     redis = get_redis()
     # Assume we store timers like 'user:{id}:timer'
     keys = await redis.keys("user:*:timer")
@@ -31,7 +28,7 @@ async def set_user_language(user_id: int, lang: str) -> None:
 async def get_user_language(user_id: int) -> str:
     redis = get_redis()
     lang = await redis.get(f"user:{user_id}:lang")
-    return lang if lang else "en"
+    return lang or "en"
 
 
 async def set_user_zip(user_id: int, zip_code: str) -> None:
@@ -39,6 +36,6 @@ async def set_user_zip(user_id: int, zip_code: str) -> None:
     await redis.set(f"user:{user_id}:zip", zip_code)
 
 
-async def get_user_zip(user_id: int) -> Optional[str]:
+async def get_user_zip(user_id: int) -> str | None:
     redis = get_redis()
     return await redis.get(f"user:{user_id}:zip")

@@ -5,13 +5,12 @@ from ai.config import model
 
 
 async def generate_optimized_queries(
-    user_query: str, max_queries: int = 5
+    user_query: str,
+    max_queries: int = 5,
 ) -> list[str]:
-    """
-    Generates 1 to max_queries highly optimized search queries for Kleinanzeigen based on user input.
+    """Generates 1 to max_queries highly optimized search queries for Kleinanzeigen based on user input.
     Returns a JSON list of strings.
     """
-
     sys_prompt = (
         "You are an expert at searching Kleinanzeigen (a German classifieds site). "
         f"Based on the user's input, generate 1 to {max_queries} short, highly optimized search queries. "
@@ -26,7 +25,7 @@ async def generate_optimized_queries(
         [
             {"role": "system", "content": sys_prompt},
             {"role": "user", "content": user_query},
-        ]
+        ],
     )
 
     content = response.content
@@ -36,7 +35,7 @@ async def generate_optimized_queries(
 
     if isinstance(content, list):
         content = "".join(
-            [str(p.get("text", "")) for p in content if p.get("type") == "text"]
+            [str(p.get("text", "")) for p in content if p.get("type") == "text"],
         )
     elif not isinstance(content, str):
         content = str(content)
@@ -58,9 +57,7 @@ async def generate_optimized_queries(
 
 
 async def filter_best_items(items_list: list[dict], original_query: str) -> list[str]:
-    """
-    Takes a list of stripped down items and returns a JSON array of the best matching item IDs.
-    """
+    """Takes a list of stripped down items and returns a JSON array of the best matching item IDs."""
     if not items_list:
         return []
 
@@ -79,7 +76,7 @@ async def filter_best_items(items_list: list[dict], original_query: str) -> list
         [
             {"role": "system", "content": sys_prompt},
             {"role": "user", "content": items_json},
-        ]
+        ],
     )
 
     content = response.content
@@ -88,7 +85,7 @@ async def filter_best_items(items_list: list[dict], original_query: str) -> list
 
     if isinstance(content, list):
         content = "".join(
-            [str(p.get("text", "")) for p in content if p.get("type") == "text"]
+            [str(p.get("text", "")) for p in content if p.get("type") == "text"],
         )
     elif not isinstance(content, str):
         content = str(content)

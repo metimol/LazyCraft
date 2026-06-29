@@ -1,9 +1,10 @@
-import os
 import json
-from pathlib import Path
 import logging
-from dotenv import load_dotenv
+import os
 from contextvars import ContextVar
+from pathlib import Path
+
+from dotenv import load_dotenv
 
 load_dotenv()
 
@@ -19,12 +20,12 @@ def _load_locales():
         return
     for file_path in locales_dir.glob("*.json"):
         lang = file_path.stem
-        with open(file_path, mode="r", encoding="utf-8") as f:
+        with open(file_path, encoding="utf-8") as f:
             try:
                 _locales_data[lang] = json.load(f)
             except json.JSONDecodeError:
                 logging.warning(f"Invalid JSON file: {file_path}")
-                pass  # Ignore invalid JSON files
+                # Ignore invalid JSON files
 
 
 _load_locales()
