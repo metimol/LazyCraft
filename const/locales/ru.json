@@ -50,6 +50,8 @@
   "settings_menu": "⚙️ <b>Конфигурация настроек</b>\n\nВыберите параметр для настройки:",
   "set_language_btn": "🌍 Язык",
   "set_location_btn": "📍 Локация и радиус",
+  "cancel_btn": "❌ Отмена",
+  "action_cancelled": "🚫 Действие отменено.",
   "choose_language": "🌍 <b>Выберите язык интерфейса:</b>",
   "language_saved": "✅ Язык успешно обновлен!",
 

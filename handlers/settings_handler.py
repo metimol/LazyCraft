@@ -15,6 +15,7 @@ from database.users import (
 from utils.filters import TextLoc
 from utils.geocoding import get_lat_lon
 from utils.keyboards import (
+    get_cancel_keyboard,
     get_language_keyboard,
     get_main_keyboard,
     get_radius_keyboard,
@@ -55,11 +56,19 @@ async def save_language(callback: CallbackQuery) -> None:
     )
 
 
-# TODO: Add availability to cancel zip code setting
 @router.callback_query(F.data == "set_location")
 async def process_set_location(callback: CallbackQuery, state: FSMContext) -> None:
-    await callback.message.edit_text(locale("enter_zip"))
+    await callback.message.edit_text(
+        locale("enter_zip"),
+        reply_markup=get_cancel_keyboard(),
+    )
     await state.set_state(SettingsState.waiting_for_zip)
+
+
+@router.callback_query(F.data == "cancel_action")
+async def cancel_action(callback: CallbackQuery, state: FSMContext) -> None:
+    await state.clear()
+    await callback.message.edit_text(locale("action_cancelled"))
 
 
 @router.message(SettingsState.waiting_for_zip)

@@ -81,6 +81,18 @@ def get_radius_keyboard():
     )
 
 
+def get_cancel_keyboard():
+    return InlineKeyboardMarkup(
+        inline_keyboard=[
+            [
+                InlineKeyboardButton(
+                    text=locale("cancel_btn"), callback_data="cancel_action"
+                ),
+            ],
+        ],
+    )
+
+
 def get_parser_menu_keyboard():
     return InlineKeyboardMarkup(
         inline_keyboard=[

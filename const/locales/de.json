@@ -50,6 +50,8 @@
   "settings_menu": "⚙️ <b>Einstellungen</b>\n\nWähle einen Parameter zum Anpassen:",
   "set_language_btn": "🌍 Sprache",
   "set_location_btn": "📍 Ort & Radius",
+  "cancel_btn": "❌ Abbrechen",
+  "action_cancelled": "🚫 Aktion abgebrochen.",
   "choose_language": "🌍 <b>Wähle die Sprache der Benutzeroberfläche:</b>",
   "language_saved": "✅ Sprache erfolgreich aktualisiert!",
 

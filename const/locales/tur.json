@@ -50,6 +50,8 @@
   "settings_menu": "⚙️ <b>Ayarlar Yapılandırması</b>\n\nAyarlamak için bir parametre seçin:",
   "set_language_btn": "🌍 Dil",
   "set_location_btn": "📍 Konum ve Yarıçap",
+  "cancel_btn": "❌ İptal",
+  "action_cancelled": "🚫 İşlem iptal edildi.",
   "choose_language": "🌍 <b>Arayüz dilinizi seçin:</b>",
   "language_saved": "✅ Dil başarıyla güncellendi!",
 

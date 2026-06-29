@@ -50,6 +50,8 @@
   "settings_menu": "⚙️ <b>Меню налаштувань</b>\n\nОбери параметр для зміни:",
   "set_language_btn": "🌍 Мова",
   "set_location_btn": "📍 Локація та Радіус",
+  "cancel_btn": "❌ Скасувати",
+  "action_cancelled": "🚫 Дію скасовано.",
   "choose_language": "🌍 <b>Обери мову інтерфейсу:</b>",
   "language_saved": "✅ Мову успішно оновлено!",
 
