@@ -198,7 +198,9 @@ async def process_frequency(callback: CallbackQuery, state: FSMContext) -> None:
     ParserState.waiting_for_max_price,
 )
 async def process_ai_filter(
-    callback: CallbackQuery, state: FSMContext, bot: Bot
+    callback: CallbackQuery,
+    state: FSMContext,
+    bot: Bot,
 ) -> None:
     enable_ai = callback.data == "aifilter_yes"
     await state.update_data(parser_ai=enable_ai)

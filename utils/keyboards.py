@@ -172,9 +172,10 @@ def get_categories_keyboard(page: int = 0):
     end = start + items_per_page
     page_cats = cats[start:end]
 
-    kb = []
-    for c in page_cats:
-        kb.append([InlineKeyboardButton(text=c.name, callback_data=f"cat_{c.id}")])
+    kb = [
+        [InlineKeyboardButton(text=c.name, callback_data=f"cat_{c.id}")]
+        for c in page_cats
+    ]
 
     nav_buttons = []
     if page > 0:
@@ -199,13 +200,14 @@ def get_categories_keyboard(page: int = 0):
 
 
 def get_manage_parsers_keyboard(parsers: dict):
-    kb = []
-    for name in parsers:
-        kb.append([InlineKeyboardButton(text=name, callback_data=f"managep_{name}")])
+    kb = [
+        [InlineKeyboardButton(text=name, callback_data=f"managep_{name}")]
+        for name in parsers
+    ]
     return InlineKeyboardMarkup(inline_keyboard=kb)
 
 
-def get_parser_action_keyboard(name: str, is_active: bool):
+def get_parser_action_keyboard(name: str, is_active: bool):  # noqa: FBT001
     toggle_text = locale("pause_btn") if is_active else locale("resume_btn")
     return InlineKeyboardMarkup(
         inline_keyboard=[

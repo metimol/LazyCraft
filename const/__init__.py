@@ -6,6 +6,8 @@ from pathlib import Path
 
 from dotenv import load_dotenv
 
+logger = logging.getLogger(__name__)
+
 load_dotenv()
 
 user_lang: ContextVar[str] = ContextVar("user_lang", default="en")
@@ -24,7 +26,7 @@ def _load_locales() -> None:
             try:
                 _locales_data[lang] = json.load(f)
             except json.JSONDecodeError:
-                logging.warning(f"Invalid JSON file: {file_path}")
+                logger.warning("Invalid JSON file: %s", file_path)
                 # Ignore invalid JSON files
 
 
@@ -57,4 +59,4 @@ ADMIN_ID = int(ADMIN_ID_STR) if ADMIN_ID_STR else None
 
 if BOT_TOKEN is None or GOOGLE_API_KEY is None:
     msg = "Necessary environment variable not set"
-    raise Exception(msg)
+    raise RuntimeError(msg)

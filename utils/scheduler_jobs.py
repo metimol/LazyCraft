@@ -10,7 +10,7 @@ from utils.split_message import split_message
 scheduler = AsyncIOScheduler()
 
 
-async def scheduled_parser_check(bot: Bot, user_id: int, parser_name: str) -> None:
+async def scheduled_parser_check(bot: Bot, user_id: int, parser_name: str) -> None:  # noqa: C901, PLR0912, PLR0915
     parsers = await get_parsers(user_id)
     if parser_name not in parsers:
         return
@@ -38,7 +38,7 @@ async def scheduled_parser_check(bot: Bot, user_id: int, parser_name: str) -> No
                 if is_first_run and page >= 3:
                     break
 
-                total, page_items = await api.search_page(
+                _total, page_items = await api.search_page(
                     category_id=config["target"],
                     page=page,
                     size=40,
@@ -99,9 +99,9 @@ async def scheduled_parser_check(bot: Bot, user_id: int, parser_name: str) -> No
     # Combine or filter
     if config["ai_filter"] and config["ai_prompt"]:
         # Only process a batch to save tokens/time if there are many new items
-        stripped_items = []
-        for i in new_items:
-            stripped_items.append({"id": i.id, "title": i.title, "price": i.price})
+        stripped_items = [
+            {"id": i.id, "title": i.title, "price": i.price} for i in new_items
+        ]
 
         best_ids = await filter_best_items(stripped_items, config["ai_prompt"])
         best_items = [i for i in new_items if i.id in best_ids]

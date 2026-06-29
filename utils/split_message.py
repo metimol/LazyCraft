@@ -1,4 +1,4 @@
-async def split_message(text: str, limit: int = 4000):
+async def split_message(text: str, limit: int = 4000):  # noqa: C901, PLR0912
     chunks = []
     current_chunk = ""
 

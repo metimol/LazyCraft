@@ -6,6 +6,7 @@ from aiogram.fsm.state import State, StatesGroup
 from aiogram.types import CallbackQuery, Message
 
 from ai.fast_search_ai import filter_best_items, generate_optimized_queries
+
 from const import locale
 from database.limits import check_fast_search_limit
 from database.users import get_user_radius, get_user_zip
@@ -17,6 +18,9 @@ from utils.keyboards import (
     get_price_limit_keyboard,
 )
 from utils.split_message import split_message
+
+
+logger = logging.getLogger(__name__)
 
 router = Router()
 
@@ -135,7 +139,7 @@ async def process_fs_max_price(message: Message, state: FSMContext) -> None:
     await execute_fast_search(message, state, message.from_user.id)
 
 
-async def execute_fast_search(message, state: FSMContext, user_id: int) -> None:
+async def execute_fast_search(message, state: FSMContext, user_id: int) -> None:  # noqa: C901
     data = await state.get_data()
     user_query = data.get("fs_query")
     category_id = data.get("fs_category")
@@ -177,8 +181,8 @@ async def execute_fast_search(message, state: FSMContext, user_id: int) -> None:
                     if item.id not in seen_ids:
                         seen_ids.add(item.id)
                         all_items.append(item)
-            except Exception as e:
-                logging.warning(f"Error searching for {q}: {e}")
+            except Exception as e:  # noqa: PERF203, BLE001
+                logger.warning("Error searching for %s: %s", q, e)
 
     if not all_items:
         await status_msg.edit_text(locale("fs_no_results"))
@@ -189,9 +193,9 @@ async def execute_fast_search(message, state: FSMContext, user_id: int) -> None:
     await status_msg.edit_text(locale("fs_live_filtering").format(count=len(all_items)))
 
     # Strip data down to minimal JSON to save tokens
-    stripped_items = []
-    for i in all_items:
-        stripped_items.append({"id": i.id, "title": i.title, "price": i.price})
+    stripped_items = [
+        {"id": i.id, "title": i.title, "price": i.price} for i in all_items
+    ]
 
     best_ids = await filter_best_items(stripped_items, user_query)
 

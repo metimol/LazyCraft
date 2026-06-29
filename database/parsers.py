@@ -27,7 +27,7 @@ async def delete_parser(user_id: int, name: str) -> None:
     await redis.delete(f"user:{user_id}:parser:{name}:seen")
 
 
-async def toggle_parser(user_id: int, name: str, is_active: bool) -> None:
+async def toggle_parser(user_id: int, name: str, is_active: bool) -> None:  # noqa: FBT001
     parsers = await get_parsers(user_id)
     if name in parsers:
         parsers[name]["active"] = is_active

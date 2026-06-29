@@ -10,7 +10,7 @@ _pool: ConnectionPool | None = None
 
 
 async def init_redis() -> None:
-    global _pool
+    global _pool  # noqa: PLW0603
     _pool = ConnectionPool.from_url(
         f"redis://{REDIS_HOST}:{REDIS_PORT}/0",
         decode_responses=True,  # Automatically decodes bytes to string
@@ -21,7 +21,7 @@ async def init_redis() -> None:
 
 
 async def close_redis() -> None:
-    global _pool
+    global _pool  # noqa: PLW0603
     if _pool:
         await _pool.disconnect()
         _pool = None

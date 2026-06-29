@@ -27,7 +27,7 @@ _BY_ID_CACHE: dict = {}
 
 
 def set_categories(categories: list[Category]) -> None:
-    global _CATEGORIES_CACHE, _BY_ID_CACHE
+    global _CATEGORIES_CACHE, _BY_ID_CACHE  # noqa: PLW0603
     _CATEGORIES_CACHE = categories
     _BY_ID_CACHE = {c.id: c for c in categories}
 
@@ -154,7 +154,7 @@ def flatten_api_categories(payload: dict) -> list[dict]:
 
     out: list[dict] = []
 
-    def walk(cat: dict, parts: list, real_estate: bool) -> None:
+    def walk(cat: dict, parts: list, *, real_estate: bool) -> None:
         nm = name_of(cat)
         path_parts = [*parts, nm] if nm else parts
         cid = cat.get("id")
@@ -168,10 +168,10 @@ def flatten_api_categories(payload: dict) -> list[dict]:
                 },
             )
         for child in cat.get("category", []) or []:
-            walk(child, path_parts, real_estate)
+            walk(child, path_parts, real_estate=real_estate)
 
     for alle in node.get("category", []) or []:  # "Alle Kategorien"
         for branch in alle.get("category", []) or []:  # top-level branches
             is_re = (branch.get("id-name") or {}).get("value") == "Immobilien"
-            walk(branch, [], is_re)
+            walk(branch, [], real_estate=is_re)
     return out

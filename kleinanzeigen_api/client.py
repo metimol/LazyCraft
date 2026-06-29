@@ -14,6 +14,8 @@ from curl_cffi.requests import AsyncSession
 
 from . import categories as _catalog
 
+logger = logging.getLogger(__name__)
+
 API_HOST = "https://api.kleinanzeigen.de"
 WEB_HOST = "https://www.kleinanzeigen.de"
 ADS_NS = "{http://www.ebayclassifiedsgroup.com/schema/ad/v1}ads"
@@ -37,7 +39,8 @@ if None in [APP_VERSION, DEFAULT_BASIC_USER, DEFAULT_BASIC_PW]:
 # --------------------------------------------------------------------------- #
 def _val(node):
     """Pull the scalar value out of a capi node. Handles nesting like
-    {'value': {'value': x}}."""
+    {'value': {'value': x}}.
+    """
     if isinstance(node, dict):
         if "value" in node:
             return _val(node["value"])
@@ -99,7 +102,7 @@ _global_lock = None
 
 
 def _get_api_lock():
-    global _global_lock
+    global _global_lock  # noqa: PLW0603
     if _global_lock is None:
         _global_lock = asyncio.Lock()
     return _global_lock
@@ -121,7 +124,7 @@ class KleinanzeigenAPI:
 
     """
 
-    def __init__(
+    def __init__(  # noqa: PLR0913
         self,
         rate_limit: float = 1.0,
         app_version: str = APP_VERSION,
@@ -165,7 +168,7 @@ class KleinanzeigenAPI:
         }
 
     async def _get(self, url: str, params: dict | None = None):
-        global _global_last_request
+        global _global_last_request  # noqa: PLW0603
         last = None
         for attempt in range(1, self.max_retries + 1):
             async with _get_api_lock():
@@ -192,9 +195,7 @@ class KleinanzeigenAPI:
                             f"basic_user/basic_pw or the APP_USER/APP_PASSWORD "
                             f"env vars. Body: {r.text[:160]}"
                         )
-                        raise RuntimeError(
-                            msg,
-                        )
+                        raise RuntimeError(msg)  # noqa: TRY301
                     if r.status_code in (429, 500, 503):
                         await asyncio.sleep(1.5 * attempt + random.uniform(0, 1.5))  # noqa: S311
                         continue
@@ -220,8 +221,8 @@ class KleinanzeigenAPI:
             cands = await self._resolve_location_api(query)
             if cands:
                 return cands
-        except Exception as e:  # API down or response unreadable -> try the website
-            logging.debug(f"API failed, falling back to web: {e}")
+        except Exception as e:  # noqa: BLE001 # API down or response unreadable -> try the website
+            logger.debug("API failed, falling back to web: %s", e)
         return await self._resolve_location_web(query)
 
     async def _resolve_location_api(self, query: str) -> list:
@@ -320,7 +321,7 @@ class KleinanzeigenAPI:
         )
 
     # -- search ------------------------------------------------------------- #
-    async def search_page(
+    async def search_page(  # noqa: C901, PLR0913
         self,
         *,
         category_id=None,
@@ -367,7 +368,7 @@ class KleinanzeigenAPI:
             raw = [raw]
         return total, [self._parse_ad(a) for a in raw]
 
-    async def search(
+    async def search(  # noqa: C901, PLR0913, PLR0912
         self,
         location: int | None = None,
         *,
@@ -418,19 +419,22 @@ class KleinanzeigenAPI:
                 locations = await self.resolve_location(str(location))
                 if locations:
                     location_id = locations[0][0]
-                    logging.info(
-                        f"Resolved location {location} to location_id in "
-                        f"Kleinanzeigen API: {location_id} ({locations[0][1]})",
+                    logger.info(
+                        "Resolved location %s to location_id in "
+                        "Kleinanzeigen API: %s (%s)",
+                        location,
+                        location_id,
+                        locations[0][1],
                     )
                 else:
-                    logging.warning(f"Could not resolve location zip code {location}")
+                    logger.warning("Could not resolve location zip code %s", location)
                     location_id = str(location)  # fallback
             else:
                 msg = "Invalid location zip code"
                 raise ValueError(msg)
 
         # TODO: Remove logging after release
-        logging.info(f"Search radius in Kleinanzeigen API: {distance_km}")
+        logger.info("Search radius in Kleinanzeigen API: %s", distance_km)
 
         results, seen = [], set()
         for page in range(pages):

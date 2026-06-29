@@ -3,6 +3,8 @@ import logging
 
 from ai.config import model
 
+logger = logging.getLogger(__name__)
+
 
 async def generate_optimized_queries(
     user_query: str,
@@ -35,7 +37,7 @@ async def generate_optimized_queries(
     content = response.content
 
     # TODO: Remove logging after first release
-    logging.info(f"AI Search optimizers response: {content}")
+    logger.info("AI Search optimizers response: %s", content)
 
     if isinstance(content, list):
         content = "".join(
@@ -54,15 +56,16 @@ async def generate_optimized_queries(
         queries = json.loads(content)
         if isinstance(queries, list):
             return queries[:max_queries]
-    except Exception as e:
-        logging.warning(f"Error parsing queries: {e}")
+    except Exception as e:  # noqa: BLE001
+        logger.warning("Error parsing queries: %s", e)
 
     return [user_query]
 
 
 async def filter_best_items(items_list: list[dict], original_query: str) -> list[str]:
     """Takes a list of stripped down items and returns a JSON array of the best
-    matching item IDs."""
+    matching item IDs.
+    """
     if not items_list:
         return []
 
@@ -87,7 +90,7 @@ async def filter_best_items(items_list: list[dict], original_query: str) -> list
 
     content = response.content
     # TODO: Remove logging after release
-    logging.info(f"AI Filter response: {content}")
+    logger.info("AI Filter response: %s", content)
 
     if isinstance(content, list):
         content = "".join(
@@ -106,7 +109,7 @@ async def filter_best_items(items_list: list[dict], original_query: str) -> list
         item_ids = json.loads(content)
         if isinstance(item_ids, list):
             return [str(x) for x in item_ids]
-    except Exception as e:
-        logging.warning(f"Error parsing item_ids: {e}")
+    except Exception as e:  # noqa: BLE001
+        logger.warning("Error parsing item_ids: %s", e)
 
     return [str(i["id"]) for i in items_list[:10]]
