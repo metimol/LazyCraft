@@ -6,6 +6,7 @@ from aiogram.types import (
 )
 
 from const import locale
+from kleinanzeigen_api.categories import all_categories
 
 
 def get_main_keyboard():
@@ -160,8 +161,6 @@ def get_ai_filter_keyboard():
 
 
 def get_categories_keyboard(page: int = 0):
-    from kleinanzeigen_api.categories import all_categories
-
     cats = all_categories()
 
     items_per_page = 10

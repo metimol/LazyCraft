@@ -6,7 +6,6 @@ from aiogram.fsm.state import State, StatesGroup
 from aiogram.types import CallbackQuery, Message
 
 from ai.fast_search_ai import filter_best_items, generate_optimized_queries
-
 from const import locale
 from database.limits import check_fast_search_limit
 from database.users import get_user_radius, get_user_zip
@@ -18,7 +17,6 @@ from utils.keyboards import (
     get_price_limit_keyboard,
 )
 from utils.split_message import split_message
-
 
 logger = logging.getLogger(__name__)
 
