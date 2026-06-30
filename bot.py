@@ -1,18 +1,23 @@
+from __future__ import annotations
+
 import asyncio
 import logging
 import os
 import sys
-from collections.abc import Awaitable, Callable
-from typing import Any
+from typing import TYPE_CHECKING, Any
+
+if TYPE_CHECKING:
+    from collections.abc import Awaitable, Callable
+
+    from aiogram.fsm.context import FSMContext
+    from aiogram.types import Message, TelegramObject
 
 from aiogram import BaseMiddleware, Bot, Dispatcher, F, Router
 from aiogram.client.default import DefaultBotProperties
 from aiogram.enums import ParseMode
 from aiogram.filters import CommandStart
-from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import any_state
 from aiogram.fsm.storage.redis import RedisStorage
-from aiogram.types import Message, TelegramObject
 
 from const import ADMIN_ID, BOT_TOKEN, locale
 from database.client import close_redis, init_redis
@@ -92,7 +97,7 @@ async def restore_jobs() -> None:
         parsers = await get_parsers(user_id)
         for name, config in parsers.items():
             if config.get("active"):
-                add_parser_job(bot, user_id, name, config["freq"])
+                await add_parser_job(bot, user_id, name, config["freq"], config=config)
 
 
 async def update_categories_list() -> None:

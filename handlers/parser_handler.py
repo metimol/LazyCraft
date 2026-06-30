@@ -45,11 +45,7 @@ async def parser_menu_cmd(message: Message) -> None:
 
 @router.callback_query(F.data == "parser_add")
 async def process_parser_add(callback: CallbackQuery, state: FSMContext) -> None:
-    user_zip = await get_user_zip(
-        callback.fromuser.id
-        if hasattr(callback, "fromuser")
-        else callback.from_user.id,
-    )
+    user_zip = await get_user_zip(callback.from_user.id)
     if not user_zip:
         await callback.answer(locale("missing_zip_code"), show_alert=True)
         return
@@ -253,7 +249,7 @@ async def finish_parser_creation(
     }
 
     await add_parser(user_id, name, config)
-    add_parser_job(bot, user_id, name, config["freq"])
+    await add_parser_job(bot, user_id, name, config["freq"], config=config)
 
     await message.answer(locale("parser_created").format(name=name))
     await state.clear()
@@ -302,10 +298,16 @@ async def process_parser_toggle(callback: CallbackQuery, bot: Bot) -> None:
         return
 
     is_active = not parsers[name]["active"]
-    await toggle_parser(callback.fromuser.id, name, is_active)
+    await toggle_parser(callback.from_user.id, name, is_active)
 
     if is_active:
-        add_parser_job(bot, callback.from_user.id, name, parsers[name]["freq"])
+        await add_parser_job(
+            bot,
+            callback.from_user.id,
+            name,
+            parsers[name]["freq"],
+            config=parsers[name],
+        )
         await callback.answer(locale("parser_resumed"))
     else:
         remove_parser_job(callback.from_user.id, name)

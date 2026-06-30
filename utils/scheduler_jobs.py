@@ -1,8 +1,22 @@
-from aiogram import Bot
+from __future__ import annotations
+
+import random
+from datetime import datetime, timedelta, timezone
+from typing import TYPE_CHECKING
+
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 
+if TYPE_CHECKING:
+    from aiogram import Bot
+
 from ai.fast_search_ai import filter_best_items
-from database.parsers import get_parsers, has_seen_items, is_item_seen, mark_item_seen
+from database.parsers import (
+    add_parser,
+    get_parsers,
+    has_seen_items,
+    is_item_seen,
+    mark_item_seen,
+)
 from database.users import get_user_radius, get_user_zip
 from kleinanzeigen_api import KleinanzeigenAPI
 from utils.split_message import split_message
@@ -18,6 +32,9 @@ async def scheduled_parser_check(bot: Bot, user_id: int, parser_name: str) -> No
     config = parsers[parser_name]
     if not config["active"]:
         return
+
+    config["last_run"] = datetime.now(timezone.utc).timestamp()
+    await add_parser(user_id, parser_name, config)
 
     user_location = await get_user_zip(user_id)
     user_distance = await get_user_radius(user_id)
@@ -124,17 +141,41 @@ async def scheduled_parser_check(bot: Bot, user_id: int, parser_name: str) -> No
         )
 
 
-def add_parser_job(bot: Bot, user_id: int, parser_name: str, minutes: int) -> None:
+async def add_parser_job(
+    bot: Bot,
+    user_id: int,
+    parser_name: str,
+    minutes: int,
+    config: dict | None = None,
+) -> None:
     job_id = f"parser_{user_id}_{parser_name}"
     if scheduler.get_job(job_id):
         scheduler.remove_job(job_id)
 
     if minutes > 0:
+        if config is None:
+            parsers = await get_parsers(user_id)
+            config = parsers.get(parser_name, {})
+
+        next_run_time = None
+        last_run = config.get("last_run")
+
+        if last_run:
+            last_run_dt = datetime.fromtimestamp(last_run, tz=timezone.utc)
+            target_next_run = last_run_dt + timedelta(minutes=minutes)
+            now_dt = datetime.now(timezone.utc)
+
+            if target_next_run <= now_dt:
+                next_run_time = now_dt + timedelta(seconds=random.randint(5, 30))  # noqa: S311
+            else:
+                next_run_time = target_next_run
+
         scheduler.add_job(
             scheduled_parser_check,
             "interval",
             minutes=minutes,
             id=job_id,
+            next_run_time=next_run_time,
             kwargs={"bot": bot, "user_id": user_id, "parser_name": parser_name},
         )
 
