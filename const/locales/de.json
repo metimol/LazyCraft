@@ -59,6 +59,7 @@
   "invalid_zip": "⚠️ <b>Ungültiges Format.</b>\nBitte gib genau 5 Ziffern für die Postleitzahl ein:",
   "zip_saved": "✅ Postleitzahl <b>{zip_code}</b> gespeichert.",
   "missing_zip_code": "⚠️ <b>Ort erforderlich:</b>\nBitte lege deine Postleitzahl in den Einstellungen fest, bevor du eine Suche startest.",
+  "validating_zip": "⏳ <i>Postleitzahl wird überprüft...</i>",
 
   "welcome_message": "👋 <b>Willkommen bei Keigen</b>\nDein smartes Radar für die besten Deals.",
   "not_supported_command": "⚠️ Unbekannter Befehl. Bitte benutze die Menü-Buttons.",

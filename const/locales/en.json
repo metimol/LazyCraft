@@ -59,6 +59,7 @@
   "invalid_zip": "⚠️ <b>Invalid format.</b>\nPlease enter exactly 5 digits for the Zip Code:",
   "zip_saved": "✅ Zip Code <b>{zip_code}</b> saved.",
   "missing_zip_code": "⚠️ <b>Location Required:</b>\nPlease set your Zip Code in the Settings before running a search.",
+  "validating_zip": "⏳ <i>Validating zip code...</i>",
 
   "welcome_message": "👋 <b>Welcome to Keigen</b>\nYour smart radar for hunting down the best deals.",
   "not_supported_command": "⚠️ Unrecognized command. Please use the menu buttons.",

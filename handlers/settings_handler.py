@@ -78,8 +78,7 @@ async def process_zip_code(message: Message, state: FSMContext) -> None:
         await message.answer(locale("invalid_zip"))
         return
 
-    # TODO: Add translation for all languages
-    status_msg = await message.answer("Validating zip code...")
+    status_msg = await message.answer(locale("validating_zip"))
     coords = await get_lat_lon(zip_code)
     await status_msg.delete()
 

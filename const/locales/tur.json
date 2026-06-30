@@ -59,6 +59,7 @@
   "invalid_zip": "⚠️ <b>Geçersiz format.</b>\nLütfen Posta Kodu için tam 5 hane girin:",
   "zip_saved": "✅ Posta Kodu <b>{zip_code}</b> kaydedildi.",
   "missing_zip_code": "⚠️ <b>Konum Gerekli:</b>\nBir arama başlatmadan önce lütfen Ayarlar bölümünden Posta Kodunuzu belirleyin.",
+  "validating_zip": "⏳ <i>Posta kodu doğrulanıyor...</i>",
 
   "welcome_message": "👋 <b>Keigen'e Hoş Geldiniz</b>\nEn iyi fırsatları yakalamak için akıllı radarınız.",
   "not_supported_command": "⚠️ Bilinmeyen komut. Lütfen menü butonlarını kullanın.",
