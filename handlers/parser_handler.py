@@ -11,6 +11,7 @@ from database.users import get_user_zip
 from utils.filters import TextLoc
 from utils.keyboards import (
     get_ai_filter_keyboard,
+    get_cancel_keyboard,
     get_categories_keyboard,
     get_manage_parsers_keyboard,
     get_parser_action_keyboard,
@@ -54,7 +55,9 @@ async def process_parser_add(callback: CallbackQuery, state: FSMContext) -> None
     if len(parsers) >= 5:
         await callback.message.edit_text(locale("parser_limit_reached"))
         return
-    await callback.message.edit_text(locale("enter_parser_name"))
+    await callback.message.edit_text(
+        locale("enter_parser_name"), reply_markup=get_cancel_keyboard()
+    )
     await state.set_state(ParserState.waiting_for_name)
 
 
@@ -106,7 +109,9 @@ async def process_cat_selection(callback: CallbackQuery, state: FSMContext) -> N
 @router.callback_query(F.data == "ptype_query", ParserState.waiting_for_name)
 async def process_ptype_query(callback: CallbackQuery, state: FSMContext) -> None:
     await state.update_data(parser_type="query")
-    await callback.message.edit_text(locale("enter_query"))
+    await callback.message.edit_text(
+        locale("enter_query"), reply_markup=get_cancel_keyboard()
+    )
     await state.set_state(ParserState.waiting_for_query)
 
 
@@ -147,7 +152,9 @@ async def skip_parser_price_limits(callback: CallbackQuery, state: FSMContext) -
     ParserState.waiting_for_price_limit_choice,
 )
 async def ask_parser_min_price(callback: CallbackQuery, state: FSMContext) -> None:
-    await callback.message.edit_text(locale("enter_min_price"))
+    await callback.message.edit_text(
+        locale("enter_min_price"), reply_markup=get_cancel_keyboard()
+    )
     await state.set_state(ParserState.waiting_for_min_price)
 
 
@@ -157,10 +164,12 @@ async def process_parser_min_price(message: Message, state: FSMContext) -> None:
         min_price = int(message.text.strip())
         await state.update_data(parser_min_price=min_price if min_price > 0 else None)
     except ValueError:
-        await message.answer(locale("invalid_price"))
+        await message.answer(
+            locale("invalid_price"), reply_markup=get_cancel_keyboard()
+        )
         return
 
-    await message.answer(locale("enter_max_price"))
+    await message.answer(locale("enter_max_price"), reply_markup=get_cancel_keyboard())
     await state.set_state(ParserState.waiting_for_max_price)
 
 
@@ -170,7 +179,9 @@ async def process_parser_max_price(message: Message, state: FSMContext) -> None:
         max_price = int(message.text.strip())
         await state.update_data(parser_max_price=max_price if max_price > 0 else None)
     except ValueError:
-        await message.answer(locale("invalid_price"))
+        await message.answer(
+            locale("invalid_price"), reply_markup=get_cancel_keyboard()
+        )
         return
 
     await message.answer(
@@ -202,7 +213,9 @@ async def process_ai_filter(
     await state.update_data(parser_ai=enable_ai)
 
     if enable_ai:
-        await callback.message.edit_text(locale("enter_ai_prompt"))
+        await callback.message.edit_text(
+            locale("enter_ai_prompt"), reply_markup=get_cancel_keyboard()
+        )
         await state.set_state(ParserState.waiting_for_ai_prompt)
     else:
         await state.update_data(parser_ai_prompt="")

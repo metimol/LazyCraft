@@ -12,6 +12,7 @@ from database.users import get_user_radius, get_user_zip
 from kleinanzeigen_api import KleinanzeigenAPI
 from utils.filters import TextLoc
 from utils.keyboards import (
+    get_cancel_keyboard,
     get_categories_keyboard,
     get_fs_category_prompt_keyboard,
     get_price_limit_keyboard,
@@ -63,7 +64,9 @@ async def process_fs_cat_yes(callback: CallbackQuery, state: FSMContext) -> None
 @router.callback_query(F.data == "fs_cat_no", FSState.waiting_for_category_choice)
 async def process_fs_cat_no(callback: CallbackQuery, state: FSMContext) -> None:
     await state.update_data(fs_category=None)
-    await callback.message.edit_text(locale("fs_enter_query"))
+    await callback.message.edit_text(
+        locale("fs_enter_query"), reply_markup=get_cancel_keyboard()
+    )
     await state.set_state(FSState.waiting_for_query)
 
 
@@ -77,7 +80,9 @@ async def process_fs_catpage(callback: CallbackQuery) -> None:
 async def process_fs_cat_selection(callback: CallbackQuery, state: FSMContext) -> None:
     cat_id = callback.data.split("_")[1]
     await state.update_data(fs_category=cat_id)
-    await callback.message.edit_text(locale("fs_enter_query"))
+    await callback.message.edit_text(
+        locale("fs_enter_query"), reply_markup=get_cancel_keyboard()
+    )
     await state.set_state(FSState.waiting_for_query)
 
 
@@ -108,7 +113,9 @@ async def skip_fs_price_limits(callback: CallbackQuery, state: FSMContext) -> No
     FSState.waiting_for_price_limit_choice,
 )
 async def ask_fs_min_price(callback: CallbackQuery, state: FSMContext) -> None:
-    await callback.message.edit_text(locale("enter_min_price"))
+    await callback.message.edit_text(
+        locale("enter_min_price"), reply_markup=get_cancel_keyboard()
+    )
     await state.set_state(FSState.waiting_for_min_price)
 
 
@@ -118,10 +125,12 @@ async def process_fs_min_price(message: Message, state: FSMContext) -> None:
         min_price = int(message.text.strip())
         await state.update_data(fs_min_price=min_price if min_price > 0 else None)
     except ValueError:
-        await message.answer(locale("invalid_price"))
+        await message.answer(
+            locale("invalid_price"), reply_markup=get_cancel_keyboard()
+        )
         return
 
-    await message.answer(locale("enter_max_price"))
+    await message.answer(locale("enter_max_price"), reply_markup=get_cancel_keyboard())
     await state.set_state(FSState.waiting_for_max_price)
 
 
@@ -131,7 +140,9 @@ async def process_fs_max_price(message: Message, state: FSMContext) -> None:
         max_price = int(message.text.strip())
         await state.update_data(fs_max_price=max_price if max_price > 0 else None)
     except ValueError:
-        await message.answer(locale("invalid_price"))
+        await message.answer(
+            locale("invalid_price"), reply_markup=get_cancel_keyboard()
+        )
         return
 
     await execute_fast_search(message, state, message.from_user.id)

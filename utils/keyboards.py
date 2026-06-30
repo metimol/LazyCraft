@@ -127,6 +127,11 @@ def get_parser_type_keyboard():
                     callback_data="ptype_query",
                 ),
             ],
+            [
+                InlineKeyboardButton(
+                    text=locale("cancel_btn"), callback_data="cancel_action"
+                ),
+            ],
         ],
     )
 
@@ -154,6 +159,11 @@ def get_parser_frequency_keyboard():
                 InlineKeyboardButton(text="12h", callback_data="freq_720"),
                 InlineKeyboardButton(text="24h", callback_data="freq_1440"),
             ],
+            [
+                InlineKeyboardButton(
+                    text=locale("cancel_btn"), callback_data="cancel_action"
+                ),
+            ],
         ],
     )
 
@@ -168,6 +178,11 @@ def get_ai_filter_keyboard():
                 ),
             ],
             [InlineKeyboardButton(text=locale("no_btn"), callback_data="aifilter_no")],
+            [
+                InlineKeyboardButton(
+                    text=locale("cancel_btn"), callback_data="cancel_action"
+                )
+            ],
         ],
     )
 
@@ -207,6 +222,10 @@ def get_categories_keyboard(page: int = 0):
     if nav_buttons:
         kb.append(nav_buttons)
 
+    kb.append(
+        [InlineKeyboardButton(text=locale("cancel_btn"), callback_data="cancel_action")]
+    )
+
     return InlineKeyboardMarkup(inline_keyboard=kb)
 
 
@@ -243,6 +262,11 @@ def get_fs_category_prompt_keyboard():
         inline_keyboard=[
             [InlineKeyboardButton(text=locale("yes_btn"), callback_data="fs_cat_yes")],
             [InlineKeyboardButton(text=locale("no_btn"), callback_data="fs_cat_no")],
+            [
+                InlineKeyboardButton(
+                    text=locale("cancel_btn"), callback_data="cancel_action"
+                )
+            ],
         ],
     )
 
@@ -260,6 +284,11 @@ def get_price_limit_keyboard():
                 InlineKeyboardButton(
                     text=locale("no_btn"),
                     callback_data="pricelimit_no",
+                ),
+            ],
+            [
+                InlineKeyboardButton(
+                    text=locale("cancel_btn"), callback_data="cancel_action"
                 ),
             ],
         ],
