@@ -137,6 +137,14 @@ async def process_fs_max_price(message: Message, state: FSMContext) -> None:
     await execute_fast_search(message, state, message.from_user.id)
 
 
+def format_item(item) -> str:
+    price_str = f"{item.price} EUR" if item.price else item.price_type
+    if item.price and item.price_type in ("NEGOTIABLE", "PLEASE_CONTACT"):
+        price_str += " VB"
+    dist_str = f" ({item.distance})" if item.distance else ""
+    return f"- <a href='{item.url}'>{item.title}</a> | {price_str}{dist_str}\n\n"
+
+
 async def execute_fast_search(message, state: FSMContext, user_id: int) -> None:  # noqa: C901
     data = await state.get_data()
     user_query = data.get("fs_query")
@@ -207,8 +215,7 @@ async def execute_fast_search(message, state: FSMContext, user_id: int) -> None:
 
     markdown_table = locale("fs_results_title")
     for item in best_items:
-        price_str = f"{item.price} EUR" if item.price else item.price_type
-        markdown_table += f"- <a href='{item.url}'>{item.title}</a> | {price_str}\n\n"
+        markdown_table += format_item(item)
 
     async for chunk in split_message(markdown_table):
         await message.answer(chunk, disable_web_page_preview=True)

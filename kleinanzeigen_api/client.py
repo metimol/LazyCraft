@@ -92,6 +92,7 @@ class Listing:
     poster_type: str
     images: list = field(default_factory=list)
     attributes: dict = field(default_factory=dict)  # localized-label -> value
+    distance: str | None = None
 
     def to_dict(self) -> dict:
         return asdict(self)
@@ -301,6 +302,10 @@ class KleinanzeigenAPI:
                     best = href
             if best:
                 images.append(best)
+
+        dist_obj = ad.get("search-distance", {})
+        distance = _val(dist_obj.get("display-distance"))
+
         return Listing(
             id=str(ad.get("id", "")),
             title=html.unescape(_val(ad.get("title")) or ""),
@@ -318,6 +323,7 @@ class KleinanzeigenAPI:
             poster_type=_val(ad.get("poster-type")) or "",
             images=images,
             attributes=attrs,
+            distance=distance,
         )
 
     # -- search ------------------------------------------------------------- #

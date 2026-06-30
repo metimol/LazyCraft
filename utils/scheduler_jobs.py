@@ -131,7 +131,10 @@ async def scheduled_parser_check(bot: Bot, user_id: int, parser_name: str) -> No
     msg = f"Parser: {parser_name} found {len(best_items)} new items:\n\n"
     for item in best_items:
         price_str = f"{item.price} EUR" if item.price else item.price_type
-        msg += f"- <a href='{item.url}'>{item.title}</a> | {price_str}\n\n"
+        if item.price and item.price_type in ("NEGOTIABLE", "PLEASE_CONTACT"):
+            price_str += " VB"
+        dist_str = f" ({item.distance})" if item.distance else ""
+        msg += f"- <a href='{item.url}'>{item.title}</a> | {price_str}{dist_str}\n\n"
 
     async for chunk in split_message(msg):
         await bot.send_message(
