@@ -76,5 +76,20 @@
 
   "parser_name_too_long": "⚠️ <b>Name zu lang.</b>\nBitte halte ihn unter {max_length} Zeichen. Versuch es nochmal:",
   "parser_already_exists": "⚠️ <b>Name vergeben.</b>\nDu hast bereits einen Parser mit diesem Namen. Wähle einen anderen:",
-  "session_expired": "⏱ <b>Sitzung abgelaufen.</b>\nDeine Einrichtung ist abgelaufen. Bitte starte die Parser-Erstellung erneut."
+  "session_expired": "⏱ <b>Sitzung abgelaufen.</b>\nDeine Einrichtung ist abgelaufen. Bitte starte die Parser-Erstellung erneut.",
+
+  "edit_btn": "✏️ Bearbeiten",
+  "back_btn": "⬅️ Zurück",
+  "edit_parser_menu": "✏️ <b>Parser bearbeiten: {name}</b>\n━━━━━━━━━━━━━━\n<b>Suche:</b> {target}\n<b>KI-Filter:</b> {ai_status}\n{ai_info}\nWas möchtest du ändern?",
+  "edit_name_btn": "🏷️ Name ändern",
+  "edit_prompt_btn": "🔍 Suchbegriff ändern",
+  "edit_category_btn": "📂 Kategorie ändern",
+  "enable_ai_btn": "🧠 KI aktivieren",
+  "disable_ai_btn": "🧠 KI deaktivieren",
+  "edit_ai_prompt_btn": "📝 KI-Beschreibung ändern",
+  "enter_new_name": "🏷️ <b>Gib einen neuen Namen für den Parser ein:</b>\n<i>Aktueller Name: {name}</i>",
+  "enter_new_prompt": "⌨️ <b>Gib einen neuen Suchbegriff ein:</b>\n<i>Aktueller Suchbegriff: {query}</i>",
+  "enter_new_ai_prompt": "📝 <b>Gib neue KI-Anweisungen ein:</b>\n<i>Aktuell: {prompt}</i>",
+  "parser_updated": "✅ <b>Erfolg!</b>\nParser <b>{name}</b> wurde aktualisiert.",
+  "ai_prompt_info": "<b>KI-Anweisung:</b> <i>{prompt}</i>\n"
 }

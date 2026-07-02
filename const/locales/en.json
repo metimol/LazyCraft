@@ -76,5 +76,20 @@
 
   "parser_name_too_long": "⚠️ <b>Name too long.</b>\nPlease keep it under {max_length} characters. Try again:",
   "parser_already_exists": "⚠️ <b>Name taken.</b>\nYou already have a parser with this name. Choose a different one:",
-  "session_expired": "⏱ <b>Session Expired.</b>\nYour setup timed out. Please start the parser creation process again."
+  "session_expired": "⏱ <b>Session Expired.</b>\nYour setup timed out. Please start the parser creation process again.",
+
+  "edit_btn": "✏️ Edit",
+  "back_btn": "⬅️ Back",
+  "edit_parser_menu": "✏️ <b>Editing Parser: {name}</b>\n━━━━━━━━━━━━━━\n<b>Search:</b> {target}\n<b>AI Filter:</b> {ai_status}\n{ai_info}\nWhat would you like to modify?",
+  "edit_name_btn": "🏷️ Change Name",
+  "edit_prompt_btn": "🔍 Change Search Prompt",
+  "edit_category_btn": "📂 Change Category",
+  "enable_ai_btn": "🧠 Enable AI",
+  "disable_ai_btn": "🧠 Disable AI",
+  "edit_ai_prompt_btn": "📝 Change AI Description",
+  "enter_new_name": "🏷️ <b>Enter new name for the parser:</b>\n<i>Current name: {name}</i>",
+  "enter_new_prompt": "⌨️ <b>Enter new search query:</b>\n<i>Current query: {query}</i>",
+  "enter_new_ai_prompt": "📝 <b>Enter new AI instructions:</b>\n<i>Current: {prompt}</i>",
+  "parser_updated": "✅ <b>Success!</b>\nParser <b>{name}</b> has been updated.",
+  "ai_prompt_info": "<b>AI Prompt:</b> <i>{prompt}</i>\n"
 }

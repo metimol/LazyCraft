@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import json
 
 from database.client import get_redis
@@ -50,3 +52,20 @@ async def mark_item_seen(user_id: int, parser_name: str, item_id: str) -> None:
 async def has_seen_items(user_id: int, parser_name: str) -> bool:
     redis = get_redis()
     return await redis.scard(f"user:{user_id}:parser:{parser_name}:seen") > 0
+
+
+async def rename_parser(user_id: int, old_name: str, new_name: str) -> bool:
+    parsers = await get_parsers(user_id)
+    if old_name not in parsers:
+        return False
+    if new_name != old_name and new_name in parsers:
+        return False
+    data = parsers[old_name]
+    redis = get_redis()
+    await redis.hdel(f"user:{user_id}:parsers", old_name)
+    await redis.hset(f"user:{user_id}:parsers", new_name, json.dumps(data))
+    old_seen = f"user:{user_id}:parser:{old_name}:seen"
+    new_seen = f"user:{user_id}:parser:{new_name}:seen"
+    if await redis.exists(old_seen):
+        await redis.rename(old_seen, new_seen)
+    return True

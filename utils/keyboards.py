@@ -246,11 +246,21 @@ def get_parser_action_keyboard(name: str, is_active: bool):  # noqa: FBT001
                     text=toggle_text,
                     callback_data=f"pact_toggle_{name}",
                 ),
+                InlineKeyboardButton(
+                    text=locale("edit_btn"),
+                    callback_data=f"pact_edit_{name}",
+                ),
             ],
             [
                 InlineKeyboardButton(
                     text=locale("delete_btn"),
                     callback_data=f"pact_delete_{name}",
+                ),
+            ],
+            [
+                InlineKeyboardButton(
+                    text=locale("back_btn"),
+                    callback_data="parser_manage",
                 ),
             ],
         ],
@@ -289,6 +299,76 @@ def get_price_limit_keyboard():
             [
                 InlineKeyboardButton(
                     text=locale("cancel_btn"), callback_data="cancel_action"
+                ),
+            ],
+        ],
+    )
+
+
+def get_parser_edit_keyboard(name: str, config: dict):
+    kb = [
+        [
+            InlineKeyboardButton(
+                text=locale("edit_name_btn"),
+                callback_data=f"pedit_name_{name}",
+            ),
+        ],
+    ]
+
+    if config["type"] == "category":
+        target_btn_text = locale("edit_category_btn")
+    else:
+        target_btn_text = locale("edit_prompt_btn")
+    kb.append(
+        [
+            InlineKeyboardButton(
+                text=target_btn_text,
+                callback_data=f"pedit_target_{name}",
+            ),
+        ]
+    )
+
+    ai_toggle_text = (
+        locale("disable_ai_btn") if config["ai_filter"] else locale("enable_ai_btn")
+    )
+    kb.append(
+        [
+            InlineKeyboardButton(
+                text=ai_toggle_text,
+                callback_data=f"pedit_toggleai_{name}",
+            ),
+        ]
+    )
+
+    if config["ai_filter"]:
+        kb.append(
+            [
+                InlineKeyboardButton(
+                    text=locale("edit_ai_prompt_btn"),
+                    callback_data=f"pedit_aiprompt_{name}",
+                ),
+            ]
+        )
+
+    kb.append(
+        [
+            InlineKeyboardButton(
+                text=locale("back_btn"),
+                callback_data=f"managep_{name}",
+            ),
+        ]
+    )
+
+    return InlineKeyboardMarkup(inline_keyboard=kb)
+
+
+def get_parser_edit_cancel_keyboard(name: str):
+    return InlineKeyboardMarkup(
+        inline_keyboard=[
+            [
+                InlineKeyboardButton(
+                    text=locale("cancel_btn"),
+                    callback_data=f"pedit_cancel_{name}",
                 ),
             ],
         ],

@@ -76,5 +76,20 @@
 
   "parser_name_too_long": "⚠️ <b>İsim çok uzun.</b>\nLütfen {max_length} karakterin altında tutun. Tekrar deneyin:",
   "parser_already_exists": "⚠️ <b>İsim kullanımda.</b>\nBu isimde bir tarayıcınız zaten var. Farklı bir tane seçin:",
-  "session_expired": "⏱ <b>Oturum Süresi Doldu.</b>\nKurulum işleminiz zaman aşımına uğradı. Lütfen tarayıcı oluşturma sürecini baştan başlatın."
+  "session_expired": "⏱ <b>Oturum Süresi Doldu.</b>\nKurulum işleminiz zaman aşımına uğradı. Lütfen tarayıcı oluşturma sürecini baştan başlatın.",
+
+  "edit_btn": "✏️ Düzenle",
+  "back_btn": "⬅️ Geri",
+  "edit_parser_menu": "✏️ <b>Tarayıcıyı Düzenle: {name}</b>\n━━━━━━━━━━━━━━\n<b>Arama:</b> {target}\n<b>AI Filtresi:</b> {ai_status}\n{ai_info}\nNeyi değiştirmek istersiniz?",
+  "edit_name_btn": "🏷️ Adı Değiştir",
+  "edit_prompt_btn": "🔍 Arama Sorgusunu Değiştir",
+  "edit_category_btn": "📂 Kategoriyi Değiştir",
+  "enable_ai_btn": "🧠 AI'yi Etkinleştir",
+  "disable_ai_btn": "🧠 AI'yi Devre Dışı Bırak",
+  "edit_ai_prompt_btn": "📝 AI Açıklamasını Değiştir",
+  "enter_new_name": "🏷️ <b>Tarayıcı için yeni ad girin:</b>\n<i>Mevcut ad: {name}</i>",
+  "enter_new_prompt": "⌨️ <b>Yeni arama sorgusunu girin:</b>\n<i>Mevcut sorgu: {query}</i>",
+  "enter_new_ai_prompt": "📝 <b>Yeni AI talimatlarını girin:</b>\n<i>Mevcut: {prompt}</i>",
+  "parser_updated": "✅ <b>Başarılı!</b>\n<b>{name}</b> adlı tarayıcı güncellendi.",
+  "ai_prompt_info": "<b>AI Talimatı:</b> <i>{prompt}</i>\n"
 }
