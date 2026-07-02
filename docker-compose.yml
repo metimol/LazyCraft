@@ -12,7 +12,9 @@ services:
     image: redis:alpine
     command: redis-server --appendonly yes
     ports:
-      - "6379:6379"
+      - "127.0.0.1:6379:6379"
+    labels:
+      - "com.centurylinklabs.watchtower.enable=false"
     restart: unless-stopped
     volumes:
       - redis_data:/data
