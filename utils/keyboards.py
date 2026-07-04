@@ -140,8 +140,7 @@ def get_parser_frequency_keyboard():
     return InlineKeyboardMarkup(
         inline_keyboard=[
             [
-                # TODO: Change to 5 min after testing
-                InlineKeyboardButton(text="1m", callback_data="freq_1"),
+                InlineKeyboardButton(text="5m", callback_data="freq_5"),
                 InlineKeyboardButton(text="10m", callback_data="freq_10"),
                 InlineKeyboardButton(text="15m", callback_data="freq_15"),
             ],
