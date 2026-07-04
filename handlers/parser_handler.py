@@ -70,7 +70,9 @@ async def parser_menu_cmd(message: Message) -> None:
 async def process_parser_add(callback: CallbackQuery, state: FSMContext) -> None:
     user_zip = await get_user_zip(callback.from_user.id)
     if not user_zip:
-        await callback.answer(locale("missing_zip_code"), show_alert=True)
+        await callback.answer(
+            locale("missing_zip_code", strip_html=True), show_alert=True
+        )
         return
 
     parsers = await get_parsers(callback.from_user.id)
@@ -343,10 +345,14 @@ async def process_parser_toggle(callback: CallbackQuery, bot: Bot) -> None:
             parsers[name]["freq"],
             config=parsers[name],
         )
-        await callback.answer(locale("parser_resumed"))
+        await callback.answer(
+            locale("parser_resumed", strip_html=True).format(name=name)
+        )
     else:
         remove_parser_job(callback.from_user.id, name)
-        await callback.answer(locale("parser_paused"))
+        await callback.answer(
+            locale("parser_paused", strip_html=True).format(name=name)
+        )
 
     config = parsers[name]
     config["active"] = is_active
@@ -566,7 +572,9 @@ async def process_edit_cat_selection(
         )
 
     await state.clear()
-    await callback.answer(locale("parser_updated").format(name=name), show_alert=True)
+    await callback.answer(
+        locale("parser_updated", strip_html=True).format(name=name), show_alert=True
+    )
     await display_parser_edit_menu(callback, name, callback.from_user.id)
 
 

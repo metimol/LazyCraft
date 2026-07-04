@@ -1,6 +1,9 @@
+from __future__ import annotations
+
 import json
 import logging
 import os
+import re
 from contextvars import ContextVar
 from pathlib import Path
 
@@ -33,7 +36,7 @@ def _load_locales() -> None:
 _load_locales()
 
 
-def locale(key: str, lang: str | None = None) -> str:
+def locale(key: str, lang: str | None = None, *, strip_html: bool = False) -> str:
     if lang is None:
         lang = user_lang.get()
 
@@ -48,6 +51,8 @@ def locale(key: str, lang: str | None = None) -> str:
         if value is None:
             msg = f"Cannot access phrase variable: {key} for lang {lang}"
             raise ValueError(msg)
+    if strip_html:
+        value = re.sub(r"<[^>]+>", "", value)
     return value
 
 
