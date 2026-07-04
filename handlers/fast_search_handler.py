@@ -1,4 +1,7 @@
+import contextlib
+import html
 import logging
+import time
 
 from aiogram import F, Router
 from aiogram.fsm.context import FSMContext
@@ -182,6 +185,46 @@ def format_item(item) -> str:
     return f"- <a href='{item.url}'>{item.title}</a> | {price_str}{dist_str}\n\n"
 
 
+class LiveSearchProgress:
+    def __init__(self, status_msg: Message, total_queries: int) -> None:
+        self.status_msg = status_msg
+        self.total_queries = total_queries
+        self.last_update = 0.0
+        self.all_items_count = 0
+
+    async def start_query(self, idx: int, query: str) -> None:
+        self.last_update = time.monotonic()
+        text = locale("fs_live_streaming").format(
+            current=idx + 1,
+            total_queries=self.total_queries,
+            query=html.escape(query),
+            page=1,
+            total_pages="?",
+            items=self.all_items_count,
+        )
+        with contextlib.suppress(Exception):
+            await self.status_msg.edit_text(text)
+
+    def get_callback(self, idx: int, query: str):
+        async def on_progress(page: int, total: int, cnt: int) -> None:
+            now = time.monotonic()
+            if now - self.last_update < 1.5:
+                return
+            self.last_update = now
+            text = locale("fs_live_streaming").format(
+                current=idx + 1,
+                total_queries=self.total_queries,
+                query=html.escape(query),
+                page=page,
+                total_pages=total,
+                items=self.all_items_count + cnt,
+            )
+            with contextlib.suppress(Exception):
+                await self.status_msg.edit_text(text)
+
+        return on_progress
+
+
 async def execute_fast_search(message, state: FSMContext, user_id: int) -> None:  # noqa: C901
     data = await state.get_data()
     user_query = data.get("fs_query")
@@ -202,14 +245,14 @@ async def execute_fast_search(message, state: FSMContext, user_id: int) -> None:
     if not optimized_queries:
         optimized_queries = [user_query]
 
-    await status_msg.edit_text(locale("fs_live_scraping"))
-
     # 2. Sequential Scrape with Jitter
     all_items = []
     seen_ids = set()
+    tracker = LiveSearchProgress(status_msg, len(optimized_queries))
 
     async with KleinanzeigenAPI() as api:
-        for _i, q in enumerate(optimized_queries):
+        for idx, q in enumerate(optimized_queries):
+            await tracker.start_query(idx, q)
             try:
                 items = await api.search(
                     location=user_location,
@@ -219,12 +262,14 @@ async def execute_fast_search(message, state: FSMContext, user_id: int) -> None:
                     min_price=min_price,
                     max_price=max_price,
                     pages=40,
+                    on_progress=tracker.get_callback(idx, q),
                 )
                 for item in items:
                     if item.id not in seen_ids:
                         seen_ids.add(item.id)
                         all_items.append(item)
-            except Exception as e:  # noqa: PERF203, BLE001
+                tracker.all_items_count = len(all_items)
+            except Exception as e:  # noqa: BLE001
                 logger.warning("Error searching for %s: %s", q, e)
 
     if not all_items:

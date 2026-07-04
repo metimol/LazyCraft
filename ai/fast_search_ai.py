@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import json
 import logging
 
@@ -27,14 +29,17 @@ async def generate_optimized_queries(
         '"Gitarrenstimmgerät", "Gitarren Tuner"]'
     )
 
-    response = await model.ainvoke(
-        [
-            {"role": "system", "content": sys_prompt},
-            {"role": "user", "content": user_query},
-        ],
-    )
-
-    content = response.content
+    try:
+        response = await model.ainvoke(
+            [
+                {"role": "system", "content": sys_prompt},
+                {"role": "user", "content": user_query},
+            ],
+        )
+        content = response.content
+    except Exception as e:  # noqa: BLE001
+        logger.warning("Error calling AI in generate_optimized_queries: %s", e)
+        return [user_query]
 
     # TODO: Remove logging after first release
     logger.info("AI Search optimizers response: %s", content)
@@ -81,14 +86,17 @@ async def filter_best_items(items_list: list[dict], original_query: str) -> list
     )
 
     # Chunking might be needed if items_json is too large, but model supports 8k+ tokens
-    response = await model.ainvoke(
-        [
-            {"role": "system", "content": sys_prompt},
-            {"role": "user", "content": items_json},
-        ],
-    )
-
-    content = response.content
+    try:
+        response = await model.ainvoke(
+            [
+                {"role": "system", "content": sys_prompt},
+                {"role": "user", "content": items_json},
+            ],
+        )
+        content = response.content
+    except Exception as e:  # noqa: BLE001
+        logger.warning("Error calling AI in filter_best_items: %s", e)
+        return [str(i["id"]) for i in items_list[:10]]
     # TODO: Remove logging after release
     logger.info("AI Filter response: %s", content)
 

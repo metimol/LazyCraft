@@ -3,6 +3,7 @@ from __future__ import annotations
 import asyncio
 import base64
 import html
+import inspect
 import logging
 import os
 import random
@@ -390,6 +391,7 @@ class KleinanzeigenAPI:
         pages: int = 1,
         size: int = 25,
         sort_by_price: bool = False,
+        on_progress=None,
     ):
         """Search kleinanzeigen.de. By default this searches every category.
 
@@ -465,6 +467,15 @@ class KleinanzeigenAPI:
                     continue
                 seen.add(listing.id)
                 results.append(listing)
+            if on_progress:
+                total_pages_approx = (
+                    max(1, (total + size - 1) // size) if size > 0 else pages
+                )
+                res = on_progress(
+                    page + 1, min(pages, total_pages_approx), len(results)
+                )
+                if inspect.isawaitable(res):
+                    await res
             if (page + 1) * size >= total:
                 break
         return results  # already ordered by the server (sort_type)

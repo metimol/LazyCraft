@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import asyncio
+import contextlib
 import logging
 import os
 import sys
@@ -10,7 +11,7 @@ if TYPE_CHECKING:
     from collections.abc import Awaitable, Callable
 
     from aiogram.fsm.context import FSMContext
-    from aiogram.types import Message, TelegramObject
+    from aiogram.types import CallbackQuery, ErrorEvent, Message, TelegramObject
 
 from aiogram import BaseMiddleware, Bot, Dispatcher, F, Router
 from aiogram.client.default import DefaultBotProperties
@@ -28,7 +29,7 @@ from handlers.parser_handler import router as parser_router
 from handlers.settings_handler import router as settings_router
 from kleinanzeigen_api import KleinanzeigenAPI
 from utils.keyboards import get_main_keyboard
-from utils.middlewares import LocaleMiddleware
+from utils.middlewares import CleanPreviousPromptMiddleware, LocaleMiddleware
 from utils.processing import text_processing
 from utils.scheduler_jobs import add_parser_job, scheduler
 
@@ -56,8 +57,26 @@ dp = Dispatcher(storage=RedisStorage.from_url(redis_url))
 if ADMIN_ID:
     dp.update.outer_middleware(AdminMiddleware(admin_id=ADMIN_ID))
 dp.update.outer_middleware(LocaleMiddleware())
+dp.message.outer_middleware(CleanPreviousPromptMiddleware())
 
 bot = Bot(token=BOT_TOKEN, default=DefaultBotProperties(parse_mode=ParseMode.HTML))
+logger = logging.getLogger(__name__)
+
+
+@dp.errors()
+async def global_error_handler(event: ErrorEvent) -> None:
+    logger.exception(
+        "Unhandled exception caused by update %s:",
+        event.update.update_id,
+        exc_info=event.exception,
+    )
+    error_text = locale("ai_error")
+    with contextlib.suppress(Exception):
+        if event.update.message:
+            await event.update.message.answer(error_text)
+        elif event.update.callback_query and event.update.callback_query.message:
+            await event.update.callback_query.answer(error_text, show_alert=True)
+
 
 default_router = Router()
 
@@ -81,6 +100,15 @@ async def text_handler(message: Message) -> None:
 @default_router.message(~F.text)
 async def not_supported_format(message: Message) -> None:
     await message.answer(locale("not_supported_format"))
+
+
+@default_router.callback_query()
+async def unhandled_callback_query(callback: CallbackQuery) -> None:
+    with contextlib.suppress(Exception):
+        await callback.answer(
+            locale("action_cancelled", strip_html=True), show_alert=True
+        )
+        await callback.message.edit_reply_markup(reply_markup=None)
 
 
 dp.include_router(settings_router)

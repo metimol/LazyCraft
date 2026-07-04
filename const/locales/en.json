@@ -42,6 +42,7 @@
   "fs_live_optimizing": "🤖 <i>AI is fine-tuning your search query...</i>",
   "fs_live_scraping": "🔍 <i>Scraping the latest items from Kleinanzeigen...</i>",
   "fs_live_filtering": "🧠 <i>AI is filtering {count} results to pinpoint the best matches...</i>",
+  "fs_live_streaming": "⚡ <b>Fast Search Live Status</b>\n━━━━━━━━━━━━━━\n🔍 <b>Query ({current}/{total_queries}):</b> <code>{query}</code>\n📄 <b>Searching Page:</b> {page} / {total_pages}\n📦 <b>Items Found So Far:</b> {items}\n\n<i>⚡ Scanning Kleinanzeigen in real-time...</i>",
   "fs_results_title": "🎯 <b>Search Results:</b>\n\n",
   "fs_no_results": "📭 No results found matching your exact criteria.",
 
@@ -101,5 +102,6 @@
   "all_list_btn": "📋 All Categories",
   "switch_to_fav_btn": "⭐ Switch to Favourites",
   "switch_to_all_btn": "📋 Switch to All",
-  "no_fav_categories": "⚠️ You have no favourite categories saved yet. Please choose from all categories or add favourites in Settings."
+  "no_fav_categories": "⚠️ You have no favourite categories saved yet. Please choose from all categories or add favourites in Settings.",
+  "ai_error": "⚠️ <b>AI Service Unavailable:</b>\nAn error occurred while communicating with the AI service or a safety filter was triggered. Please try again in 1 minute."
 }

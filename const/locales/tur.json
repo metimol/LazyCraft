@@ -42,6 +42,7 @@
   "fs_live_optimizing": "🤖 <i>Yapay zeka arama sorgunuzu optimize ediyor...</i>",
   "fs_live_scraping": "🔍 <i>Kleinanzeigen'den en yeni ilanlar çekiliyor...</i>",
   "fs_live_filtering": "🧠 <i>Yapay zeka en iyi eşleşmeleri bulmak için {count} sonucu filtreleniyor...</i>",
+  "fs_live_streaming": "⚡ <b>Hızlı Arama Canlı Durum</b>\n━━━━━━━━━━━━━━\n🔍 <b>Sorgu ({current}/{total_queries}):</b> <code>{query}</code>\n📄 <b>Tarama Sayfası:</b> {page} / {total_pages}\n📦 <b>Şu Ana Kadar Bulunanlar:</b> {items}\n\n<i>⚡ Kleinanzeigen gerçek zamanlı taranıyor...</i>",
   "fs_results_title": "🎯 <b>Arama Sonuçları:</b>\n\n",
   "fs_no_results": "📭 Tam kriterlerinizle eşleşen sonuç bulunamadı.",
 
@@ -101,5 +102,6 @@
   "all_list_btn": "📋 Tüm Kategoriler",
   "switch_to_fav_btn": "⭐ Favorilere Geç",
   "switch_to_all_btn": "📋 Tümü'ne Geç",
-  "no_fav_categories": "⚠️ Henüz favori kategoriniz yok. Lütfen tüm kategorilerden seçin veya Ayarlardan favori ekleyin."
+  "no_fav_categories": "⚠️ Henüz favori kategoriniz yok. Lütfen tüm kategorilerden seçin veya Ayarlardan favori ekleyin.",
+  "ai_error": "⚠️ <b>Yapay Zeka Servisi Kullanılamıyor:</b>\nYapay zeka servisiyle iletişim kurulurken bir hata oluştu veya güvenlik filtresi tetiklendi. Lütfen 1 dakika sonra tekrar deneyin."
 }
