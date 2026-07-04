@@ -8,12 +8,13 @@ from aiogram.types import CallbackQuery, Message
 from ai.fast_search_ai import filter_best_items, generate_optimized_queries
 from const import locale
 from database.limits import check_fast_search_limit
-from database.users import get_user_radius, get_user_zip
+from database.users import get_favorite_categories, get_user_radius, get_user_zip
 from kleinanzeigen_api import KleinanzeigenAPI
 from utils.filters import TextLoc
 from utils.keyboards import (
     get_cancel_keyboard,
     get_categories_keyboard,
+    get_category_source_keyboard,
     get_fs_category_prompt_keyboard,
     get_price_limit_keyboard,
 )
@@ -55,10 +56,28 @@ async def fast_search_entry(message: Message, state: FSMContext) -> None:
 @router.callback_query(F.data == "fs_cat_yes", FSState.waiting_for_category_choice)
 async def process_fs_cat_yes(callback: CallbackQuery, state: FSMContext) -> None:
     await callback.message.edit_text(
-        locale("choose_category"),
-        reply_markup=get_categories_keyboard(0),
+        locale("choose_category_source"),
+        reply_markup=get_category_source_keyboard(),
     )
     await state.set_state(FSState.waiting_for_category)
+
+
+@router.callback_query(F.data.startswith("catsrc_"), FSState.waiting_for_category)
+async def process_fs_catsrc(callback: CallbackQuery) -> None:
+    mode = callback.data.split("_")[1]
+    fav_ids = None
+    if mode == "fav":
+        fav_ids = await get_favorite_categories(callback.from_user.id)
+        if not fav_ids:
+            await callback.answer(
+                locale("no_fav_categories", strip_html=True), show_alert=True
+            )
+            return
+
+    await callback.message.edit_text(
+        locale("choose_category"),
+        reply_markup=get_categories_keyboard(0, mode=mode, fav_ids=fav_ids),
+    )
 
 
 @router.callback_query(F.data == "fs_cat_no", FSState.waiting_for_category_choice)
@@ -72,8 +91,15 @@ async def process_fs_cat_no(callback: CallbackQuery, state: FSMContext) -> None:
 
 @router.callback_query(F.data.startswith("catpage_"), FSState.waiting_for_category)
 async def process_fs_catpage(callback: CallbackQuery) -> None:
-    page = int(callback.data.split("_")[1])
-    await callback.message.edit_reply_markup(reply_markup=get_categories_keyboard(page))
+    parts = callback.data.split("_")
+    mode = parts[1] if len(parts) > 2 else "all"
+    page = int(parts[2]) if len(parts) > 2 else int(parts[1])
+    fav_ids = None
+    if mode == "fav":
+        fav_ids = await get_favorite_categories(callback.from_user.id)
+    await callback.message.edit_reply_markup(
+        reply_markup=get_categories_keyboard(page, mode=mode, fav_ids=fav_ids)
+    )
 
 
 @router.callback_query(F.data.startswith("cat_"), FSState.waiting_for_category)

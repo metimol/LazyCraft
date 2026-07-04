@@ -28,8 +28,9 @@ _BY_ID_CACHE: dict = {}
 
 def set_categories(categories: list[Category]) -> None:
     global _CATEGORIES_CACHE, _BY_ID_CACHE  # noqa: PLW0603
-    _CATEGORIES_CACHE = categories
-    _BY_ID_CACHE = {c.id: c for c in categories}
+    sorted_cats = sorted(categories, key=lambda c: c.name.lower())
+    _CATEGORIES_CACHE = sorted_cats
+    _BY_ID_CACHE = {c.id: c for c in sorted_cats}
 
 
 def all_categories() -> list[Category]:

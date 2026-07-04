@@ -8,14 +8,19 @@ from aiogram.types import CallbackQuery, Message
 
 from const import locale, user_lang
 from database.users import (
+    add_favorite_category,
+    get_favorite_categories,
+    remove_favorite_category,
     set_user_language,
     set_user_radius,
     set_user_zip,
 )
+from kleinanzeigen_api.categories import get_category
 from utils.filters import TextLoc
 from utils.geocoding import get_lat_lon
 from utils.keyboards import (
     get_cancel_keyboard,
+    get_fav_settings_keyboard,
     get_language_keyboard,
     get_main_keyboard,
     get_radius_keyboard,
@@ -34,6 +39,55 @@ class SettingsState(StatesGroup):
 @router.message(Command("settings"))
 async def settings_cmd(message: Message) -> None:
     await message.answer(locale("settings_menu"), reply_markup=get_settings_keyboard())
+
+
+@router.callback_query(F.data == "settings_main")
+async def process_settings_main(callback: CallbackQuery) -> None:
+    await callback.message.edit_text(
+        locale("settings_menu"), reply_markup=get_settings_keyboard()
+    )
+
+
+@router.callback_query(F.data == "set_fav_categories")
+async def process_set_fav_categories(callback: CallbackQuery) -> None:
+    fav_ids = await get_favorite_categories(callback.from_user.id)
+    await callback.message.edit_text(
+        locale("fav_categories_menu"),
+        reply_markup=get_fav_settings_keyboard(fav_ids, page=0),
+    )
+
+
+@router.callback_query(F.data.startswith("favcat_"))
+async def process_toggle_fav_cat(callback: CallbackQuery) -> None:
+    parts = callback.data.split("_")
+    cat_id = parts[1]
+    page = int(parts[2]) if len(parts) > 2 else 0
+
+    fav_ids = await get_favorite_categories(callback.from_user.id)
+    cat = get_category(cat_id)
+    name = cat.name if cat else cat_id
+
+    if cat_id in fav_ids:
+        await remove_favorite_category(callback.from_user.id, cat_id)
+        fav_ids.discard(cat_id)
+        await callback.answer(locale("fav_removed", strip_html=True).format(name=name))
+    else:
+        await add_favorite_category(callback.from_user.id, cat_id)
+        fav_ids.add(cat_id)
+        await callback.answer(locale("fav_added", strip_html=True).format(name=name))
+
+    await callback.message.edit_reply_markup(
+        reply_markup=get_fav_settings_keyboard(fav_ids, page=page)
+    )
+
+
+@router.callback_query(F.data.startswith("favpage_"))
+async def process_favpage(callback: CallbackQuery) -> None:
+    page = int(callback.data.split("_")[1])
+    fav_ids = await get_favorite_categories(callback.from_user.id)
+    await callback.message.edit_reply_markup(
+        reply_markup=get_fav_settings_keyboard(fav_ids, page=page)
+    )
 
 
 @router.callback_query(F.data == "set_language")

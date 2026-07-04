@@ -3,7 +3,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from aiogram import Bot, F, Router
-from aiogram.filters import Command
+from aiogram.filters import Command, StateFilter
 from aiogram.fsm.state import State, StatesGroup
 from aiogram.types import CallbackQuery, Message
 
@@ -16,13 +16,14 @@ from database.parsers import (
     rename_parser,
     toggle_parser,
 )
-from database.users import get_user_zip
+from database.users import get_favorite_categories, get_user_zip
 from kleinanzeigen_api.categories import get_category
 from utils.filters import TextLoc
 from utils.keyboards import (
     get_ai_filter_keyboard,
     get_cancel_keyboard,
     get_categories_keyboard,
+    get_category_source_keyboard,
     get_manage_parsers_keyboard,
     get_parser_action_keyboard,
     get_parser_edit_cancel_keyboard,
@@ -42,6 +43,7 @@ router = Router()
 
 class ParserState(StatesGroup):
     waiting_for_name = State()
+    waiting_for_category = State()
     waiting_for_query = State()
     waiting_for_price_limit_choice = State()
     waiting_for_min_price = State()
@@ -108,18 +110,50 @@ async def process_parser_name(message: Message, state: FSMContext) -> None:
 async def process_ptype_category(callback: CallbackQuery, state: FSMContext) -> None:
     await state.update_data(parser_type="category")
     await callback.message.edit_text(
+        locale("choose_category_source"),
+        reply_markup=get_category_source_keyboard(),
+    )
+    await state.set_state(ParserState.waiting_for_category)
+
+
+@router.callback_query(
+    F.data.startswith("catsrc_"),
+    StateFilter(ParserState.waiting_for_category, ParserEditState.waiting_for_category),
+)
+async def process_parser_catsrc(callback: CallbackQuery) -> None:
+    mode = callback.data.split("_")[1]
+    fav_ids = None
+    if mode == "fav":
+        fav_ids = await get_favorite_categories(callback.from_user.id)
+        if not fav_ids:
+            await callback.answer(
+                locale("no_fav_categories", strip_html=True), show_alert=True
+            )
+            return
+
+    await callback.message.edit_text(
         locale("choose_category"),
-        reply_markup=get_categories_keyboard(0),
+        reply_markup=get_categories_keyboard(0, mode=mode, fav_ids=fav_ids),
     )
 
 
-@router.callback_query(F.data.startswith("catpage_"))
+@router.callback_query(
+    F.data.startswith("catpage_"),
+    StateFilter(ParserState.waiting_for_category, ParserEditState.waiting_for_category),
+)
 async def process_catpage(callback: CallbackQuery) -> None:
-    page = int(callback.data.split("_")[1])
-    await callback.message.edit_reply_markup(reply_markup=get_categories_keyboard(page))
+    parts = callback.data.split("_")
+    mode = parts[1] if len(parts) > 2 else "all"
+    page = int(parts[2]) if len(parts) > 2 else int(parts[1])
+    fav_ids = None
+    if mode == "fav":
+        fav_ids = await get_favorite_categories(callback.from_user.id)
+    await callback.message.edit_reply_markup(
+        reply_markup=get_categories_keyboard(page, mode=mode, fav_ids=fav_ids)
+    )
 
 
-@router.callback_query(F.data.startswith("cat_"), ParserState.waiting_for_name)
+@router.callback_query(F.data.startswith("cat_"), ParserState.waiting_for_category)
 async def process_cat_selection(callback: CallbackQuery, state: FSMContext) -> None:
     cat_id = callback.data.split("_")[1]
     await state.update_data(parser_target=cat_id)
@@ -499,8 +533,8 @@ async def process_pedit_target(callback: CallbackQuery, state: FSMContext) -> No
 
     if config["type"] == "category":
         await callback.message.edit_text(
-            locale("choose_category"),
-            reply_markup=get_categories_keyboard(0),
+            locale("choose_category_source"),
+            reply_markup=get_category_source_keyboard(),
         )
         await state.set_state(ParserEditState.waiting_for_category)
     else:

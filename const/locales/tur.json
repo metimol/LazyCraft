@@ -91,5 +91,15 @@
   "enter_new_prompt": "⌨️ <b>Yeni arama sorgusunu girin:</b>\n<i>Mevcut sorgu: {query}</i>",
   "enter_new_ai_prompt": "📝 <b>Yeni AI talimatlarını girin:</b>\n<i>Mevcut: {prompt}</i>",
   "parser_updated": "✅ <b>Başarılı!</b>\n<b>{name}</b> adlı tarayıcı güncellendi.",
-  "ai_prompt_info": "<b>AI Talimatı:</b> <i>{prompt}</i>\n"
+  "ai_prompt_info": "<b>AI Talimatı:</b> <i>{prompt}</i>\n",
+  "fav_categories_btn": "⭐ Favori Kategoriler",
+  "fav_categories_menu": "⭐ <b>Favori Kategoriler</b>\n\nFavorilerinize eklemek veya çıkarmak için kategorileri seçin:",
+  "fav_added": "✅ <b>{name}</b> favorilere eklendi.",
+  "fav_removed": "❌ <b>{name}</b> favorilerden çıkarıldı.",
+  "choose_category_source": "Kategoriyi nereden seçmek istersiniz?",
+  "fav_list_btn": "⭐ Favori Kategoriler",
+  "all_list_btn": "📋 Tüm Kategoriler",
+  "switch_to_fav_btn": "⭐ Favorilere Geç",
+  "switch_to_all_btn": "📋 Tümü'ne Geç",
+  "no_fav_categories": "⚠️ Henüz favori kategoriniz yok. Lütfen tüm kategorilerden seçin veya Ayarlardan favori ekleyin."
 }

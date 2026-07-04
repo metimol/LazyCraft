@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from aiogram.types import (
     InlineKeyboardButton,
     InlineKeyboardMarkup,
@@ -38,6 +40,12 @@ def get_settings_keyboard():
                 InlineKeyboardButton(
                     text=locale("set_language_btn"),
                     callback_data="set_language",
+                ),
+            ],
+            [
+                InlineKeyboardButton(
+                    text=locale("fav_categories_btn"),
+                    callback_data="set_fav_categories",
                 ),
             ],
         ],
@@ -186,11 +194,86 @@ def get_ai_filter_keyboard():
     )
 
 
-def get_categories_keyboard(page: int = 0):
+def get_category_source_keyboard():
+    return InlineKeyboardMarkup(
+        inline_keyboard=[
+            [
+                InlineKeyboardButton(
+                    text=locale("fav_list_btn"),
+                    callback_data="catsrc_fav",
+                ),
+            ],
+            [
+                InlineKeyboardButton(
+                    text=locale("all_list_btn"),
+                    callback_data="catsrc_all",
+                ),
+            ],
+            [
+                InlineKeyboardButton(
+                    text=locale("cancel_btn"),
+                    callback_data="cancel_action",
+                ),
+            ],
+        ],
+    )
+
+
+def get_fav_settings_keyboard(fav_ids: set[str], page: int = 0):
     cats = all_categories()
+    items_per_page = 10
+    total_pages = max(1, (len(cats) + items_per_page - 1) // items_per_page)
+    page = max(0, min(page, total_pages - 1))
+
+    start = page * items_per_page
+    end = start + items_per_page
+    page_cats = cats[start:end]
+
+    kb = []
+    for c in page_cats:
+        prefix = "⭐ " if c.id in fav_ids else ""
+        kb.append(
+            [
+                InlineKeyboardButton(
+                    text=f"{prefix}{c.name}", callback_data=f"favcat_{c.id}_{page}"
+                )
+            ]
+        )
+
+    nav_buttons = []
+    if page > 0:
+        nav_buttons.append(
+            InlineKeyboardButton(
+                text=locale("prev_page_btn"),
+                callback_data=f"favpage_{page - 1}",
+            ),
+        )
+    if page < total_pages - 1:
+        nav_buttons.append(
+            InlineKeyboardButton(
+                text=locale("next_page_btn"),
+                callback_data=f"favpage_{page + 1}",
+            ),
+        )
+
+    if nav_buttons:
+        kb.append(nav_buttons)
+
+    kb.append(
+        [InlineKeyboardButton(text=locale("back_btn"), callback_data="settings_main")]
+    )
+    return InlineKeyboardMarkup(inline_keyboard=kb)
+
+
+def get_categories_keyboard(
+    page: int = 0, mode: str = "all", fav_ids: set[str] | None = None
+):
+    cats = all_categories()
+    if mode == "fav":
+        cats = [c for c in cats if c.id in (fav_ids or set())]
 
     items_per_page = 10
-    total_pages = (len(cats) + items_per_page - 1) // items_per_page
+    total_pages = max(1, (len(cats) + items_per_page - 1) // items_per_page)
     page = max(0, min(page, total_pages - 1))
 
     start = page * items_per_page
@@ -207,19 +290,36 @@ def get_categories_keyboard(page: int = 0):
         nav_buttons.append(
             InlineKeyboardButton(
                 text=locale("prev_page_btn"),
-                callback_data=f"catpage_{page - 1}",
+                callback_data=f"catpage_{mode}_{page - 1}",
             ),
         )
     if page < total_pages - 1:
         nav_buttons.append(
             InlineKeyboardButton(
                 text=locale("next_page_btn"),
-                callback_data=f"catpage_{page + 1}",
+                callback_data=f"catpage_{mode}_{page + 1}",
             ),
         )
 
     if nav_buttons:
         kb.append(nav_buttons)
+
+    if mode == "all":
+        kb.append(
+            [
+                InlineKeyboardButton(
+                    text=locale("switch_to_fav_btn"), callback_data="catsrc_fav"
+                )
+            ]
+        )
+    else:
+        kb.append(
+            [
+                InlineKeyboardButton(
+                    text=locale("switch_to_all_btn"), callback_data="catsrc_all"
+                )
+            ]
+        )
 
     kb.append(
         [InlineKeyboardButton(text=locale("cancel_btn"), callback_data="cancel_action")]

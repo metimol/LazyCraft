@@ -91,5 +91,15 @@
   "enter_new_prompt": "⌨️ <b>Gib einen neuen Suchbegriff ein:</b>\n<i>Aktueller Suchbegriff: {query}</i>",
   "enter_new_ai_prompt": "📝 <b>Gib neue KI-Anweisungen ein:</b>\n<i>Aktuell: {prompt}</i>",
   "parser_updated": "✅ <b>Erfolg!</b>\nParser <b>{name}</b> wurde aktualisiert.",
-  "ai_prompt_info": "<b>KI-Anweisung:</b> <i>{prompt}</i>\n"
+  "ai_prompt_info": "<b>KI-Anweisung:</b> <i>{prompt}</i>\n",
+  "fav_categories_btn": "⭐ Favoriten-Kategorien",
+  "fav_categories_menu": "⭐ <b>Favoriten-Kategorien</b>\n\nWähle Kategorien aus, um sie zu deinen Favoriten hinzuzufügen oder zu entfernen:",
+  "fav_added": "✅ <b>{name}</b> zu Favoriten hinzugefügt.",
+  "fav_removed": "❌ <b>{name}</b> aus Favoriten entfernt.",
+  "choose_category_source": "Woher möchtest du eine Kategorie auswählen?",
+  "fav_list_btn": "⭐ Favoriten-Kategorien",
+  "all_list_btn": "📋 Alle Kategorien",
+  "switch_to_fav_btn": "⭐ Zu Favoriten wechseln",
+  "switch_to_all_btn": "📋 Zu allen wechseln",
+  "no_fav_categories": "⚠️ Du hast noch keine Favoriten-Kategorien gespeichert. Bitte wähle aus allen Kategorien oder füge Favoriten in den Einstellungen hinzu."
 }
