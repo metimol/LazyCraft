@@ -162,17 +162,21 @@ async def add_parser_job(
 
         now_dt = datetime.now(timezone.utc)
         last_run = config.get("last_run")
+        if minutes >= 30:
+            delay_seconds = random.randint(30, 300)  # noqa: S311
+        else:
+            delay_seconds = random.randint(5, 30)  # noqa: S311
 
         if last_run:
             last_run_dt = datetime.fromtimestamp(last_run, tz=timezone.utc)
             target_next_run = last_run_dt + timedelta(minutes=minutes)
 
             if target_next_run <= now_dt:
-                next_run_time = now_dt + timedelta(seconds=random.randint(5, 30))  # noqa: S311
+                next_run_time = now_dt + timedelta(seconds=delay_seconds)
             else:
                 next_run_time = target_next_run
         else:
-            next_run_time = now_dt + timedelta(seconds=random.randint(5, 30))  # noqa: S311
+            next_run_time = now_dt + timedelta(seconds=delay_seconds)
 
         scheduler.add_job(
             scheduled_parser_check,
