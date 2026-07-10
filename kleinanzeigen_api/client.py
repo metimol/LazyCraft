@@ -478,6 +478,12 @@ class KleinanzeigenAPI:
                     await res
             if (page + 1) * size >= total:
                 break
+
+        # TODO: Remove logging after release
+        logger.info(
+            "Search results in Kleinanzeigen API for query %s: %s", q, len(results)
+        )
+
         return results  # already ordered by the server (sort_type)
 
     async def search_rentals(self, location=None, **kwargs):
