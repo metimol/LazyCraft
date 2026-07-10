@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from datetime import datetime, timedelta
 
 import pytz
@@ -5,7 +7,6 @@ import pytz
 from database.client import get_redis
 
 
-# TODO: Free users will have 3 searches per day
 async def check_fast_search_limit(
     user_id: int,
     max_searches: int = 30,

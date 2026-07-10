@@ -41,9 +41,6 @@ async def generate_optimized_queries(
         logger.warning("Error calling AI in generate_optimized_queries: %s", e)
         return [user_query]
 
-    # TODO: Remove logging after first release
-    logger.info("AI Search optimizers response: %s", content)
-
     if isinstance(content, list):
         content = "".join(
             [str(p.get("text", "")) for p in content if p.get("type") == "text"],
@@ -97,8 +94,6 @@ async def filter_best_items(items_list: list[dict], original_query: str) -> list
     except Exception as e:  # noqa: BLE001
         logger.warning("Error calling AI in filter_best_items: %s", e)
         return [str(i["id"]) for i in items_list[:10]]
-    # TODO: Remove logging after release
-    logger.info("AI Filter response: %s", content)
 
     if isinstance(content, list):
         content = "".join(
