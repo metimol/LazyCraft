@@ -40,7 +40,6 @@
   "fs_ask_category": "📂 <b>Фільтр за категорією:</b>\nБажаєш звузити пошук до конкретної категорії?",
   "fs_enter_query": "⚡ <b>Швидкий пошук</b>\nЩо сьогодні шукаємо?",
   "fs_live_optimizing": "🤖 <i>AI налаштовує твій пошуковий запит...</i>",
-  "fs_live_scraping": "🔍 <i>Збираємо найсвіжіші оголошення з Kleinanzeigen...</i>",
   "fs_live_filtering": "🧠 <i>AI фільтрує {count} результатів, щоб знайти найкращі збіги...</i>",
   "fs_live_streaming": "⚡ <b>Статус швидкого пошуку</b>\n━━━━━━━━━━━━━━\n🔍 <b>Запит ({current}/{total_queries}):</b> <code>{query}</code>\n📄 <b>Пошук на сторінці:</b> {page} / {total_pages}\n📦 <b>Знайдено оголошень:</b> {items}\n\n<i>⚡ Скануємо Kleinanzeigen у реальному часі...</i>",
   "fs_results_title": "🎯 <b>Результати пошуку:</b>\n\n",

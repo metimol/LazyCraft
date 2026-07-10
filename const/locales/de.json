@@ -40,7 +40,6 @@
   "fs_ask_category": "📂 <b>Kategoriefilter:</b>\nMöchtest du diese Suche auf eine bestimmte Kategorie eingrenzen?",
   "fs_enter_query": "⚡ <b>Schnellsuche</b>\nWonach suchen wir heute?",
   "fs_live_optimizing": "🤖 <i>KI optimiert deine Suchanfrage...</i>",
-  "fs_live_scraping": "🔍 <i>Die neuesten Artikel von Kleinanzeigen werden abgerufen...</i>",
   "fs_live_filtering": "🧠 <i>KI filtert {count} Ergebnisse, um die besten Treffer zu finden...</i>",
   "fs_live_streaming": "⚡ <b>Fast-Search Live-Status</b>\n━━━━━━━━━━━━━━\n🔍 <b>Suchbegriff ({current}/{total_queries}):</b> <code>{query}</code>\n📄 <b>Durchsuche Seite:</b> {page} / {total_pages}\n📦 <b>Bisher gefundene Artikel:</b> {items}\n\n<i>⚡ Durchsuche Kleinanzeigen in Echtzeit...</i>",
   "fs_results_title": "🎯 <b>Suchergebnisse:</b>\n\n",

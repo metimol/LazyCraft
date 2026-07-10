@@ -40,7 +40,6 @@
   "fs_ask_category": "📂 <b>Kategori Filtresi:</b>\nBu aramayı belirli bir kategoriyle daraltmak ister misiniz?",
   "fs_enter_query": "⚡ <b>Hızlı Arama</b>\nBugün ne arıyoruz?",
   "fs_live_optimizing": "🤖 <i>Yapay zeka arama sorgunuzu optimize ediyor...</i>",
-  "fs_live_scraping": "🔍 <i>Kleinanzeigen'den en yeni ilanlar çekiliyor...</i>",
   "fs_live_filtering": "🧠 <i>Yapay zeka en iyi eşleşmeleri bulmak için {count} sonucu filtreleniyor...</i>",
   "fs_live_streaming": "⚡ <b>Hızlı Arama Canlı Durum</b>\n━━━━━━━━━━━━━━\n🔍 <b>Sorgu ({current}/{total_queries}):</b> <code>{query}</code>\n📄 <b>Tarama Sayfası:</b> {page} / {total_pages}\n📦 <b>Şu Ana Kadar Bulunanlar:</b> {items}\n\n<i>⚡ Kleinanzeigen gerçek zamanlı taranıyor...</i>",
   "fs_results_title": "🎯 <b>Arama Sonuçları:</b>\n\n",
